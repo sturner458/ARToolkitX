@@ -59,7 +59,7 @@ const char *arMarkerInfoCutoffPhaseDescriptions[AR_MARKER_INFO_CUTOFF_PHASE_DESC
 
 static void confidenceCutoff(ARHandle *arHandle);
 
-int arDetectMarker(ARHandle *arHandle, AR2VideoBufferT *frame)
+int arDetectMarker(ARHandle *arHandle, AR2VideoBufferT *frame, int lowRes)
 {
     ARdouble    rarea, rlen, rlenmin;
     ARdouble    diff, diffmin;
@@ -68,6 +68,8 @@ int arDetectMarker(ARHandle *arHandle, AR2VideoBufferT *frame)
     int         detectionIsDone = 0;
     int         threshDiff;
 
+    //ARPRINT("arDetectMarker started.\n");
+    
 #if DEBUG_PATT_GETID
 cnt = 0;
 #endif
@@ -90,6 +92,7 @@ cnt = 0;
             thresholds[2] = arHandle->arLabelingThresh;
             
             for (i = 0; i < 3; i++) {
+                
                 if (arLabeling(frame->buffLuma, arHandle->xsize, arHandle->ysize, arHandle->arDebug, arHandle->arLabelingMode, thresholds[i], arHandle->arImageProcMode, &(arHandle->labelInfo), NULL) < 0) return -1;
                 if (arDetectMarker2(arHandle->xsize, arHandle->ysize, &(arHandle->labelInfo), arHandle->arImageProcMode, AR_AREA_MAX, AR_AREA_MIN, AR_SQUARE_FIT_THRESH, arHandle->markerInfo2, &(arHandle->marker2_num)) < 0) return -1;
                 if (arGetMarkerInfo(frame->buff, arHandle->xsize, arHandle->ysize, arHandle->arPixelFormat, arHandle->markerInfo2, arHandle->marker2_num, arHandle->pattHandle, arHandle->arImageProcMode, arHandle->arPatternDetectionMode, &(arHandle->arParamLT->paramLTf), arHandle->pattRatio, arHandle->markerInfo, &(arHandle->marker_num), arHandle->matrixCodeType) < 0) return -1;
@@ -171,11 +174,22 @@ cnt = 0;
         }
 #endif
         
-        if( arDetectMarker2( arHandle->xsize, arHandle->ysize,
-                            &(arHandle->labelInfo), arHandle->arImageProcMode,
-                            AR_AREA_MAX, AR_AREA_MIN, AR_SQUARE_FIT_THRESH,
-                            arHandle->markerInfo2, &(arHandle->marker2_num) ) < 0 ) {
-            return -1;
+        if (lowRes == 1) {
+            if( arDetectMarker2( arHandle->xsize, arHandle->ysize,
+                                &(arHandle->labelInfo), arHandle->arImageProcMode,
+                                AR_AREA_MAX, AR_AREA_MIN, AR_SQUARE_FIT_THRESH,
+                                arHandle->markerInfo2, &(arHandle->marker2_num) ) < 0 ) {
+                //ARPRINT("arDetectMarker: Nothing detected.\n");
+                return -1;
+            }
+        } else {
+            if( arDetectMarker2( arHandle->xsize, arHandle->ysize,
+                                &(arHandle->labelInfo), arHandle->arImageProcMode,
+                                10000000, 700, AR_SQUARE_FIT_THRESH,
+                                arHandle->markerInfo2, &(arHandle->marker2_num) ) < 0 ) {
+                //ARPRINT("arDetectMarker: Nothing detected.\n");
+                return -1;
+            }
         }
         
         if( arGetMarkerInfo(frame->buff, arHandle->xsize, arHandle->ysize, arHandle->arPixelFormat,
@@ -184,6 +198,7 @@ cnt = 0;
                             arHandle->arPatternDetectionMode, &(arHandle->arParamLT->paramLTf), arHandle->pattRatio,
                             arHandle->markerInfo, &(arHandle->marker_num),
                             arHandle->matrixCodeType ) < 0 ) {
+            //ARPRINT("arDetectMarker: No marker info.\n");
             return -1;
         }
     } // !detectionIsDone
@@ -191,9 +206,10 @@ cnt = 0;
     // If history mode is not enabled, just perform a basic confidence cutoff.
     if (arHandle->arMarkerExtractionMode == AR_NOUSE_TRACKING_HISTORY) {
         confidenceCutoff(arHandle);
+        //ARPRINT("arDetectMarker: No confidence.\n");
         return 0;
     }
-
+    
 /*------------------------------------------------------------*/
 
     // For all history records, check every identified marker, to see if the position and size of the marker
@@ -293,6 +309,8 @@ cnt = 0;
 
     // Save current marker info in history.
     for( i = 0; i < arHandle->marker_num; i++ ) {
+        //ARLOGe("arDetectMarker: Detected marker. Patt = %d , Matrix = %d\n", arHandle->markerInfo[i].idPatt, arHandle->markerInfo[i].idMatrix);
+        
         if( arHandle->markerInfo[i].id < 0 ) continue;
 
         // Check if an ARTrackingHistory record already exists for this marker ID.
@@ -307,10 +325,11 @@ cnt = 0;
         arHandle->history[j].count  = 1; // Reset count to indicate info is fresh.
     }
 
+    //ARLOGe("arDetectMarker: %d markers detected.\n", arHandle->marker_num);
+
     if( arHandle->arMarkerExtractionMode == AR_USE_TRACKING_HISTORY_V2 ) {
         return 0;
     }
-
 
     for( i = 0; i < arHandle->history_num; i++ ) {
         for( j = 0; j < arHandle->marker_num; j++ ) {

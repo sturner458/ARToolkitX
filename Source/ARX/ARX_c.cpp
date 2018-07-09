@@ -42,6 +42,10 @@
 
 #include <ARX/ARX_c.h>
 #include <ARX/ARController.h>
+#include <opencv2/calib3d/calib3d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <ARX/calc.hpp>
+
 #ifdef DEBUG
 #  ifdef _WIN32
 #    define MAXPATHLEN MAX_PATH
@@ -76,6 +80,23 @@ static DWORD logThreadID = 0;
 static int logDumpedWrongThreadCount = 0;
 
 static ARController *gARTK = NULL;
+static ARController *gARTKLowRes = NULL;
+
+// Calibration variables:
+uint8_t             *videoFrame;
+IplImage            *calibImage;
+uint8_t             *videoFrameLowRes;
+IplImage            *calibImageLowRes;
+cv::Size gCalibrationPatternSize;
+std::vector<std::vector<cv::Point2f> > foundCorners;
+std::vector<cv::Point2f> corners;
+std::vector<cv::Point2f> cornersLowRes;
+int maxCornersFound;
+float cornerSpacing;
+int videoWidth;
+int videoHeight;
+int videoWidthLowRes;
+int videoHeightLowRes;
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -112,7 +133,7 @@ void CALL_CONV log(const char *msg)
 void arwRegisterLogCallback(PFN_LOGCALLBACK callback)
 {
 	logCallback = callback;
-    arLogSetLogger(callback, 1); // 1 -> only callback on same thread.
+    arLogSetLogger(callback, 0); // 1 -> only callback on same thread.
 #if !ARX_TARGET_PLATFORM_WINDOWS && !ARX_TARGET_PLATFORM_WINRT
 	logThread = pthread_self();
 #else
@@ -140,6 +161,10 @@ bool arwInitialiseAR()
     if (!gARTK) gARTK = new ARController;
     gARTK->logCallback = log;
 	return gARTK->initialiseBase();
+    
+    if (!gARTKLowRes) gARTKLowRes = new ARController;
+    gARTKLowRes->logCallback = log;
+    return gARTKLowRes->initialiseBase();
 }
 
 bool arwGetARToolKitVersion(char *buffer, int length)
@@ -154,10 +179,15 @@ bool arwGetARToolKitVersion(char *buffer, int length)
 	return false;
 }
 
-int arwGetError()
+int arwGetError(bool lowRes)
 {
-    if (!gARTK) return ARX_ERROR_NONE;
-    return gARTK->getError();
+    if (!lowRes) {
+        if (!gARTK) return ARX_ERROR_NONE;
+        return gARTK->getError();
+    } else {
+        if (!gARTKLowRes) return ARX_ERROR_NONE;
+        return gARTKLowRes->getError();
+    }
 }
 
 bool arwChangeToResourcesDir(const char *resourcesDirectoryPath)
@@ -227,29 +257,102 @@ bool arwShutdownAR()
         delete gARTK; // Delete the artoolkitX instance to initiate shutdown.
         gARTK = NULL;
     }
+    if (gARTKLowRes) {
+        delete gARTKLowRes; // Delete the artoolkitX instance to initiate shutdown.
+        gARTKLowRes = NULL;
+    }
 
     return (true);
 }
+
+
+// ----------------------------------------------------------------------------------------------------
+#pragma mark  Single image functions
+// -------------------------------------------------------------------------------------------------
+
+void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes)
+{
+    if (!gARTK) gARTK = new ARController;
+    gARTK->logCallback = log;
+    gARTK->initialiseBase();
+    
+    gARTK->startRunning(vconf, cparaName, NULL, 0);
+    
+    if (!gARTKLowRes) gARTKLowRes = new ARController;
+    gARTKLowRes->logCallback = log;
+    gARTKLowRes->initialiseBase();
+    
+    gARTKLowRes->startRunning(vconfLowRes, cparaNameLowRes, NULL, 0);
+    
+    return;
+}
+
+bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes)
+{
+    //ARLOGe("UpdateARToolKit called.\n");
+    //ARPRINT("UpdateARToolKit called.\n");
+    
+    if (!lowRes) {
+        if (!gARTK) return false;
+        return gARTK->updateWithImage(imageBytes, lowRes);
+    } else {
+        if (!gARTKLowRes) return false;
+        return gARTKLowRes->updateWithImage(imageBytes, lowRes);
+    }
+}
+
+void arwCleanupARToolKit()
+{
+    if (gARTK) {
+        delete gARTK; // Delete the ARToolKit instance to initiate shutdown.
+        gARTK = NULL;
+    }
+    
+    if (gARTKLowRes) {
+        delete gARTKLowRes; // Delete the ARToolKit instance to initiate shutdown.
+        gARTKLowRes = NULL;
+    }
+    
+    return;
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream management
 // -------------------------------------------------------------------------------------------------
 
 
-bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16])
+bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes)
 {
-    if (!gARTK) return false;
-
+    if (!lowRes) {
+        if (!gARTK) return false;
+        
 #ifdef ARDOUBLE_IS_FLOAT
-    return gARTK->projectionMatrix(0, nearPlane, farPlane, p);
+        return gARTK->projectionMatrix(0, nearPlane, farPlane, p);
 #else
-    ARdouble p0[16];
-    if (!gARTK->projectionMatrix(0, nearPlane, farPlane, p0)) {
-        return false;
-    }
-    for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
-    return true;
+        ARdouble p0[16];
+        
+        if (!gARTK->projectionMatrix(0, nearPlane, farPlane, p0)) {
+            return false;
+        }
+        for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
+        return true;
 #endif
+    } else {
+        if (!gARTKLowRes) return false;
+        
+#ifdef ARDOUBLE_IS_FLOAT
+        return gARTKLowRes->projectionMatrix(0, nearPlane, farPlane, p);
+#else
+        ARdouble p0[16];
+        
+        if (!gARTKLowRes->projectionMatrix(0, nearPlane, farPlane, p0)) {
+            return false;
+        }
+        for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
+        return true;
+#endif
+    }
 }
 
 bool arwGetProjectionMatrixStereo(const float nearPlane, const float farPlane, float pL[16], float pR[16])
@@ -317,10 +420,15 @@ bool arwUpdateAR()
     return gARTK->update();
 }
 
-bool arwUpdateTexture32(uint32_t *buffer)
+bool arwUpdateTexture32(uint32_t *buffer, bool lowRes)
 {
-    if (!gARTK) return false;
-    return gARTK->updateTextureRGBA32(0, buffer);
+    if (!lowRes) {
+        if (!gARTK) return false;
+        return gARTK->updateTextureRGBA32(0, buffer);
+    } else {
+        if (!gARTKLowRes) return false;
+        return gARTKLowRes->updateTextureRGBA32(0, buffer);
+    }
 }
 
 bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR)
@@ -328,6 +436,129 @@ bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR)
     if (!gARTK) return false;
     return (gARTK->updateTextureRGBA32(0, bufferL) && gARTK->updateTextureRGBA32(1, bufferR));
 }
+
+// ----------------------------------------------------------------------------------------------------
+#pragma mark  Calibration.
+// ----------------------------------------------------------------------------------------------------
+
+bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize, int xsizeLowRes, int ysizeLowRes)
+{
+    gCalibrationPatternSize = cv::Size(nHorizontal, nVertical);
+    maxCornersFound = calibImageNum;
+    cornerSpacing = patternSpacing;
+    foundCorners.clear();
+    videoWidth = xsize;
+    videoHeight = ysize;
+    videoWidthLowRes = xsizeLowRes;
+    videoHeightLowRes = ysizeLowRes;
+
+    arMalloc(videoFrame, uint8_t, xsize * ysize);
+    calibImage = cvCreateImageHeader(cvSize(xsize, ysize), IPL_DEPTH_8U, 1);
+    cvSetData(calibImage, videoFrame, xsize); // Last parameter is rowBytes.
+    
+    arMalloc(videoFrameLowRes, uint8_t, xsizeLowRes * ysizeLowRes);
+    calibImageLowRes = cvCreateImageHeader(cvSize(xsizeLowRes, ysizeLowRes), IPL_DEPTH_8U, 1);
+    cvSetData(calibImageLowRes, videoFrameLowRes, xsizeLowRes); // Last parameter is rowBytes.
+    
+    ARLOGe("Initialised corner calibration OK.\n");
+    return true;
+}
+
+int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageBytes, bool lowRes)
+{
+    int cornerFoundAllFlag;
+    int i;
+    
+    if (!lowRes) {
+        
+        memcpy(videoFrame, imageBytes, videoWidth * videoHeight);
+
+        corners.clear();
+        cornerFoundAllFlag = cv::findChessboardCorners(cv::cvarrToMat(calibImage), gCalibrationPatternSize, corners, CV_CALIB_CB_FAST_CHECK|CV_CALIB_CB_ADAPTIVE_THRESH|CV_CALIB_CB_FILTER_QUADS);
+        
+        *corner_count = (int)corners.size();
+        
+        if (cornerFoundAllFlag) ARLOGe("Found %d corners\n", (int)corners.size());
+        
+        if (*corner_count != gCalibrationPatternSize.width * gCalibrationPatternSize.height) cornerFoundAllFlag = 0;
+        
+        for (i = 0; i < *corner_count; i++) {
+            vertices[i*2    ] = corners[i].x ;
+            vertices[i*2 + 1] = corners[i].y;
+        }
+        
+    } else {
+        
+        memcpy(videoFrameLowRes, imageBytes, videoWidthLowRes * videoHeightLowRes);
+
+        cornersLowRes.clear();
+        cornerFoundAllFlag = cv::findChessboardCorners(cv::cvarrToMat(calibImageLowRes), gCalibrationPatternSize, cornersLowRes, CV_CALIB_CB_FAST_CHECK|CV_CALIB_CB_ADAPTIVE_THRESH|CV_CALIB_CB_FILTER_QUADS);
+        
+        *corner_count = (int)cornersLowRes.size();
+        for (i = 0; i < *corner_count; i++) {
+            vertices[i*2    ] = cornersLowRes[i].x ;
+            vertices[i*2 + 1] = cornersLowRes[i].y;
+        }
+    }
+    
+    return cornerFoundAllFlag;
+}
+
+int arwCaptureChessboardCorners(int n)
+{
+    if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
+    
+    ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
+    
+    // Refine the corner positions.
+    cornerSubPix(cv::cvarrToMat(calibImage), corners, cv::Size(5,5), cvSize(-1,-1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+    
+    ARLOGe("Capturing %d corners\n", (int)corners.size());
+    
+    // Save the corners.
+    if (n == -1 || n >= foundCorners.size()) {
+        foundCorners.push_back(corners);
+    } else {
+        foundCorners[n] = corners;
+    }
+    
+    return (int)foundCorners.size();
+}
+
+float arwCalibChessboardCorners(char *file_name, float *results)
+{
+    ARParam param_out;
+    float projectionError;
+    
+    ARLOGe("About to calibrate corners. foundCorners.Size=%d\n", (int)foundCorners.size());
+    for (int i = 0; i < foundCorners.size(); i++) {
+        ARLOGe("Corner set %d size=%d\n", i + 1, foundCorners[i].size());
+    }
+    ARLOGe("Pattern Size=%d,%d\n", gCalibrationPatternSize.width, gCalibrationPatternSize.height);
+    ARLOGe("Pattern Spacing=%f\n", cornerSpacing);
+    
+    projectionError = calc((int)foundCorners.size(), Calibration::CalibrationPatternType::CHESSBOARD, gCalibrationPatternSize, cornerSpacing, foundCorners, videoWidth, videoHeight, AR_DIST_FUNCTION_VERSION_DEFAULT, &param_out, results);
+    
+    ARLOGe("About to save calibration file...\n");
+    
+    if (arParamSave(file_name, 1, &param_out) < 0) {
+        ARLOGe("Error writing camera_para.dat file.\n");
+    } else {
+        ARLOGe("Success in saving camera_para.dat file.\n");
+    }
+    
+    return projectionError;
+}
+
+void arwCleanupChessboardCorners()
+{
+    if (calibImage) cvReleaseImageHeader(&calibImage);
+    free(videoFrame);
+    
+    if (calibImageLowRes) cvReleaseImageHeader(&calibImageLowRes);
+    free(videoFrameLowRes);
+}
+
 
 // ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream drawing.
@@ -364,108 +595,156 @@ bool arwDrawVideoFinal(const int videoSourceIndex)
 #pragma mark  Tracking configuration
 // ----------------------------------------------------------------------------------------------------
 
-void arwSetTrackerOptionBool(int option, bool value)
+void arwSetTrackerOptionBool(int option, bool value, bool lowRes)
 {
-    if (!gARTK) return;
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return;
     
     if (option == ARW_TRACKER_OPTION_NFT_MULTIMODE) {
 #if HAVE_NFT
-        gARTK->getNFTTracker()->setNFTMultiMode(value);
+        gARTK2->getNFTTracker()->setNFTMultiMode(value);
 #else
         return;
 #endif
     } else if (option == ARW_TRACKER_OPTION_SQUARE_DEBUG_MODE) {
-        gARTK->getSquareTracker()->setDebugMode(value);
+        gARTK2->getSquareTracker()->setDebugMode(value);
     }
 }
 
-void arwSetTrackerOptionInt(int option, int value)
+void arwSetTrackerOptionInt(int option, int value, bool lowRes)
 {
-    if (!gARTK) return;
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return;
     
     if (option == ARW_TRACKER_OPTION_SQUARE_THRESHOLD) {
         if (value < 0 || value > 255) return;
-        gARTK->getSquareTracker()->setThreshold(value);
+        gARTK2->getSquareTracker()->setThreshold(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE) {
-        gARTK->getSquareTracker()->setThresholdMode(value);
+        gARTK2->getSquareTracker()->setThresholdMode(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_LABELING_MODE) {
-        gARTK->getSquareTracker()->setLabelingMode(value);
+        gARTK2->getSquareTracker()->setLabelingMode(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE) {
-        gARTK->getSquareTracker()->setPatternDetectionMode(value);
+        gARTK2->getSquareTracker()->setPatternDetectionMode(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE) {
-        gARTK->getSquareTracker()->setMatrixCodeType(value);
+        gARTK2->getSquareTracker()->setMatrixCodeType(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_IMAGE_PROC_MODE) {
-        gARTK->getSquareTracker()->setImageProcMode(value);
+        gARTK2->getSquareTracker()->setImageProcMode(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_SIZE) {
-        gARTK->getSquareTracker()->setPatternSize(value);
+        gARTK2->getSquareTracker()->setPatternSize(value);
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_COUNT_MAX) {
-        gARTK->getSquareTracker()->setPatternCountMax(value);
+        gARTK2->getSquareTracker()->setPatternCountMax(value);
     } else if (option == ARW_TRACKER_OPTION_2D_TRACKER_FEATURE_TYPE) {
 #if HAVE_2D
         if (value < 0 || value > 3) return;
-        gARTK->get2dTracker()->setDetectorType(value);
+        gARTK2->get2dTracker()->setDetectorType(value);
 #else
         return;
 #endif
     }
 }
 
-void arwSetTrackerOptionFloat(int option, float value)
+void arwSetTrackerOptionFloat(int option, float value, bool lowRes)
 {
-    if (!gARTK) return;
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return;
     
     if (option == ARW_TRACKER_OPTION_SQUARE_BORDER_SIZE) {
         if (value <= 0.0f || value >= 0.5f) return;
-        gARTK->getSquareTracker()->setPattRatio(1.0f - 2.0f*value); // Convert from border size to pattern ratio.
+        gARTK2->getSquareTracker()->setPattRatio(1.0f - 2.0f*value); // Convert from border size to pattern ratio.
     }
 }
 
-bool arwGetTrackerOptionBool(int option)
+bool arwGetTrackerOptionBool(int option, bool lowRes)
 {
-    if (!gARTK) return false;
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return false;
     
     if (option == ARW_TRACKER_OPTION_NFT_MULTIMODE) {
 #if HAVE_NFT
-        return  gARTK->getNFTTracker()->NFTMultiMode();
+        return  gARTK2->getNFTTracker()->NFTMultiMode();
 #else
         return false;
 #endif
     } else if (option == ARW_TRACKER_OPTION_SQUARE_DEBUG_MODE) {
-        return gARTK->getSquareTracker()->debugMode();
+        return gARTK2->getSquareTracker()->debugMode();
     }
     return false;
 }
 
-int arwGetTrackerOptionInt(int option)
+int arwGetTrackerOptionInt(int option, bool lowRes)
 {
-    if (!gARTK) return (INT_MAX);
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return (INT_MAX);
     
     if (option == ARW_TRACKER_OPTION_SQUARE_THRESHOLD) {
-        return gARTK->getSquareTracker()->threshold();
+        return gARTK2->getSquareTracker()->threshold();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE) {
-        return gARTK->getSquareTracker()->thresholdMode();
+        return gARTK2->getSquareTracker()->thresholdMode();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_LABELING_MODE) {
-        return gARTK->getSquareTracker()->labelingMode();
+        return gARTK2->getSquareTracker()->labelingMode();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE) {
-        return gARTK->getSquareTracker()->patternDetectionMode();
+        return gARTK2->getSquareTracker()->patternDetectionMode();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE) {
-        return gARTK->getSquareTracker()->matrixCodeType();
+        return gARTK2->getSquareTracker()->matrixCodeType();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_IMAGE_PROC_MODE) {
-        return gARTK->getSquareTracker()->imageProcMode();
+        return gARTK2->getSquareTracker()->imageProcMode();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_SIZE) {
-        return gARTK->getSquareTracker()->patternSize();
+        return gARTK2->getSquareTracker()->patternSize();
     } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_COUNT_MAX) {
-        return gARTK->getSquareTracker()->patternCountMax();
+        return gARTK2->getSquareTracker()->patternCountMax();
     }
     return (INT_MAX);
 }
 
-float arwGetTrackerOptionFloat(int option)
+float arwGetTrackerOptionFloat(int option, bool lowRes)
 {
-    if (!gARTK) return (NAN);
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
+    if (!gARTK2) return (NAN);
     
     if (option == ARW_TRACKER_OPTION_SQUARE_BORDER_SIZE) {
-        float value = gARTK->getSquareTracker()->pattRatio();
+        float value = gARTK2->getSquareTracker()->pattRatio();
         if (value > 0.0f && value < 1.0f) return (1.0f - value)/2.0f; // Convert from pattern ratio to border size.
     }
     return (NAN);
@@ -477,8 +756,15 @@ float arwGetTrackerOptionFloat(int option)
 
 int arwAddTrackable(const char *cfg)
 {
-    if (!gARTK) return -1;
-	return gARTK->addTrackable(cfg);
+    int n = -1;
+    
+    if (gARTK) {
+        n = gARTK->addTrackable(cfg);
+    }
+    if (gARTKLowRes) {
+        gARTKLowRes->addTrackable(cfg, n);
+    }
+    return n;
 }
 
 bool arwGetTrackables(int *count_p, ARWTrackableStatus **statuses_p)
@@ -538,12 +824,20 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16])
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return false;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return false;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwQueryTrackableVisibilityAndTransformation(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return false;
     }
@@ -636,12 +930,20 @@ bool arwGetTrackablePatternImage(int trackableUID, int patternID, uint32_t *buff
 #pragma mark  Trackable options
 // ---------------------------------------------------------------------------------------------
 
-bool arwGetTrackableOptionBool(int trackableUID, int option)
+bool arwGetTrackableOptionBool(int trackableUID, int option, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return false;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return false;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwGetTrackableOptionBool(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return false;
     }
@@ -660,12 +962,20 @@ bool arwGetTrackableOptionBool(int trackableUID, int option)
     return(false);
 }
 
-void arwSetTrackableOptionBool(int trackableUID, int option, bool value)
+void arwSetTrackableOptionBool(int trackableUID, int option, bool value, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwSetTrackableOptionBool(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return;
     }
@@ -683,12 +993,20 @@ void arwSetTrackableOptionBool(int trackableUID, int option, bool value)
     }
 }
 
-int arwGetTrackableOptionInt(int trackableUID, int option)
+int arwGetTrackableOptionInt(int trackableUID, int option, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return INT_MIN;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return INT_MIN;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwGetTrackableOptionBool(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return (INT_MIN);
     }
@@ -704,12 +1022,20 @@ int arwGetTrackableOptionInt(int trackableUID, int option)
     return (INT_MIN);
 }
 
-void arwSetTrackableOptionInt(int trackableUID, int option, int value)
+void arwSetTrackableOptionInt(int trackableUID, int option, int value, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwSetTrackableOptionInt(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return;
     }
@@ -724,12 +1050,20 @@ void arwSetTrackableOptionInt(int trackableUID, int option, int value)
     }
 }
 
-float arwGetTrackableOptionFloat(int trackableUID, int option)
+float arwGetTrackableOptionFloat(int trackableUID, int option, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return (NAN);
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return (NAN);
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwGetTrackableOptionBool(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return (NAN);
     }
@@ -772,12 +1106,20 @@ float arwGetTrackableOptionFloat(int trackableUID, int option)
     return (NAN);
 }
 
-void arwSetTrackableOptionFloat(int trackableUID, int option, float value)
+void arwSetTrackableOptionFloat(int trackableUID, int option, float value, bool lowRes)
 {
+    ARController *gARTK2 = NULL;
+    
+    if (!lowRes) {
+        gARTK2 = gARTK;
+    } else {
+        gARTK2 = gARTKLowRes;
+    }
+    
     ARTrackable *trackable;
     
-    if (!gARTK) return;
-	if (!(trackable = gARTK->findTrackable(trackableUID))) {
+    if (!gARTK2) return;
+	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwSetTrackableOptionFloat(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return;
     }

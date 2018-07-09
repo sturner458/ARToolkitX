@@ -42,6 +42,7 @@
 #include <ARX/Platform.h>
 #include <ARX/Error.h>
 #include <stdint.h>
+#include "Calibration.hpp"
 
 /**
  * \file ARToolKitWrapperExportedAPI.h
@@ -100,7 +101,7 @@ extern "C" {
      * Initially, all error flags are set to AR_ERROR_NONE.
      * @return			enum with error code.
      */
-    ARX_EXTERN int arwGetError();
+    ARX_EXTERN int arwGetError(bool lowRes);
     
 	/**
 	 * Changes the working directory to the resources directory used by artoolkitX.
@@ -173,7 +174,7 @@ extern "C" {
 	 * @param p         Float array to populate with OpenGL compatible projection matrix.
 	 * @return          true if successful, false if an error occurred
 	 */
-	ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16]);
+	ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes);
     
 	/**
 	 * Populates the given float arrays with the projection matrices computed from camera parameters for each of the stereo video sources.
@@ -232,20 +233,40 @@ extern "C" {
 	 * @param buffer	The color buffer to fill with video.
 	 * @return			true if successful, false if an error occurred
 	 */
-    ARX_EXTERN bool arwUpdateTexture32(uint32_t *buffer);
+    ARX_EXTERN bool arwUpdateTexture32(uint32_t *buffer, bool lowRes);
+    
+    /**
+     * Populates the provided stereo floating-point color buffers with the current video frames.
+     * @param bufferL    The color buffer to fill with video from the left camera.
+     * @param bufferR    The color buffer to fill with video from the right camera.
+     * @return            true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR);
+    
+    
+    // ----------------------------------------------------------------------------------------------------
+#pragma mark  Single image functions.
+    // ----------------------------------------------------------------------------------------------------
+    
+    ARX_EXTERN void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes);
+    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false);
+    ARX_EXTERN void arwCleanupARToolKit();
+    
+    
+    // ----------------------------------------------------------------------------------------------------
+#pragma mark  Calibration.
+    // ----------------------------------------------------------------------------------------------------
+    
+    ARX_EXTERN bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize, int xsizeLowRes, int ysizeLowRes);
+    ARX_EXTERN int arwFindChessboardCorners(float* corners, int *corner_count, ARUint8 *imageBytes, bool lowRes);
+    ARX_EXTERN int arwCaptureChessboardCorners(int n = -1);
+    ARX_EXTERN float arwCalibChessboardCorners(char *file_name, float *results);
+    ARX_EXTERN void arwCleanupChessboardCorners();
     
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream drawing.
     // ----------------------------------------------------------------------------------------------------
 
-    /**
-	 * Populates the provided stereo floating-point color buffers with the current video frames.
-	 * @param bufferL	The color buffer to fill with video from the left camera.
-	 * @param bufferR	The color buffer to fill with video from the right camera.
-	 * @return			true if successful, false if an error occurred
-	 */
-    ARX_EXTERN bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR);
-    
     /**
      * Initialise drawing of video frames in a graphics context.
      *
@@ -406,42 +427,42 @@ extern "C" {
      * @param option Symbolic constant identifying tracker option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackerOptionBool(int option, bool value);
+    ARX_EXTERN void arwSetTrackerOptionBool(int option, bool value, bool lowRes);
     
     /**
      * Set integer options associated with a tracker.
      * @param option Symbolic constant identifying tracker option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackerOptionInt(int option, int value);
+    ARX_EXTERN void arwSetTrackerOptionInt(int option, int value, bool lowRes);
     
     /**
      * Set floating-point options associated with a tracker.
      * @param option Symbolic constant identifying tracker option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackerOptionFloat(int option, float value);
+    ARX_EXTERN void arwSetTrackerOptionFloat(int option, float value, bool lowRes);
     
     /**
      * Get boolean options associated with a tracker.
      * @param option Symbolic constant identifying tracker option to get.
      * @return true if option is set, false if option is not set or an error occurred.
      */
-    ARX_EXTERN bool arwGetTrackerOptionBool(int option);
+    ARX_EXTERN bool arwGetTrackerOptionBool(int option, bool lowRes);
     
     /**
      * Get integer options associated with a tracker.
      * @param option Symbolic constant identifying tracker option to get.
      * @return integer value of option, or INT_MAX if an error occurred.
      */
-    ARX_EXTERN int arwGetTrackerOptionInt(int option);
+    ARX_EXTERN int arwGetTrackerOptionInt(int option, bool lowRes);
     
     /**
      * Get floating-point options associated with a tracker.
      * @param option Symbolic constant identifying tracker option to get.
      * @return floating-point value of option, or NAN if an error occurred.
      */
-    ARX_EXTERN float arwGetTrackerOptionFloat(int option);
+    ARX_EXTERN float arwGetTrackerOptionFloat(int option, bool lowRes);
     
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Trackable management
@@ -497,7 +518,7 @@ extern "C" {
 	 * @param matrix	A float array to populate with an OpenGL-compatible transformation matrix.
 	 * @return			true if the specified trackable is visible, false if not, or an error occurred.
 	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16]);
+	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes);
     
 	/**
 	 * Returns the visibility and stereo pose of the specified trackable.
@@ -571,7 +592,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackableOptionBool(int trackableUID, int option, bool value);
+    ARX_EXTERN void arwSetTrackableOptionBool(int trackableUID, int option, bool value, bool lowRes);
     
 	/**
 	 * Set integer options associated with a trackable.
@@ -579,7 +600,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackableOptionInt(int trackableUID, int option, int value);
+    ARX_EXTERN void arwSetTrackableOptionInt(int trackableUID, int option, int value, bool lowRes);
     
 	/**
 	 * Set floating-point options associated with a trackable.
@@ -587,7 +608,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
-    ARX_EXTERN void arwSetTrackableOptionFloat(int trackableUID, int option, float value);
+    ARX_EXTERN void arwSetTrackableOptionFloat(int trackableUID, int option, float value, bool lowRes);
 
 	/**
 	 * Get boolean options associated with a trackable.
@@ -595,7 +616,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to get.
 	 * @return true if option is set, false if option is not set or an error occurred.
      */
-    ARX_EXTERN bool arwGetTrackableOptionBool(int trackableUID, int option);
+    ARX_EXTERN bool arwGetTrackableOptionBool(int trackableUID, int option, bool lowRes);
     
 	/**
 	 * Get integer options associated with a trackable.
@@ -603,7 +624,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to get.
 	 * @return integer value of option, or INT_MIN if an error occurred.
      */
-    ARX_EXTERN int arwGetTrackableOptionInt(int trackableUID, int option);
+    ARX_EXTERN int arwGetTrackableOptionInt(int trackableUID, int option, bool lowRes);
     
 	/**
 	 * Get floating-point options associated with a trackable.
@@ -611,7 +632,7 @@ extern "C" {
      * @param option Symbolic constant identifying trackable option to get.
 	 * @return floating-point value of option, or NAN if an error occurred.
      */
-    ARX_EXTERN float arwGetTrackableOptionFloat(int trackableUID, int option);
+    ARX_EXTERN float arwGetTrackableOptionFloat(int trackableUID, int option, bool lowRes);
     
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Utility

@@ -79,7 +79,7 @@ public:
         multi;data/multi/marker.dat
         nft;data/nft/pinball
      */
-    virtual ARTrackable *newTrackable(std::vector<std::string> config) = 0;
+    virtual ARTrackable *newTrackable(std::vector<std::string> config, int setUID = -1) = 0;
     virtual void deleteTrackable(ARTrackable **trackable_p) = 0;
 
 };

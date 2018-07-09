@@ -210,7 +210,7 @@ bool ARTrackerNFT::isRunning()
     return (bool)(m_kpmHandle && m_ar2Handle);
 }
 
-bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables)
+bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
     ARLOGd("ARX::ARTrackerNFT::update()\n");
 
@@ -287,9 +287,9 @@ bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& tra
     return true;
 }
 
-bool ARTrackerNFT::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables)
+bool ARTrackerNFT::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
-    return update(buff0, trackables);
+    return update(buff0, trackables, lowRes);
 }
 
 bool ARTrackerNFT::stop()
@@ -320,7 +320,7 @@ void ARTrackerNFT::terminate()
     
 }
 
-ARTrackable *ARTrackerNFT::newTrackable(std::vector<std::string> config)
+ARTrackable *ARTrackerNFT::newTrackable(std::vector<std::string> config, int setUID)
 {
     // Minimum config length.
     if (config.size() < 1) {

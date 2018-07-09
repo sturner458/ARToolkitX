@@ -295,7 +295,7 @@ public:
 	 * @param cfgs		The configuration string
 	 * @return			The UID of the trackable instantiated based on the configuration string, or -1 if an error occurred.
 	 */
-	int addTrackable(const std::string& cfgs);
+	int addTrackable(const std::string& cfgs, int setUID = -1);
 
 	/**
 	 * Removes the trackable with the given ID.
@@ -364,7 +364,8 @@ public:
 	 * @return				true if update completed successfully, false if an error occurred
 	 */
 	bool update();
-
+    bool updateWithImage(ARUint8 *image0, bool lowRes);
+    
     /**
      * Populates the provided buffer with the current contents of the debug image.
      * @param videoSourceIndex Index into an array of video sources, specifying which source should

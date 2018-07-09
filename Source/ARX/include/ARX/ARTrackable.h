@@ -99,7 +99,7 @@ public:
 	/**
 	 * Constructor takes the type of this trackable.
 	 */
-	ARTrackable(TrackableType type);
+	ARTrackable(TrackableType type, int setUID = -1);
     
     ARTrackable(const ARTrackable&) = delete; ///< Copy construction is undefined.
     ARTrackable& operator=(const ARTrackable&) = delete; ///< Copy assignment is undefined.

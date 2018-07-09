@@ -47,7 +47,7 @@
 #  define _1_0 1.0
 #endif
 
-ARTrackableMultiSquare::ARTrackableMultiSquare() : ARTrackable(MULTI),
+ARTrackableMultiSquare::ARTrackableMultiSquare(int setUID) : ARTrackable(MULTI, setUID),
     m_loaded(false),
     config(NULL),
     robustFlag(true)
@@ -75,6 +75,9 @@ bool ARTrackableMultiSquare::load(const char *multiConfig, ARPattHandle *arPattH
     // ARPatterns to hold images and positions of the patterns for display to the user.
 	allocatePatterns(config->marker_num);
 	for (int i = 0; i < patternCount; i++) {
+        
+        //ARLOGi("Adding multi AR marker with type %d, id %d.\n", config->marker[i].patt_type, config->marker[i].patt_id);
+        
         if (config->marker[i].patt_type == AR_MULTI_PATTERN_TYPE_TEMPLATE) {
             patterns[i]->loadTemplate(config->marker[i].patt_id, arPattHandle, (float)config->marker[i].width);
         } else {

@@ -841,7 +841,8 @@ AR_EXTERN AR_PIXEL_FORMAT arGetPixelFormat(ARHandle *handle);
     @see arGetMarkerNum
     @see arGetMarker
  */
-AR_EXTERN int arDetectMarker(ARHandle *arHandle, AR2VideoBufferT *frame);
+  
+AR_EXTERN int arDetectMarker(ARHandle *arHandle, AR2VideoBufferT *frame, int lowRes);
 
 /*!
     @brief   Get the number of markers detected in a video frame.
