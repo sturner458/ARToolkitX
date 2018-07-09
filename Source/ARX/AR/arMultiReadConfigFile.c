@@ -50,6 +50,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <inttypes.h>
 #include <ARX/AR/ar.h>
 #include <ARX/AR/arMulti.h>
 
@@ -84,13 +85,7 @@ ARMultiMarkerInfoT *arMultiReadConfigFile( const char *filename, ARPattHandle *p
 
     for( i = 0; i < num; i++ ) {
         get_buff(buf, 256, fp);
-        if (sscanf(buf, 
-#if defined(__LP64__) && !defined(__APPLE__)
-                        "%lu%c",
-#else
-                        "%llu%c",
-#endif
-                         &(marker[i].globalID), &dummy) != 1) { // Try first as matrix code.
+        if (sscanf(buf, "%" SCNu64 "%c", &(marker[i].globalID), &dummy) != 1) { // Try first as matrix code.
             
             if (!pattHandle) {
                 ARLOGe("Error processing multimarker config file '%s': pattern '%s' specified in multimarker configuration while in barcode-only mode.\n", filename, buf);
