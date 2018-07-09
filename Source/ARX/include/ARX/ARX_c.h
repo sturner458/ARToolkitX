@@ -51,34 +51,34 @@
  */
 extern "C" {
 
-	/**
-	 * Registers a callback function to use when a message is logged.
+    /**
+     * Registers a callback function to use when a message is logged.
      * If the callback is to become invalid, be sure to call this function with NULL
      * first so that the callback is unregistered.
-	 */
-	ARX_EXTERN void arwRegisterLogCallback(PFN_LOGCALLBACK callback);
+     */
+    ARX_EXTERN void arwRegisterLogCallback(PFN_LOGCALLBACK callback);
 
     ARX_EXTERN void arwSetLogLevel(const int logLevel);
     
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  artoolkitX lifecycle functions
     // ----------------------------------------------------------------------------------------------------
-	/**
-	 * Initialises the artoolkitX.
+    /**
+     * Initialises the artoolkitX.
      * For any square template (pattern) marker trackables, the number of rows and columns in the template defaults to AR_PATT_SIZE1 and the maximum number of markers that may be loaded for a single matching pass defaults to AR_PATT_NUM_MAX.
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwShutdownAR()
-	 */
-	ARX_EXTERN bool arwInitialiseAR();
+     * @return            true if successful, false if an error occurred
+     * @see                arwShutdownAR()
+     */
+    ARX_EXTERN bool arwInitialiseAR();
 
-	/**
-	 * Gets the artoolkitX version as a string, such as "10.0.0".
-	 * Must not be called prior to arwInitialiseAR().
-	 * @param buffer	The character buffer to populate
-	 * @param length	The maximum number of characters to set in buffer
-	 * @return			true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwGetARToolKitVersion(char *buffer, int length);
+    /**
+     * Gets the artoolkitX version as a string, such as "10.0.0".
+     * Must not be called prior to arwInitialiseAR().
+     * @param buffer    The character buffer to populate
+     * @param length    The maximum number of characters to set in buffer
+     * @return            true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwGetARToolKitVersion(char *buffer, int length);
 
     /**
      * Return error information
@@ -99,107 +99,107 @@ extern "C" {
      * AR_ERROR_NONE, if all error flags are to be reset.
      *
      * Initially, all error flags are set to AR_ERROR_NONE.
-     * @return			enum with error code.
+     * @return            enum with error code.
      */
     ARX_EXTERN int arwGetError(bool lowRes);
     
-	/**
-	 * Changes the working directory to the resources directory used by artoolkitX.
+    /**
+     * Changes the working directory to the resources directory used by artoolkitX.
      * Normally, this would be called immediately after arwInitialiseAR()
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwInitialiseAR()
-	 */
-	ARX_EXTERN bool arwChangeToResourcesDir(const char *resourcesDirectoryPath);
+     * @return            true if successful, false if an error occurred
+     * @see                arwInitialiseAR()
+     */
+    ARX_EXTERN bool arwChangeToResourcesDir(const char *resourcesDirectoryPath);
     
-	/**
-	 * Initialises and starts video capture.
-	 * @param vconf		The video configuration string
-	 * @param cparaName	The camera parameter file, which is used to form the projection matrix
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwStopRunning()
-	 */
-	ARX_EXTERN bool arwStartRunning(const char *vconf, const char *cparaName);
-	
-	/**
-	 * Initialises and starts video capture.
-	 * @param vconf		The video configuration string
-	 * @param cparaBuff	A string containing the contents of a camera parameter file, which is used to form the projection matrix.
-	 * @param cparaBuffLen	Number of characters in cparaBuff.
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwStopRunning()
-	 */
-	ARX_EXTERN bool arwStartRunningB(const char *vconf, const char *cparaBuff, const int cparaBuffLen);
+    /**
+     * Initialises and starts video capture.
+     * @param vconf        The video configuration string
+     * @param cparaName    The camera parameter file, which is used to form the projection matrix
+     * @return            true if successful, false if an error occurred
+     * @see                arwStopRunning()
+     */
+    ARX_EXTERN bool arwStartRunning(const char *vconf, const char *cparaName);
+    
+    /**
+     * Initialises and starts video capture.
+     * @param vconf        The video configuration string
+     * @param cparaBuff    A string containing the contents of a camera parameter file, which is used to form the projection matrix.
+     * @param cparaBuffLen    Number of characters in cparaBuff.
+     * @return            true if successful, false if an error occurred
+     * @see                arwStopRunning()
+     */
+    ARX_EXTERN bool arwStartRunningB(const char *vconf, const char *cparaBuff, const int cparaBuffLen);
 
     ARX_EXTERN bool arwStartRunningStereo(const char *vconfL, const char *cparaNameL, const char *vconfR, const char *cparaNameR, const char *transL2RName);
     
     ARX_EXTERN bool arwStartRunningStereoB(const char *vconfL, const char *cparaBuffL, const int cparaBuffLenL, const char *vconfR, const char *cparaBuffR, int cparaBuffLenR, const char *transL2RBuff, const int transL2RBuffLen);
 
-	/**
-	 * Returns true if artoolkitX is running, i.e. detecting trackables.
-	 * @return			true when running, otherwise false
-	 */
-	ARX_EXTERN bool arwIsRunning();
+    /**
+     * Returns true if artoolkitX is running, i.e. detecting trackables.
+     * @return            true when running, otherwise false
+     */
+    ARX_EXTERN bool arwIsRunning();
 
-	/**
-	 * Returns true if artoolkitX is initialized and read for adding trackables.
-	 * @return			true when running, otherwise false
-	 */
-	ARX_EXTERN bool arwIsInited();
+    /**
+     * Returns true if artoolkitX is initialized and read for adding trackables.
+     * @return            true when running, otherwise false
+     */
+    ARX_EXTERN bool arwIsInited();
 
-	/**
-	 * Stops video capture and frees video capture resources.
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwStartRunning()
-	 */
-	ARX_EXTERN bool arwStopRunning();
+    /**
+     * Stops video capture and frees video capture resources.
+     * @return            true if successful, false if an error occurred
+     * @see                arwStartRunning()
+     */
+    ARX_EXTERN bool arwStopRunning();
 
-	/**
-	 * Shuts down the artoolkitX and frees all resources.
+    /**
+     * Shuts down the artoolkitX and frees all resources.
      * N.B.: If this is being called from the destructor of the same module which
      * supplied the log callback, be sure to call arwRegisterLogCallback(NULL)
      * prior to calling this function.
-	 * @return			true if successful, false if an error occurred
-	 * @see				arwInitialiseAR()
-	 */
-	ARX_EXTERN bool arwShutdownAR();
+     * @return            true if successful, false if an error occurred
+     * @see                arwInitialiseAR()
+     */
+    ARX_EXTERN bool arwShutdownAR();
     
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream management
     // ----------------------------------------------------------------------------------------------------
 
-	/**
-	 * Populates the given float array with the projection matrix computed from camera parameters for the video source.
+    /**
+     * Populates the given float array with the projection matrix computed from camera parameters for the video source.
      * @param nearPlane Near plane distance for projection matrix calculation.
      * @param farPlane  Far plane distance for projection matrix calculation.
-	 * @param p         Float array to populate with OpenGL compatible projection matrix.
-	 * @return          true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes);
+     * @param p         Float array to populate with OpenGL compatible projection matrix.
+     * @return          true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes);
     
-	/**
-	 * Populates the given float arrays with the projection matrices computed from camera parameters for each of the stereo video sources.
+    /**
+     * Populates the given float arrays with the projection matrices computed from camera parameters for each of the stereo video sources.
      * @param nearPlane Near plane distance for projection matrix calculation.
      * @param farPlane  Far plane distance for projection matrix calculation.
-	 * @param pL        Float array to populate with OpenGL compatible projection matrix for the left camera of the stereo video pair.
-	 * @param pR        Float array to populate with OpenGL compatible projection matrix for the right camera of the stereo video pair.
-	 * @return          true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwGetProjectionMatrixStereo(const float nearPlane, const float farPlane, float pL[16], float pR[16]);
-	
-	/**
-	 * Returns the parameters of the video source frame.
+     * @param pL        Float array to populate with OpenGL compatible projection matrix for the left camera of the stereo video pair.
+     * @param pR        Float array to populate with OpenGL compatible projection matrix for the right camera of the stereo video pair.
+     * @return          true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwGetProjectionMatrixStereo(const float nearPlane, const float farPlane, float pL[16], float pR[16]);
+    
+    /**
+     * Returns the parameters of the video source frame.
      * @param width Pointer to an int which will be filled with the width (in pixels) of the video frame, or NULL if this information is not required.
      * @param height Pointer to an int which will be filled with the height (in pixels) of the video frame, or NULL if this information is not required.
      * @param pixelSize Pointer to an int which will be filled with the numbers of bytes per pixel of the source frame.
      * @param pixelFormatStringBuffer Pointer to a buffer which will be filled with the symolic name of the pixel format (as a nul-terminated C-string) of the video frame, or NULL if this information is not required. The name will be of the form "AR_PIXEL_FORMAT_xxx".
      * @param pixelFormatStringBufferLen Length (in bytes) of pixelFormatStringBuffer, or 0 if this information is not required.
-	 * @return			True if the values were returned OK, false if there is currently no video source or an error int[] .
-	 * @see				arwGetVideoParamsStereo
-	 */
-	ARX_EXTERN bool arwGetVideoParams(int *width, int *height, int *pixelSize, char *pixelFormatStringBuffer, int pixelFormatStringBufferLen);
+     * @return            True if the values were returned OK, false if there is currently no video source or an error int[] .
+     * @see                arwGetVideoParamsStereo
+     */
+    ARX_EXTERN bool arwGetVideoParams(int *width, int *height, int *pixelSize, char *pixelFormatStringBuffer, int pixelFormatStringBufferLen);
     
-	/**
-	 * Returns the parameters of the video source frames.
+    /**
+     * Returns the parameters of the video source frames.
      * @param widthL Pointer to an int which will be filled with the width (in pixels) of the video frame, or NULL if this information is not required.
      * @param widthR Pointer to an int which will be filled with the width (in pixels) of the video frame, or NULL if this information is not required.
      * @param heightL Pointer to an int which will be filled with the height (in pixels) of the video frame, or NULL if this information is not required.
@@ -210,22 +210,22 @@ extern "C" {
      * @param pixelFormatStringBufferR Pointer to a buffer which will be filled with the symbolic name of the pixel format (as a nul-terminated C-string) of the video frame, or NULL if this information is not required. The name will be of the form "AR_PIXEL_FORMAT_xxx".
      * @param pixelFormatStringBufferLenL Length (in bytes) of pixelFormatStringBufferL, or 0 if this information is not required.
      * @param pixelFormatStringBufferLenR Length (in bytes) of pixelFormatStringBufferR, or 0 if this information is not required.
-	 * @return			True if the values were returned OK, false if there is currently no stereo video source or an error int[] .
-	 * @see				arwGetVideoParams
-	 */
-	ARX_EXTERN bool arwGetVideoParamsStereo(int *widthL, int *heightL, int *pixelSizeL, char *pixelFormatStringBufferL, int pixelFormatStringBufferLenL, int *widthR, int *heightR, int *pixelSizeR, char *pixelFormatStringBufferR, int pixelFormatStringBufferLenR);
+     * @return            True if the values were returned OK, false if there is currently no stereo video source or an error int[] .
+     * @see                arwGetVideoParams
+     */
+    ARX_EXTERN bool arwGetVideoParamsStereo(int *widthL, int *heightL, int *pixelSizeL, char *pixelFormatStringBufferL, int pixelFormatStringBufferLenL, int *widthR, int *heightR, int *pixelSizeR, char *pixelFormatStringBufferR, int pixelFormatStringBufferLenR);
     
-	/**
-	 * Captures a newest frame from the video source.
-	 * @return			true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwCapture();
-	
-	/**
-	 * Performs tracking and trackable updates. The newest frame from the video source is retrieved and
-	 * analysed. All loaded trackables are updated.
-	 * @return			true if successful, false if an error occurred
-	 */
+    /**
+     * Captures a newest frame from the video source.
+     * @return            true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwCapture();
+    
+    /**
+     * Performs tracking and trackable updates. The newest frame from the video source is retrieved and
+     * analysed. All loaded trackables are updated.
+     * @return            true if successful, false if an error occurred
+     */
     ARX_EXTERN bool arwUpdateAR();
     
 	/**
@@ -236,9 +236,15 @@ extern "C" {
     ARX_EXTERN bool arwUpdateTexture32(uint32_t *buffer, bool lowRes);
     
     /**
-     * Populates the provided stereo floating-point color buffers with the current video frames.
-     * @param bufferL    The color buffer to fill with video from the left camera.
-     * @param bufferR    The color buffer to fill with video from the right camera.
+     * Asks the video source to push the most recent stereo frame into the passed-in buffer.
+     * @param bufferL Pointer to a buffer of pixels (of type 'uint32_t') to be filled with video
+     *      from the left camera. It is the caller's responsibility to ensure that the buffer is
+     *      of sufficient size. The pixels are RGBA in little-endian systems, or ABGR in big-endian
+     *      systems.
+     * @param bufferR Pointer to a buffer of pixels (of type 'uint32_t') to be filled with video
+     *      from the right camera. It is the caller's responsibility to ensure that the buffer is
+     *      of sufficient size. The pixels are RGBA in little-endian systems, or ABGR in big-endian
+     *      systems.
      * @return            true if successful, false if an error occurred
      */
     ARX_EXTERN bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR);
@@ -264,7 +270,7 @@ extern "C" {
     ARX_EXTERN void arwCleanupChessboardCorners();
     
     // ----------------------------------------------------------------------------------------------------
-#pragma mark  Video stream retrieval and/or drawing.
+#pragma mark  Video stream drawing.
     // ----------------------------------------------------------------------------------------------------
 
     /**
@@ -401,7 +407,7 @@ extern "C" {
      */
     ARX_EXTERN bool arwDrawVideoFinal(const int videoSourceIndex);
     
-	// ----------------------------------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------------------------------
 #pragma mark  Tracking configuration
     // ----------------------------------------------------------------------------------------------------
     /**
@@ -468,17 +474,17 @@ extern "C" {
 #pragma mark  Trackable management
     // ----------------------------------------------------------------------------------------------------
     /**
-	 * Adds a trackable as specified in the given configuration string. The format of the string can be
-	 * one of:
+     * Adds a trackable as specified in the given configuration string. The format of the string can be
+     * one of:
      * - Square marker from pattern file: "single;pattern_file;pattern_width", e.g. "single;data/hiro.patt;80"
      * - Square marker from pattern passed in config: "single_buffer;pattern_width;buffer=[]", e.g. "single_buffer;80;buffer=234 221 237..."
      * - Square barcode marker: "single_barcode;barcode_id;pattern_width", e.g. "single_barcode;0;80"
      * - Multi-square marker: "multi;config_file", e.g. "multi;data/multi/marker.dat"
      * - NFT marker: "nft;nft_dataset_pathname", e.g. "nft;gibraltar"
-	 * @param cfg		The configuration string
-	 * @return			The unique identifier (UID) of the trackable instantiated based on the configuration string, or -1 if an error occurred
-	 */
-	ARX_EXTERN int arwAddTrackable(const char *cfg);
+     * @param cfg        The configuration string
+     * @return            The unique identifier (UID) of the trackable instantiated based on the configuration string, or -1 if an error occurred
+     */
+    ARX_EXTERN int arwAddTrackable(const char *cfg);
     
     typedef struct {
         int uid;
@@ -496,79 +502,79 @@ extern "C" {
     ARX_EXTERN bool arwGetTrackables(int *count_p, ARWTrackableStatus **statuses_p);
     
     /**
-	 * Removes the trackable with the given unique identifier (UID).
-	 * @param trackableUID	The unique identifier (UID) of the trackable to remove
-	 * @return			true if the trackable was removed, false if an error occurred
-	 */
-	ARX_EXTERN bool arwRemoveTrackable(int trackableUID);
-	
-	/**
-	 * Clears the collection of trackables.
-	 * @return			The number of trackables removed
-	 */
-	ARX_EXTERN int arwRemoveAllTrackables();
+     * Removes the trackable with the given unique identifier (UID).
+     * @param trackableUID    The unique identifier (UID) of the trackable to remove
+     * @return            true if the trackable was removed, false if an error occurred
+     */
+    ARX_EXTERN bool arwRemoveTrackable(int trackableUID);
     
-	/**
-	 * Returns the visibility and pose of the specified trackable.
-	 * 
-	 * After a call to arwUpdate, all trackable information will be current. Any trackable can
-	 * then be checked for visibility in the current frame, and if visible, additionally
-	 * queried for its pose.
-	 * @param trackableUID	The unique identifier (UID) of the trackable to query.
-	 * @param matrix	A float array to populate with an OpenGL-compatible transformation matrix.
-	 * @return			true if the specified trackable is visible, false if not, or an error occurred.
-	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes);
+    /**
+     * Clears the collection of trackables.
+     * @return            The number of trackables removed
+     */
+    ARX_EXTERN int arwRemoveAllTrackables();
     
-	/**
-	 * Returns the visibility and stereo pose of the specified trackable.
-	 *
-	 * After a call to arwUpdate, all trackable information will be current. Any trackable can
-	 * then be checked for visibility in the current frame, and if visible, additionally
-	 * queried for its pose.
-	 * @param trackableUID	The unique identifier (UID) of the trackable to query
-	 * @param matrixL	The float array to populate with an OpenGL-compatible transformation matrix for the left camera.
-	 * @param matrixR	The float array to populate with an OpenGL-compatible transformation matrix for the right camera.
-	 * @return			true if the specified trackable is visible, false if not, or an error occurred
-	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformationStereo(int trackableUID, float matrixL[16], float matrixR[16]);
-	
-	/**
-	 * Returns the number of pattern images associated with the specified trackable. A single square marker trackable has
+    /**
+     * Returns the visibility and pose of the specified trackable.
+     * 
+     * After a call to arwUpdate, all trackable information will be current. Any trackable can
+     * then be checked for visibility in the current frame, and if visible, additionally
+     * queried for its pose.
+     * @param trackableUID    The unique identifier (UID) of the trackable to query.
+     * @param matrix    A float array to populate with an OpenGL-compatible transformation matrix.
+     * @return            true if the specified trackable is visible, false if not, or an error occurred.
+     */
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes);
+    
+    /**
+     * Returns the visibility and stereo pose of the specified trackable.
+     *
+     * After a call to arwUpdate, all trackable information will be current. Any trackable can
+     * then be checked for visibility in the current frame, and if visible, additionally
+     * queried for its pose.
+     * @param trackableUID    The unique identifier (UID) of the trackable to query
+     * @param matrixL    The float array to populate with an OpenGL-compatible transformation matrix for the left camera.
+     * @param matrixR    The float array to populate with an OpenGL-compatible transformation matrix for the right camera.
+     * @return            true if the specified trackable is visible, false if not, or an error occurred
+     */
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformationStereo(int trackableUID, float matrixL[16], float matrixR[16]);
+    
+    /**
+     * Returns the number of pattern images associated with the specified trackable. A single square marker trackable has
      * one pattern image. A multi-square marker trackable has one or more pattern images.
      * Images of NFT marker trackables are not currently supported, so at present this function will return 0 for NFT trackables.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
-	 * @return			The number of pattern images.
-	 */
-	ARX_EXTERN int arwGetTrackablePatternCount(int trackableUID);
-	
-	/**
-	 * Gets configuration of a pattern associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
-	 * @param patternID	The id of the pattern within the trackable, in range from 0 to arwGetTrackablePatternCount() - 1, inclusive. Ignored for single square markers and NFT markers (i.e. 0 assumed).
-	 * @param matrix	The float array to populate with the 4x4 transformation matrix of the pattern (column-major order).
-	 * @param width		Float value to set to the width of the pattern
-	 * @param height	Float value to set to the height of the pattern.
-	 * @param imageSizeX Int value to set to the width of the pattern image (in pixels).
-	 * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
-	 * @return			true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY);
-	
-	/**
-	 * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the
-	 * pattern for the specified trackable. If the trackable is a multi-square marker, then the pattern image specified
+     * @param trackableUID    The unique identifier (UID) of the trackable
+     * @return            The number of pattern images.
+     */
+    ARX_EXTERN int arwGetTrackablePatternCount(int trackableUID);
+    
+    /**
+     * Gets configuration of a pattern associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
+     * @param patternID    The id of the pattern within the trackable, in range from 0 to arwGetTrackablePatternCount() - 1, inclusive. Ignored for single square markers and NFT markers (i.e. 0 assumed).
+     * @param matrix    The float array to populate with the 4x4 transformation matrix of the pattern (column-major order).
+     * @param width        Float value to set to the width of the pattern
+     * @param height    Float value to set to the height of the pattern.
+     * @param imageSizeX Int value to set to the width of the pattern image (in pixels).
+     * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
+     * @return            true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY);
+    
+    /**
+     * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the
+     * pattern for the specified trackable. If the trackable is a multi-square marker, then the pattern image specified
      * by patternID is used.
      * Images of NFT marker trackables are not currently supported, so at present this function will return no image for NFT trackables.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
-	 * @param patternID	The id for the pattern within that trackable. Ignored for single square marker and NFT marker trackables.
+     * @param trackableUID    The unique identifier (UID) of the trackable
+     * @param patternID    The id for the pattern within that trackable. Ignored for single square marker and NFT marker trackables.
      * @param buffer    Pointer to a buffer of pixels (of type 'uint32_t') to be filled with pattern image.
      *      It is the caller's responsibility to ensure that the buffer is of sufficient size.
      *      Use arwGetTrackablePatternConfig to get the required size of this array (imageSizeX * imageSizeY elements).
      *      The pixels are RGBA in little-endian systems, or ABGR in big-endian systems.
-	 * @return			true if successful, false if an error occurred
-	 */
-	ARX_EXTERN bool arwGetTrackablePatternImage(int trackableUID, int patternID, uint32_t *buffer);
+     * @return            true if successful, false if an error occurred
+     */
+    ARX_EXTERN bool arwGetTrackablePatternImage(int trackableUID, int patternID, uint32_t *buffer);
     
     /**
      * Constants for use with trackable option setters/getters.
@@ -586,51 +592,51 @@ extern "C" {
         ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_PATTERN = 10,          ///< float, minimum confidence value for submarker pattern tracking to be valid.
     };
     
-	/**
-	 * Set boolean options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Set boolean options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
     ARX_EXTERN void arwSetTrackableOptionBool(int trackableUID, int option, bool value, bool lowRes);
     
-	/**
-	 * Set integer options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Set integer options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
     ARX_EXTERN void arwSetTrackableOptionInt(int trackableUID, int option, int value, bool lowRes);
     
-	/**
-	 * Set floating-point options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Set floating-point options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to set.
      * @param value The value to set it to.
      */
     ARX_EXTERN void arwSetTrackableOptionFloat(int trackableUID, int option, float value, bool lowRes);
 
-	/**
-	 * Get boolean options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Get boolean options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to get.
-	 * @return true if option is set, false if option is not set or an error occurred.
+     * @return true if option is set, false if option is not set or an error occurred.
      */
     ARX_EXTERN bool arwGetTrackableOptionBool(int trackableUID, int option, bool lowRes);
     
-	/**
-	 * Get integer options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Get integer options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to get.
-	 * @return integer value of option, or INT_MIN if an error occurred.
+     * @return integer value of option, or INT_MIN if an error occurred.
      */
     ARX_EXTERN int arwGetTrackableOptionInt(int trackableUID, int option, bool lowRes);
     
-	/**
-	 * Get floating-point options associated with a trackable.
-	 * @param trackableUID	The unique identifier (UID) of the trackable
+    /**
+     * Get floating-point options associated with a trackable.
+     * @param trackableUID    The unique identifier (UID) of the trackable
      * @param option Symbolic constant identifying trackable option to get.
-	 * @return floating-point value of option, or NAN if an error occurred.
+     * @return floating-point value of option, or NAN if an error occurred.
      */
     ARX_EXTERN float arwGetTrackableOptionFloat(int trackableUID, int option, bool lowRes);
     
@@ -638,7 +644,7 @@ extern "C" {
 #pragma mark  Utility
     // ----------------------------------------------------------------------------------------------------
     /**
-	 * Loads an optical parameters structure from file or from buffer.
+     * Loads an optical parameters structure from file or from buffer.
      *
      * @param optical_param_name If supplied, points to a buffer specifying the path
      *      to the optical parameters file (as generated by the calib_optical utility.)
