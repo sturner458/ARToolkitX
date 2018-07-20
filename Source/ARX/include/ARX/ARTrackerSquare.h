@@ -83,6 +83,20 @@ public:
      */
     bool debugMode() const;
     
+    /**
+     * Enables or disables corner refinement.
+     * @param    mode        true to enable corner refinement, false to disable corner refinement
+     * @see                    getCornerRefinementMode()
+     */
+    void setCornerRefinementMode(bool mode);
+    
+    /**
+     * Returns whether corner refinement is currently enabled.
+     * @return                true when corner refinement is enabled, false when corner refinement is disabled
+     * @see                    setCornerRefinementMode()
+     */
+    bool cornerRefinementMode() const;
+    
     void setImageProcMode(int mode);
     
     int imageProcMode() const;
@@ -171,6 +185,7 @@ private:
     int m_patternDetectionMode;
     AR_MATRIX_CODE_TYPE m_matrixCodeType;
     bool m_debugMode;
+    bool m_cornerRefinementMode;
     int m_patternSize;
     int m_patternCountMax;
     

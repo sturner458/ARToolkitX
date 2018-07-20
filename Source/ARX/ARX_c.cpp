@@ -94,17 +94,7 @@ int videoHeightLowRes;
 
 void arwRegisterLogCallback(PFN_LOGCALLBACK callback)
 {
-	logCallback = callback;
-    arLogSetLogger(callback, 0); // 1 -> only callback on same thread.
-#if !ARX_TARGET_PLATFORM_WINDOWS && !ARX_TARGET_PLATFORM_WINRT
-	logThread = pthread_self();
-#else
-	logThreadID = GetCurrentThreadId();
-    logDumpedWrongThreadCount = 0;
-	//char buf[256];
-	//_snprintf(buf, 256, "Registering log callback on thread %d.\n", logThreadID);
-	//log(buf);
-#endif
+    arLogSetLogger(callback, 1); // 1 -> only callback on same thread, as required e.g. by C# interop.
 }
 
 void arwSetLogLevel(const int logLevel)
@@ -124,7 +114,7 @@ bool arwInitialiseAR()
 	return gARTK->initialiseBase();
     
     if (!gARTKLowRes) gARTKLowRes = new ARController;
-    gARTKLowRes->logCallback = log;
+    //gARTKLowRes->logCallback = log;
     return gARTKLowRes->initialiseBase();
 }
 
@@ -234,13 +224,13 @@ bool arwShutdownAR()
 void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes)
 {
     if (!gARTK) gARTK = new ARController;
-    gARTK->logCallback = log;
+    //gARTK->logCallback = log;
     gARTK->initialiseBase();
     
     gARTK->startRunning(vconf, cparaName, NULL, 0);
     
     if (!gARTKLowRes) gARTKLowRes = new ARController;
-    gARTKLowRes->logCallback = log;
+    //gARTKLowRes->logCallback = log;
     gARTKLowRes->initialiseBase();
     
     gARTKLowRes->startRunning(vconfLowRes, cparaNameLowRes, NULL, 0);
@@ -576,6 +566,8 @@ void arwSetTrackerOptionBool(int option, bool value, bool lowRes)
 #endif
     } else if (option == ARW_TRACKER_OPTION_SQUARE_DEBUG_MODE) {
         gARTK2->getSquareTracker()->setDebugMode(value);
+    } else if (option == ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT) {
+        gARTK2->getSquareTracker()->setCornerRefinementMode(value);
     }
 }
 
@@ -615,6 +607,8 @@ void arwSetTrackerOptionInt(int option, int value, bool lowRes)
 #else
         return;
 #endif
+    } else if (option == ARW_TRACKER_OPTION_SQUARE_PATTERN_COUNT_MAX) {
+        gARTK2->getSquareTracker()->setPatternCountMax(value);
     }
 }
 

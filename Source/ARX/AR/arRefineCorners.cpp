@@ -42,6 +42,8 @@
 
 void arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width, int height)
 {
+    ARPRINT("ARPRINT - arRefineCorners: No OpenCV!\n");
+    ARLOGi("ARLOGi - arRefineCorners: No OpenCV!\n");
     // Do nothing.
 }
 
@@ -59,8 +61,9 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
     std::vector<cv::Point2f> corners;
     for (int i = 0; i < 4; i++) {
         corners.push_back(cv::Point2f(vertex[i][0], vertex[i][1]));
-        if (rect.contains(cv::Point2f(vertex[i][0], vertex[i][1]))) {
+        if (!rect.contains(cv::Point2f(vertex[i][0], vertex[i][1]))) {
             validCorners = false;
+            //ARPRINT("ARPRINT - validCorners = false\n");
         }
     }
     if (validCorners) {
@@ -74,7 +77,9 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
         for (int i = 0; i < 4; i++) {
 #ifdef DEBUG_REFINECORNERS
             if ((fabsf(vertex[i][0] - corners[i].x) > 0.1f) || (fabsf(vertex[i][1] - corners[i].y) > 0.1f)) {
-                ARLOGd("arRefineCorners adjusted vertex %d from (%.1f, %.1f) to (%.1f, %.1f).\n", i, vertex[i][0], vertex[i][1], corners[i].x, corners[i].y);
+                ARPRINT("ARPRINT - arRefineCorners adjusted vertex %d from (%.1f, %.1f) to (%.1f, %.1f).\n", i, vertex[i][0], vertex[i][1], corners[i].x, corners[i].y);
+            } else {
+                ARPRINT("ARPRINT - arRefineCorners: No change\n");
             }
 #endif
             vertex[i][0] = (ARdouble)corners[i].x;

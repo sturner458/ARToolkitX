@@ -426,6 +426,7 @@ extern "C" {
         ARW_TRACKER_OPTION_SQUARE_PATTERN_SIZE = 9,                    ///< Number of rows and columns in square template (pattern) markers. Defaults to AR_PATT_SIZE1, which is 16 in all versions of ARToolKit prior to 5.3. int.
         ARW_TRACKER_OPTION_SQUARE_PATTERN_COUNT_MAX = 10,              ///< Maximum number of square template (pattern) markers that may be loaded at once. Defaults to AR_PATT_NUM_MAX, which is at least 25 in all versions of ARToolKit prior to 5.3. int.
         ARW_TRACKER_OPTION_2D_TRACKER_FEATURE_TYPE = 11,              ///< Feature detector type used in the 2d Tracker - 0 AKAZE, 1 ORB, 2 BRISK, 3 KAZE
+        ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT = 12              ///< Enables or disables corner refinement
     };
     
     /**

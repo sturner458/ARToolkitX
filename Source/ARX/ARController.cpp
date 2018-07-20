@@ -751,8 +751,8 @@ bool ARController::addTrackable(ARTrackable* trackable)
 #endif
     if (trackable->type == ARTrackable::SINGLE || trackable->type == ARTrackable::MULTI) {
         if (!doSquareMarkerDetection) {
-            ARLOGi("First square marker trackable added; enabling square marker tracker.\n");
-            ARPRINT("First square marker trackable added; enabling square marker tracker.\n");
+            //ARLOGi("First square marker trackable added; enabling square marker tracker.\n");
+            //ARPRINT("First square marker trackable added; enabling square marker tracker.\n");
         }
         doSquareMarkerDetection = true;
     }
