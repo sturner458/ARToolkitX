@@ -124,15 +124,16 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
 	if (!m_loaded || !config) return false;			// Can't update without multimarker config
 
     visiblePrev = visible;
-
+    config->marker->lastErr = 0;
+    
 	if (markerInfo) {
 	
-		ARdouble err;
+		//ARdouble err;
 
 		if (robustFlag) {
-			err = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, config);		
+			config->marker->lastErr = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, config);
 		} else {
-			err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config);
+			config->marker->lastErr = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config);
 		}
 		
 		// Marker is visible if a match was found.

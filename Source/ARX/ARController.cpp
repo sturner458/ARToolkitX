@@ -458,6 +458,21 @@ done:
     return ret;
 }
 
+bool ARController::getMapperInfo(int *numMarkers, int *markerIDs, float *trans) {
+    if (doSquareMarkerDetection) {
+        if (m_squareTracker->isRunning()) {
+            if (!m_videoSourceIsStereo) return m_squareTracker->GetMapperInfo(numMarkers, markerIDs, trans);
+        }
+    }
+    return false;
+}
+
+void ARController::setMapperOriginMarkerID(int markerID) {
+    if (doSquareMarkerDetection) {
+        if (!m_videoSourceIsStereo) m_squareTracker->SetMapperOriginMarkerID(markerID);
+    }
+}
+
 bool ARController::stopRunning()
 {
 	ARLOGd("ARX::ARController::stopRunning()\n");

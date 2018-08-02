@@ -74,6 +74,7 @@ typedef struct {
     int      patt_id;      // ID of the template pattern or matrix barcode.
     int      patt_type;    // Type of this pattern. Either AR_MULTI_PATTERN_TYPE_TEMPLATE or AR_MULTI_PATTERN_TYPE_MATRIX.
     ARdouble width;
+    ARdouble lastErr;
     ARdouble trans[3][4];  // Pose of this marker, expressed in multimarker coordinate system.
     ARdouble itrans[3][4]; // Inverse of trans, i.e. pose of the multimarker, expressed in this marker's coordinate system.
     ARdouble pos3d[4][3];  // Position of each corner (in order: upper-left, upper-right, lower-right, lower right), expressed in multimarker coordinate system.
@@ -98,6 +99,7 @@ AR_EXTERN ARMultiMarkerInfoT *arMultiAllocConfig(void);
 AR_EXTERN ARMultiMarkerInfoT *arMultiReadConfigFile( const char *filename, ARPattHandle *pattHandle );
     
 AR_EXTERN int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID);
+AR_EXTERN int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerInfoT *marker_info2, ARMultiMarkerInfoT *marker_info3, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID);
     
 AR_EXTERN void arMultiUpdateSubmarkerPose(ARMultiEachMarkerInfoT *submarker, const ARdouble trans[3][4]);
     

@@ -41,6 +41,7 @@
 
 #include <ARX/ARTrackable.h>
 #include <ARX/AR/arMulti.h>
+#include "mapper.h"
 
 /**
  * Multiple marker type of ARTrackable.
@@ -70,7 +71,7 @@ public:
      * @param markerNum			Number of items in the array
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
-	bool updateWithDetectedMarkers(ARMarkerInfo *markerInfo, int markerNum, AR3DHandle *ar3DHandle);
+    bool updateWithDetectedMarkers(ARMarkerInfo *markerInfo, int markerNum, AR3DHandle *ar3DHandle);
 
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
 };

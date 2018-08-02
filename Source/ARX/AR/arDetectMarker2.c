@@ -154,7 +154,7 @@ int arGetContour( AR_LABELING_LABEL_TYPE *limage, int xsize, int ysize, int *lab
         }
     }
     if ( i > clip[1] || -1 == sx ) {
-        ARLOGe("??? 1\n"); return -1;
+        ARLOGe("arGetContour: i > clip[1] || -1 == sx\n"); return -1;
     }
 
     marker_info2->coord_num = 1;
@@ -170,7 +170,7 @@ int arGetContour( AR_LABELING_LABEL_TYPE *limage, int xsize, int ysize, int *lab
             dir = (dir+1)%8;
         }
         if( i == 8 ) {
-            ARLOGe("??? 2\n"); return -1;
+            ARLOGe("arGetContour: i>8\n"); return -1;
         }
         marker_info2->x_coord[marker_info2->coord_num]
             = marker_info2->x_coord[marker_info2->coord_num-1] + xdir[dir];
@@ -180,7 +180,7 @@ int arGetContour( AR_LABELING_LABEL_TYPE *limage, int xsize, int ysize, int *lab
          && marker_info2->y_coord[marker_info2->coord_num] == sy ) break;
         marker_info2->coord_num++;
         if( marker_info2->coord_num == AR_CHAIN_MAX-1 ) {
-            ARLOGe("??? 3\n"); return -1;
+            ARLOGe("arGetContour: AR_CHAIN_MAX exceeded\n"); return -1;
         }
     }
 

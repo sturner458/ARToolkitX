@@ -252,6 +252,14 @@ bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes)
     }
 }
 
+bool arwGetMapperInfo(int *numMarkers, int *markerIDs, float *trans) {
+    return gARTK->getMapperInfo(numMarkers, markerIDs, trans);
+}
+
+void arwSetMapperOriginMarkerID(int markerID) {
+    gARTK->setMapperOriginMarkerID(markerID);
+}
+
 void arwCleanupARToolKit()
 {
     if (gARTK) {

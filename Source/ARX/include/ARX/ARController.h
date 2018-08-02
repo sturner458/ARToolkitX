@@ -255,13 +255,13 @@ public:
 	 */
 	bool stopRunning();
 
-	/**
-	 * Stop, if running. Remove all trackables, clean up all memory.
+    /**
+     * Stop, if running. Remove all trackables, clean up all memory.
      * Starting again from this state requires initialiseBase() to be called again.
-	 * @return				true if shutdown was successful, otherwise false
-	 */
+     * @return                true if shutdown was successful, otherwise false
+     */
 	bool shutdown();
-
+    
     /**
      * Populates the provided array with the ARToolKit projection matrix. The projection matrix is computed
      * once the video source has been opened, and camera parameters become available. If this method is called
@@ -366,6 +366,13 @@ public:
 	bool update();
     bool updateWithImage(ARUint8 *image0, bool lowRes);
     
+    /**
+     * Bundle Adjustment Results
+     * @return                true if successful, otherwise false
+     */
+    bool getMapperInfo(int *numMarkers, int *markerIDs, float *trans);
+    void setMapperOriginMarkerID(int markerID);
+
     /**
      * Populates the provided buffer with the current contents of the debug image.
      * @param videoSourceIndex Index into an array of video sources, specifying which source should

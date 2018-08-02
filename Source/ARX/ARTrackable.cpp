@@ -148,8 +148,7 @@ bool ARTrackable::update(const ARdouble transL2R[3][4])
         }
         
         if (!visiblePrev) {
-            ARLOGi("trackable %d now visible.\n", UID);
-            ARPRINT("trackable %d now visible.\n", UID);
+            ARLOGi("Trackable %d now visible.\n", UID);
         }
         
         // Convert to GL matrix.

@@ -64,6 +64,8 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
 {
     int i;
     
+    //ARLOGi("arMultiAddOrUpdateSubmarker called with %d markers. Adding id %d\n", marker_info->marker_num, patt_id);
+    
     // Look for matching marker already in set.
     for (i = 0; i < marker_info->marker_num; i++) {
         if (marker_info->marker[i].patt_type == patt_type && marker_info->marker[i].patt_id == patt_id) {
@@ -108,6 +110,74 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
         } else {
             marker_info->patt_type = AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE;
         }
+    }
+    
+    return 0;
+}
+
+int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerInfoT *marker_info2, ARMultiMarkerInfoT *marker_info3, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID)
+{
+    int i;
+    
+    // Look for matching marker already in set.
+    for (i = 0; i < marker_info->marker_num; i++) {
+        if (marker_info->marker[i].patt_id == patt_id) break;
+    }
+    
+    if (i == marker_info->marker_num) { // Not found, need to add to it.
+        
+        ARLOGi("arMultiAddOrUpdateSubmarker2 called with %d markers. Adding id %d\n", marker_info->marker_num, patt_id);
+        
+        // Increase the array size.
+        ARMultiEachMarkerInfoT *emi;
+        if (!marker_info->marker) emi = (ARMultiEachMarkerInfoT *)malloc(sizeof(ARMultiEachMarkerInfoT));
+        else emi = (ARMultiEachMarkerInfoT *)realloc(marker_info->marker, sizeof(ARMultiEachMarkerInfoT) * (marker_info->marker_num + 1));
+        if (!emi) {
+            ARLOGe("arMultiAddOrUpdateSubmarker out of memory!!\n");
+            return (-1);
+        }
+        marker_info->marker = emi;
+        marker_info->marker_num++;
+        
+        // As we've enlarged the array, i is now a valid index.
+        memset(&marker_info->marker[i], 0, sizeof(ARMultiEachMarkerInfoT));
+        marker_info->marker[i].patt_id = patt_id;
+        marker_info->marker[i].patt_type = patt_type;
+        marker_info->marker[i].width = width;
+    }
+    
+    arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);
+    
+    for (int j = 0; j < marker_info3->marker_num; j++) {
+        
+        ARMat *dest;
+        ARMat *a;
+        a = arMatrixAlloc( 4, 4 );
+        a->m[12] = a->m[13] = a->m[14] = 0.0; a->m[15] = 1.0;
+        for(int k = 0; k < 3; k++ ) {
+            for(int k2 = 0; k2 < 4; k2++ ) {
+                a->m[k*4+k2] = trans[k][k2];
+            }
+        }
+        
+        ARMat * b;
+        b = arMatrixAlloc( 4, 4 );
+        b->m[12] = b->m[13] = b->m[14] = 0.0; b->m[15] = 1.0;
+        for(int k = 0; k < 3; k++ ) {
+            for(int k2 = 0; k2 < 4; k2++ ) {
+                b->m[k*4+k2] = marker_info3->marker[j].trans[k][k2];
+            }
+        }
+        
+        dest = arMatrixAllocMul(a, b);
+        ARdouble trans2[3][4];
+        for(int k = 0; k < 3; k++ ) {
+            for(int k2 = 0; k2 < 4; k2++ ) {
+                trans2[k][k2] = dest->m[k*4+k2];
+            }
+        }
+        
+        arMultiAddOrUpdateSubmarker(marker_info2, marker_info3->marker[j].patt_id, patt_type, marker_info3->marker[j].width, trans2, globalID);
     }
     
     return 0;

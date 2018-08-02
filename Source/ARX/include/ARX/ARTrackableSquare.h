@@ -64,6 +64,7 @@ public:
 	
 	int patt_id;							///< Unique pattern ID provided by artoolkitX
     int patt_type;
+    ARdouble lastErr;
 
 	ARTrackableSquare(int setUID = -1);
 	~ARTrackableSquare();
@@ -72,6 +73,7 @@ public:
     ARdouble getConfidence();
     ARdouble getConfidenceCutoff();
     void setConfidenceCutoff(ARdouble value);
+    ARdouble GetTrans(int i, int j);
     
 	bool initWithPatternFile(const char* path, ARdouble width, ARPattHandle *arPattHandle);
 	bool initWithPatternFromBuffer(const char* buffer, ARdouble width, ARPattHandle *arPattHandle);

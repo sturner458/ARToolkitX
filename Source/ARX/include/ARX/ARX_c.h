@@ -256,6 +256,8 @@ extern "C" {
     
     ARX_EXTERN void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes);
     ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false);
+    ARX_EXTERN bool arwGetMapperInfo(int *numMarkers, int *markerIDs, float *trans);
+    ARX_EXTERN void arwSetMapperOriginMarkerID(int markerID);
     ARX_EXTERN void arwCleanupARToolKit();
     
     

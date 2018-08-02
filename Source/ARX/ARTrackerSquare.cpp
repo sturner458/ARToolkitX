@@ -42,6 +42,21 @@
 #include <ARX/ARTrackableSquare.h>
 #include <ARX/ARTrackableMultiSquare.h>
 #include <ARX/AR/ar.h>
+#include <ARX/AR/arMulti.h>
+
+static int          gRobustFlag = TRUE;
+static const ARdouble gMaxErr = 10.0f;
+
+// Mapping.
+#define USE_GTSAM 1
+ARMultiMarkerInfoT *gMultiConfig = NULL;
+ARMultiMarkerInfoT *gMultiConfig2 = NULL;
+
+ARdouble gMultiErr;
+int gOriginMarkerUid = 0; // The UID of the barcode marker which defines the origin of the world coordinate system.
+const ARdouble gImageBorderZone = 0.002f; // The proportion of the image width/height to consider as an "border" zone in which markers are not to be detected. Set to 0.0f to allow markers to appear anywhere in the image.
+Mapper gMapper(0.04, 1);
+ARdouble gPattWidth = 80.0f;
 
 ARTrackerSquare::ARTrackerSquare() :
     m_threshold(AR_DEFAULT_LABELING_THRESH),
@@ -308,6 +323,12 @@ bool ARTrackerSquare::start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, A
         goto bail;
     }
     
+    //
+    // Setup an empty multimarker config.
+    //
+    gMultiConfig = arMultiAllocConfig();
+    gMultiConfig2 = arMultiAllocConfig();
+    
     // Set the pixel format
     arSetPixelFormat(m_arHandle0, pixelFormat0);
     
@@ -372,6 +393,12 @@ bail2:
 bail1:
     arDeleteHandle(m_arHandle0);
     m_arHandle0 = NULL;
+    
+    if (gMultiConfig) arMultiFreeConfig(gMultiConfig);
+    gMultiConfig = NULL;
+    if (gMultiConfig2) arMultiFreeConfig(gMultiConfig2);
+    gMultiConfig2 = NULL;
+    
 bail:
     return false;
 }
@@ -399,7 +426,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     markerInfo0 = arGetMarker(m_arHandle0);
     markerNum0 = arGetMarkerNum(m_arHandle0);
     
-    //ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
+    //if (!lowRes) ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
     //for (int i = 0; i < markerNum0; i++) {
     //    ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
     //}
@@ -416,13 +443,125 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     // Update square markers.
     bool success = true;
     if (!buff1) {
+        
+        //Mapper Stuff
+        // Need at least one marker.
+        if (markerNum0 > 0 && !lowRes) {
+            
+            /*// Discard markers towards the edge of the image.
+            if (gImageBorderZone > 0.0f) {
+                ARdouble borderX = (ARdouble)m_arHandle0->xsize*gImageBorderZone;
+                ARdouble borderY = (ARdouble)m_arHandle0->ysize*gImageBorderZone;
+                int discarded = 0;
+                for (int i = 0; i < markerNum0; i++) {
+                    if (markerInfo0[i].pos[0] < borderX || markerInfo0[i].pos[0] > ((ARdouble)m_arHandle0->xsize - borderX)
+                        || markerInfo0[i].pos[1] < borderY || markerInfo0[i].pos[1] > ((ARdouble)m_arHandle0->ysize - borderY)) {
+                        markerInfo0[i].id = markerInfo0[i].idPatt = markerInfo0[i].idMatrix = -1;
+                        discarded++;
+                    }
+                }
+                //if (discarded > 0) ARLOGd("Discarded %d markers not in image centre.\n", discarded);
+            }*/
+            
+        } // markerNum > 0
+        
+        
+        bool oneVisibleMarker = false;
+        // Now add factors for our marker observations to the graph.
+        std::vector<Marker> markers;
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+            Marker marker;
             if ((*it)->type == ARTrackable::SINGLE) {
-                success &= ((ARTrackableSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                bool success1 = ((ARTrackableSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                success &= success1;
+                if (!lowRes && success1 && (*it)->visible) {
+                    ARdouble err = ((ARTrackableSquare *)(*it))->lastErr;
+                    if (err < gMaxErr) {
+                        marker.uid = ((ARTrackableSquare *)(*it))->UID;
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = 0; j < 4; j++) {
+                                marker.trans[i][j] = ((ARTrackableSquare *)(*it))->GetTrans(i, j);
+                            }
+                        }
+                        markers.push_back(marker);
+                    }
+                }
             } else if ((*it)->type == ARTrackable::MULTI) {
-                success &= ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                bool success1 = ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                success &= success1;
+                if (!lowRes && success1 && (*it)->visible) {
+                    
+                    // If map is empty, see if we've found the first marker.
+                    if (gMultiConfig->marker_num == 0 && ((ARTrackableMultiSquare *)(*it))->UID == gOriginMarkerUid) {
+                        ARLOGi("Initing marker map with marker %d with width %f.\n", gOriginMarkerUid, ((ARTrackableMultiSquare *)(*it))->config->marker->width);
+                        ARdouble origin[3][4] = {{1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0}};
+                        arMultiAddOrUpdateSubmarker2(gMultiConfig, gMultiConfig2, ((ARTrackableMultiSquare *)(*it))->config, gOriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, ((ARTrackableMultiSquare *)(*it))->config->marker->width, origin, 0);
+                    } else {
+                        oneVisibleMarker = true;
+                    }
+                    
+                    ARdouble err = ((ARTrackableMultiSquare *)(*it))->config->marker->lastErr;
+                    if (err < gMaxErr) {
+                        marker.uid = ((ARTrackableMultiSquare *)(*it))->UID;
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = 0; j < 4; j++) {
+                                marker.trans[i][j] = ((ARTrackableMultiSquare *)(*it))->config->marker->trans[i][j];
+                            }
+                        }
+                        ARLOGi("Adding marker id %d\n", ((ARTrackableMultiSquare *)(*it))->UID);
+                        markers.push_back(marker);
+                    }
+                }
             }
         }
+        
+        // If map is not empty, calculate the pose of the multimarker in camera frame, i.e. trans_M_c.
+        if (!lowRes && oneVisibleMarker && markerNum0 > 0 && gMultiConfig->marker_num > 0) {
+            
+            ARLOGi("ARTrackerSquare::update called with %d markers\n", markers.size());
+            
+            if (gRobustFlag) gMultiErr = arGetTransMatMultiSquareRobust(m_ar3DHandle, markerInfo0, markerNum0, gMultiConfig2);
+            else gMultiErr = arGetTransMatMultiSquare(m_ar3DHandle, markerInfo0, markerNum0, gMultiConfig2);
+            
+            ARLOGi("Got multimarker pose with err=%0.3f, and prevF=%d\n", gMultiErr, gMultiConfig2->prevF);
+            
+            if (gMultiConfig2->prevF != 0) {
+                
+                //ARLOGi("Got multimarker pose with err=%0.3f\n", gMultiErr);
+                //arUtilPrintTransMat(gMultiConfig->trans);
+                
+                // Construct map using GTSAM's iSAM2 (incremental smoothing and mapping v2).
+                // This results in pose error values which are minimised over the entire map.
+                
+                // Add a pose estimate to the graph.
+                gMapper.AddPose(gMultiConfig2->trans);
+                
+                ARLOGi("Added Pose\n");
+                
+                gMapper.AddFactors(markers);
+                
+                ARLOGi("Added Factors\n");
+                
+                // Do mapping.
+                if (!gMapper.inited()) {
+                    // Add a landmark for the origin marker.
+                    // We fix this in the map at the origin and thus fix the scale for first pose and first landmark.
+                    gMapper.Initialize(gOriginMarkerUid, gPattWidth);
+                } else {
+                    // This will add new landmarks for each marker not previously seen, with the
+                    // initial pose estimate calculated from the marker pose in the camera frame
+                    // composed with the camera pose in the map frame.
+                    gMapper.AddLandmarks(markers);
+                    gMapper.Optimize();
+                    // Get latest estimates from mapper and put into map.
+                    gMapper.Update2(gMultiConfig, gMultiConfig2, trackables);
+                    // Prepare for next iteration.
+                    gMapper.Clear();
+                }
+                
+            } // gMultiConfig->prevF != 0
+        } // gMultiConfig->marker_num > 0
+        
     } else {
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {
@@ -436,6 +575,26 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     return true;
 }
 
+bool ARTrackerSquare::GetMapperInfo(int *numMarkers, int *markerIDs, float *trans) {
+    ARLOGe("ARTrackerSquare::GetMapperInfo called with %d markers\n", gMultiConfig->marker_num);
+    if (!gMultiConfig || gMultiConfig->marker_num < 2) return false;
+    *numMarkers = gMultiConfig->marker_num;
+    markerIDs = new int[*numMarkers];
+    trans = new float[3 * 4 * *numMarkers];
+    for (int i = 0; i < gMultiConfig->marker_num; i++) {
+        for (int j = 0; j < 3; j++){
+            for (int k = 0; k < 4; k++) {
+                trans[i * j * k] = gMultiConfig->marker[i].pos3d[j][k];
+            }
+        }
+    }
+    return true;
+}
+
+void ARTrackerSquare::SetMapperOriginMarkerID(int markerID) {
+    gOriginMarkerUid = markerID;
+}
+
 bool ARTrackerSquare::stop()
 {
     //ARLOGd("Cleaning up artoolkitX handles.\n");
@@ -445,6 +604,8 @@ bool ARTrackerSquare::stop()
     if (m_ar3DStereoHandle) {
         ar3DStereoDeleteHandle(&m_ar3DStereoHandle); // Sets ar3DStereoHandle to NULL.
     }
+    
+    if (gMultiConfig) arMultiFreeConfig(gMultiConfig);
     
     if (m_arHandle0) {
         arPattDetach(m_arHandle0);

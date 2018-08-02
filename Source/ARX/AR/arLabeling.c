@@ -64,8 +64,10 @@ int arLabeling( ARUint8 *imageLuma, int xsize, int ysize,
             if (image_thresh) return arLabelingSubDBZ(imageLuma, xsize, ysize, image_thresh, labelInfo);
 #endif
             if (imageProcMode == AR_IMAGE_PROC_FRAME_IMAGE) {
+                //ARLOGi("arLabelingSubDBRC called.\n");
                 return arLabelingSubDBRC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             } else /* imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE */ {
+                //ARLOGi("arLabelingSubDBIC called.\n");
                 return arLabelingSubDBIC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             }
         } else /* labelingMode == AR_LABELING_WHITE_REGION */ {
@@ -73,8 +75,10 @@ int arLabeling( ARUint8 *imageLuma, int xsize, int ysize,
             if (image_thresh) return arLabelingSubDWZ(imageLuma, xsize, ysize, image_thresh, labelInfo);
 #endif
             if (imageProcMode == AR_IMAGE_PROC_FRAME_IMAGE) {
+                //ARLOGi("arLabelingSubDWRC called.\n");
                 return arLabelingSubDWRC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             } else /* imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE */ {
+                //ARLOGi("arLabelingSubDWIC called.\n");
                 return arLabelingSubDWIC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             }
         }
@@ -85,8 +89,10 @@ int arLabeling( ARUint8 *imageLuma, int xsize, int ysize,
             if (image_thresh) return arLabelingSubEBZ(imageLuma, xsize, ysize, image_thresh, labelInfo);
 #endif
             if (imageProcMode == AR_IMAGE_PROC_FRAME_IMAGE) {
+                //ARLOGi("arLabelingSubEBRC called.\n");
                 return arLabelingSubEBRC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             } else /* imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE */ {
+                //ARLOGi("arLabelingSubEBIC called.\n");
                 return arLabelingSubEBIC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             }
         } else /* labelingMode == AR_LABELING_WHITE_REGION */ {
@@ -94,8 +100,10 @@ int arLabeling( ARUint8 *imageLuma, int xsize, int ysize,
             if (image_thresh) return arLabelingSubEWZ(imageLuma, xsize, ysize, image_thresh, labelInfo);
 #endif
             if (imageProcMode == AR_IMAGE_PROC_FRAME_IMAGE) {
+                //ARLOGi("arLabelingSubEWRC called.\n");
                 return arLabelingSubEWRC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             } else /* imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE */ {
+                //ARLOGi("arLabelingSubEWIC called.\n");
                 return arLabelingSubEWIC(imageLuma, xsize, ysize, labelingThresh, labelInfo);
             }
         }

@@ -78,6 +78,10 @@ bool ARTrackableSquare::unload()
     return (true);
 }
 
+ARdouble ARTrackableSquare::GetTrans(int i, int j) {
+    return trans[i][j];
+}
+
 bool ARTrackableSquare::initWithPatternFile(const char* path, ARdouble width, ARPattHandle *arPattHandle)
 {
 	// Ensure the pattern string is valid
@@ -222,16 +226,15 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
         
 		// Consider marker visible if a match was found.
         if (k != -1) {
-            ARdouble err;
             // If the model is visible, update its transformation matrix
 			if (visiblePrev && useContPoseEstimation) {
 				// If the marker was visible last time, use "cont" version of arGetTransMatSquare
-				err = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
+				lastErr = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
 			} else {
 				// If the marker wasn't visible last time, use normal version of arGetTransMatSquare
-				err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
+				lastErr = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
 			}
-            if (err < 10.0f) {
+            if (lastErr < 10.0f) {
                 visible = true;
                 m_cf = markerInfo[k].cf;
             }

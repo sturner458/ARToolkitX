@@ -403,7 +403,7 @@ AR2VideoParamImageT *ar2VideoOpenImage( const char *config )
     // Point to head of image list.
     vid->nextImage = vid->imageList;
 
-    ARPRINT("Image video size %dx%d@%dBpp.\n", vid->width, vid->height, arVideoUtilGetPixelSize(vid->format));
+    ARLOGi("Image video size %dx%d@%dBpp.\n", vid->width, vid->height, arVideoUtilGetPixelSize(vid->format));
 
     return vid;
 bail:

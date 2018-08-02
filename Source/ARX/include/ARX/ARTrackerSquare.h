@@ -46,6 +46,7 @@
 #include <ARX/ARTrackableMultiSquare.h>
 #include <ARX/ARTrackerVideo.h>
 #include <ARX/AR/ar.h>
+#include "mapper.h"
 
 class ARTrackerSquare : public ARTrackerVideo {
 public:
@@ -175,6 +176,9 @@ public:
     void deleteTrackable(ARTrackable **trackable_p) override;
     
     bool updateDebugTextureRGBA32(const int videoSourceIndex, uint32_t* buffer);
+    
+    bool GetMapperInfo(int *numMarkers, int *markerIDs, float *trans);
+    void SetMapperOriginMarkerID(int markerID);
     
 private:
     int m_threshold;
