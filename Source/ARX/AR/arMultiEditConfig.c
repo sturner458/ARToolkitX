@@ -149,35 +149,10 @@ int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerI
     arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);
     
     for (int j = 0; j < marker_info3->marker_num; j++) {
+        ARdouble newTrans[3][4];
+        arUtilMatMul(trans, marker_info3->marker[j].trans, newTrans);
         
-        ARMat *dest;
-        ARMat *a;
-        a = arMatrixAlloc( 4, 4 );
-        a->m[12] = a->m[13] = a->m[14] = 0.0; a->m[15] = 1.0;
-        for(int k = 0; k < 3; k++ ) {
-            for(int k2 = 0; k2 < 4; k2++ ) {
-                a->m[k*4+k2] = trans[k][k2];
-            }
-        }
-        
-        ARMat * b;
-        b = arMatrixAlloc( 4, 4 );
-        b->m[12] = b->m[13] = b->m[14] = 0.0; b->m[15] = 1.0;
-        for(int k = 0; k < 3; k++ ) {
-            for(int k2 = 0; k2 < 4; k2++ ) {
-                b->m[k*4+k2] = marker_info3->marker[j].trans[k][k2];
-            }
-        }
-        
-        dest = arMatrixAllocMul(a, b);
-        ARdouble trans2[3][4];
-        for(int k = 0; k < 3; k++ ) {
-            for(int k2 = 0; k2 < 4; k2++ ) {
-                trans2[k][k2] = dest->m[k*4+k2];
-            }
-        }
-        
-        arMultiAddOrUpdateSubmarker(marker_info2, marker_info3->marker[j].patt_id, patt_type, marker_info3->marker[j].width, trans2, globalID);
+        arMultiAddOrUpdateSubmarker(marker_info2, marker_info3->marker[j].patt_id, patt_type, marker_info3->marker[j].width, newTrans, globalID);
     }
     
     return 0;
