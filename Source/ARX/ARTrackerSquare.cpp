@@ -495,7 +495,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                     if (gMultiConfig->marker_num == 0 && ((ARTrackableMultiSquare *)(*it))->UID == gOriginMarkerUid) {
                         ARLOGi("Initing marker map with marker %d with width %f.\n", gOriginMarkerUid, ((ARTrackableMultiSquare *)(*it))->config->marker->width);
                         ARdouble origin[3][4] = {{1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0}};
-                        arMultiAddOrUpdateSubmarker2(gMultiConfig, gMultiConfig2, ((ARTrackableMultiSquare *)(*it))->config, gOriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, ((ARTrackableMultiSquare *)(*it))->config->marker->width, origin, 0);
+                        arMultiAddOrUpdateSubmarker2(gMultiConfig, gMultiConfig2, ((ARTrackableMultiSquare *)(*it))->config, gOriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, ((ARTrackableMultiSquare *)(*it))->config->marker->width, origin, -1);
                     } else {
                         oneVisibleMarker = true;
                     }
@@ -505,7 +505,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         marker.uid = ((ARTrackableMultiSquare *)(*it))->UID;
                         for (int i = 0; i < 3; i++) {
                             for (int j = 0; j < 4; j++) {
-                                marker.trans[i][j] = ((ARTrackableMultiSquare *)(*it))->config->marker->trans[i][j];
+                                marker.trans[i][j] = ((ARTrackableMultiSquare *)(*it))->config->trans[i][j];
                             }
                         }
                         ARLOGi("Adding marker id %d\n", ((ARTrackableMultiSquare *)(*it))->UID);

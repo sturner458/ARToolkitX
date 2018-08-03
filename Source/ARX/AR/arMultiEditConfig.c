@@ -148,9 +148,13 @@ int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerI
     
     arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);
     
+    if (globalID == -1) return 0;
+    
     for (int j = 0; j < marker_info3->marker_num; j++) {
         ARdouble newTrans[3][4];
         arUtilMatMul(trans, marker_info3->marker[j].trans, newTrans);
+        
+        ARLOGi("Old trans = (%f,%f,%f) - New trans = (%f,%f,%f)\n", trans[0][3], trans[1][3], trans[2][3], newTrans[0][3], newTrans[1][3], newTrans[2][3]);
         
         arMultiAddOrUpdateSubmarker(marker_info2, marker_info3->marker[j].patt_id, patt_type, marker_info3->marker[j].width, newTrans, globalID);
     }
