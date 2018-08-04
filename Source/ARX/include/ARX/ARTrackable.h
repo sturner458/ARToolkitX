@@ -117,6 +117,7 @@ public:
 	 * @return true if successful, false if an error occurred
 	 */
     virtual bool update(const ARdouble transL2R[3][4] = NULL);
+    ARdouble GetTrans(int i, int j);
 
 	/**
 	 * Returns the specified pattern within this trackable.

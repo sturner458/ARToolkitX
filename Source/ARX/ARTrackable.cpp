@@ -181,6 +181,10 @@ bool ARTrackable::update(const ARdouble transL2R[3][4])
     return true;
 }
 
+ARdouble ARTrackable::GetTrans(int i, int j) {
+    return trans[i][j];
+}
+
 void ARTrackable::setFiltered(bool flag)
 {
     if (flag && !m_ftmi) {

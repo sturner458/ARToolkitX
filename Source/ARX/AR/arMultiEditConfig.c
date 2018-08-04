@@ -152,6 +152,10 @@ int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerI
     
     for (int j = 0; j < marker_info3->marker_num; j++) {
         ARdouble newTrans[3][4];
+        
+        //Should the next matrix multiplication be reversed?
+        //Or should itrans be used instead of trans?
+        //Or both?
         arUtilMatMul(trans, marker_info3->marker[j].trans, newTrans);
         
         ARLOGi("Old trans = (%f,%f,%f) - New trans = (%f,%f,%f)\n", trans[0][3], trans[1][3], trans[2][3], newTrans[0][3], newTrans[1][3], newTrans[2][3]);

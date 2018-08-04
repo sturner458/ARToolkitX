@@ -44,8 +44,8 @@ do
             ;;
         windows) BUILD_WINDOWS=1
             ;;
-		examples) BUILD_EXAMPLES=1
-		    ;;
+        examples) BUILD_EXAMPLES=1
+            ;;
         docs) BUILD_DOCS=1
             ;;
         --debug) DEBUG=
@@ -82,6 +82,11 @@ then
     # bash on Cygwin.
     CPUS=`/usr/bin/nproc`
     OS='Windows'
+elif [ "$OS" = "MINGW64_NT-6.1" ]
+then
+    # git-bash on Windows 7
+    CPUS=`/usr/bin/nproc`
+    OS='Windows'
 elif [ "$OS" = "MINGW64_NT-10.0" ]
 then
     # git-bash on Windows.
@@ -93,17 +98,17 @@ fi
 
 # Function to allow check for required packages.
 function check_package {
-	# Variant for distros that use debian packaging.
-	if (type dpkg-query >/dev/null 2>&1) ; then
-		if ! $(dpkg-query -W -f='${Status}' $1 | grep -q '^install ok installed$') ; then
-			echo "Warning: required package '$1' does not appear to be installed. To install it use 'sudo apt-get install $1'."
-		fi
-	# Variant for distros that use rpm packaging.
-	elif (type rpm >/dev/null 2>&1) ; then
-		if ! $(rpm -qa | grep -q $1) ; then
-			echo "Warning: required package '$1' does not appear to be installed. To install it use 'sudo dnf install $1'."
-		fi
-	fi
+    # Variant for distros that use debian packaging.
+    if (type dpkg-query >/dev/null 2>&1) ; then
+        if ! $(dpkg-query -W -f='${Status}' $1 | grep -q '^install ok installed$') ; then
+            echo "Warning: required package '$1' does not appear to be installed. To install it use 'sudo apt-get install $1'."
+        fi
+    # Variant for distros that use rpm packaging.
+    elif (type rpm >/dev/null 2>&1) ; then
+        if ! $(rpm -qa | grep -q $1) ; then
+            echo "Warning: required package '$1' does not appear to be installed. To install it use 'sudo dnf install $1'."
+        fi
+    fi
 }
 
 if [ "$OS" = "Darwin" ] ; then
@@ -129,13 +134,13 @@ if [ $BUILD_MACOS ] ; then
     xcodebuild -target install -configuration ${DEBUG+Debug}${DEBUG-Release}
     cd $OURDIR
 
-	if [ $BUILD_EXAMPLES ] ; then
-    	(cd "../Examples/Square tracking example/macOS"
-    	xcodebuild -target "artoolkitX Square Tracking Example" -configuration ${DEBUG+Debug}${DEBUG-Release}
-    	)
-    	(cd "../Examples/2d tracking example/macOS"
-    	xcodebuild -target "artoolkitX 2d Tracking Example" -configuration ${DEBUG+Debug}${DEBUG-Release}
-    	)
+    if [ $BUILD_EXAMPLES ] ; then
+        (cd "../Examples/Square tracking example/macOS"
+        xcodebuild -target "artoolkitX Square Tracking Example" -configuration ${DEBUG+Debug}${DEBUG-Release}
+        )
+        (cd "../Examples/2d tracking example/macOS"
+        xcodebuild -target "artoolkitX 2d Tracking Example" -configuration ${DEBUG+Debug}${DEBUG-Release}
+        )
     fi
 fi
 # /BUILD_MACOS
@@ -189,7 +194,7 @@ if [ $BUILD_ANDROID ] ; then
 #export ANDROID_NDK=${ANDROID_NDK_ROOT}
 
 if [ "$OS" = "Linux" ] ; then
-	check_package cmake
+    check_package cmake
 fi
 
 if [ ! -d "depends/android/include/opencv2" ] ; then
@@ -199,7 +204,7 @@ if [ ! -d "depends/android/include/opencv2" ] ; then
 fi
 
 if [ ! -d "build-android" ] ; then
-	mkdir build-android
+    mkdir build-android
 fi
 cd build-android
 
@@ -263,35 +268,35 @@ if [ "$OS" = "Linux" ] ; then
 
 # Linux
 if [ $BUILD_LINUX ] ; then
-	if (type dpkg-query >/dev/null 2>&1) ; then
-		check_package build-essential
-		check_package cmake
-		check_package libjpeg-dev
-		check_package libgl1-mesa-dev
-		check_package libsdl2-dev
-		check_package libudev-dev
-		check_package libv4l-dev
-		check_package libdc1394-22-dev
-		check_package libgstreamer1.0-dev
-		check_package libsqlite3-dev
-		check_package libcurl4-openssl-dev
-		check_package libssl-dev
-	elif (type rpm >/dev/null 2>&1) ; then
-		check_package gcc
-		check_package gcc-c++
-		check_package make
-		check_package cmake
-		check_package libjpeg-turbo-devel
-		check_package mesa-libGL-devel
-		check_package libSDL2-devel
-		check_package systemd-devel
-		check_package libv4l-devel
-		check_package libdc1394-devel
-		check_package gstreamer1-devel
-		check_package libsqlite3x-devel
-		check_package libcurl-devel
-		check_package libopenssl-devel
-	fi
+    if (type dpkg-query >/dev/null 2>&1) ; then
+        check_package build-essential
+        check_package cmake
+        check_package libjpeg-dev
+        check_package libgl1-mesa-dev
+        check_package libsdl2-dev
+        check_package libudev-dev
+        check_package libv4l-dev
+        check_package libdc1394-22-dev
+        check_package libgstreamer1.0-dev
+        check_package libsqlite3-dev
+        check_package libcurl4-openssl-dev
+        check_package libssl-dev
+    elif (type rpm >/dev/null 2>&1) ; then
+        check_package gcc
+        check_package gcc-c++
+        check_package make
+        check_package cmake
+        check_package libjpeg-turbo-devel
+        check_package mesa-libGL-devel
+        check_package libSDL2-devel
+        check_package systemd-devel
+        check_package libv4l-devel
+        check_package libdc1394-devel
+        check_package gstreamer1-devel
+        check_package libsqlite3x-devel
+        check_package libcurl-devel
+        check_package libopenssl-devel
+    fi
 
     # Check if a suitable version of OpenCV is installed. If not, but its available, install it.
     # If neither, try our precompiled version.
@@ -314,38 +319,38 @@ if [ $BUILD_LINUX ] ; then
     fi    
     
 
-	if [ ! -d "build-linux-x86_64" ] ; then
-		mkdir build-linux-x86_64
-	fi
-	cd build-linux-x86_64
-	rm -f CMakeCache.txt
-	cmake .. -DCMAKE_BUILD_TYPE=${DEBUG+Debug}${DEBUG-Release}
-	make -j $CPUS
+    if [ ! -d "build-linux-x86_64" ] ; then
+        mkdir build-linux-x86_64
+    fi
+    cd build-linux-x86_64
+    rm -f CMakeCache.txt
+    cmake .. -DCMAKE_BUILD_TYPE=${DEBUG+Debug}${DEBUG-Release}
+    make -j $CPUS
     make install${DEBUG-/strip}
-	cd ..
+    cd ..
 
- 	if [ $BUILD_EXAMPLES ] ; then
-    	(cd "../Examples/Square tracking example/Linux"
+     if [ $BUILD_EXAMPLES ] ; then
+        (cd "../Examples/Square tracking example/Linux"
         mkdir -p build
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=${DEBUG+Debug}${DEBUG-Release}
         make install
-    	)
-#    	(cd "../Examples/Square tracking example with OSG/Linux"
+        )
+#        (cd "../Examples/Square tracking example with OSG/Linux"
 #        mkdir -p build
 #        cd build
 #        cmake .. -DCMAKE_BUILD_TYPE=${DEBUG+Debug}${DEBUG-Release}
 #        make
 #        make install
-#    	)
- 	fi
+#        )
+     fi
 
 fi
 # /BUILD_LINUX
 
 if [ $BUILD_LINUX_RASPBIAN ] ; then
     if [ "$ID" = "raspbian" ]; then
-    	# Building on Raspbian.
+        # Building on Raspbian.
         if (type dpkg-query >/dev/null 2>&1) ; then
             check_package build-essential
             check_package cmake
@@ -394,13 +399,13 @@ if [ $BUILD_LINUX_RASPBIAN ] ; then
             make
             make install
             )
-#    	    (cd "../Examples/Square tracking example with OSG/Linux"
+#            (cd "../Examples/Square tracking example with OSG/Linux"
 #           mkdir -p build-raspbian
 #           cd build-raspbian
 #           cmake .. -DARX_TARGET_PLATFORM_VARIANT=raspbian -DCMAKE_BUILD_TYPE=${DEBUG+Debug}${DEBUG-Release}
 #           make
 #           make install
-#    	    )
+#            )
         fi
     else
         # Cross-compiling.

@@ -78,10 +78,6 @@ bool ARTrackableSquare::unload()
     return (true);
 }
 
-ARdouble ARTrackableSquare::GetTrans(int i, int j) {
-    return trans[i][j];
-}
-
 bool ARTrackableSquare::initWithPatternFile(const char* path, ARdouble width, ARPattHandle *arPattHandle)
 {
 	// Ensure the pattern string is valid
