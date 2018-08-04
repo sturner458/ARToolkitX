@@ -151,12 +151,13 @@ int arMultiAddOrUpdateSubmarker2(ARMultiMarkerInfoT *marker_info, ARMultiMarkerI
     if (globalID == -1) return 0;
     
     for (int j = 0; j < marker_info3->marker_num; j++) {
+        //I think I need to multiply the inverse of trans by marker_info3->marker[j].trans and then by trans
+        ARdouble invTrans[3][4];
+        arUtilMatInv(trans, invTrans);
+        ARdouble tempTrans[3][4];
+        arUtilMatMul(marker_info3->marker[j].trans, invTrans, tempTrans);
         ARdouble newTrans[3][4];
-        
-        //Should the next matrix multiplication be reversed?
-        //Or should itrans be used instead of trans?
-        //Or both?
-        arUtilMatMul(trans, marker_info3->marker[j].trans, newTrans);
+        arUtilMatMul(trans, tempTrans, newTrans);
         
         ARLOGi("Old trans = (%f,%f,%f) - New trans = (%f,%f,%f)\n", trans[0][3], trans[1][3], trans[2][3], newTrans[0][3], newTrans[1][3], newTrans[2][3]);
         

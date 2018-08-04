@@ -496,8 +496,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         ARdouble origin[3][4] = {{1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0}};
                         arMultiAddOrUpdateSubmarker2(gMultiConfig, gMultiConfig2, ((ARTrackableMultiSquare *)(*it))->config, gOriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, ((ARTrackableMultiSquare *)(*it))->config->marker->width, origin, -1);
                     }
-                    
-                    ARdouble err = ((ARTrackableMultiSquare *)(*it))->config->marker->lastErr;
+                                        ARdouble err = ((ARTrackableMultiSquare *)(*it))->config->marker->lastErr;
                     if (err < gMaxErr) {
                         marker.uid = ((ARTrackableMultiSquare *)(*it))->UID;
                         for (int i = 0; i < 3; i++) {
