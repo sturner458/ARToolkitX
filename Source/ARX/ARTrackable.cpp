@@ -54,7 +54,7 @@
 #  include <sys/param.h>
 #endif
 
-ARTrackable::ARTrackable(TrackableType type) :
+ARTrackable::ARTrackable(TrackableType type, int setUID) :
     m_ftmi(NULL),
     m_filterCutoffFrequency(AR_FILTER_TRANS_MAT_CUTOFF_FREQ_DEFAULT),
     m_filterSampleRate(AR_FILTER_TRANS_MAT_SAMPLE_RATE_DEFAULT),
@@ -69,8 +69,12 @@ ARTrackable::ARTrackable(TrackableType type) :
     patternCount(0),
     patterns(NULL)
 {
-	static int nextUID = 0;
-	UID = nextUID++;
+    if (setUID == -1) {
+        static int nextUID = 0;
+        UID = nextUID++;
+    } else {
+        UID = setUID;
+    }
 }
 
 ARTrackable::~ARTrackable()
@@ -86,7 +90,7 @@ void ARTrackable::allocatePatterns(int count)
 
     if (count) {
         patternCount = count;
-        ARLOGd("Allocating %d patterns on trackable %d.\n", patternCount, UID);
+        //ARLOGd("Allocating %d patterns on trackable %d.\n", patternCount, UID);
         patterns = new ARPattern*[patternCount];
         for (int i = 0; i < patternCount; i++) {
             patterns[i] = new ARPattern();
@@ -145,6 +149,7 @@ bool ARTrackable::update(const ARdouble transL2R[3][4])
         
         if (!visiblePrev) {
             ARLOGi("trackable %d now visible.\n", UID);
+            ARPRINT("trackable %d now visible.\n", UID);
         }
         
         // Convert to GL matrix.

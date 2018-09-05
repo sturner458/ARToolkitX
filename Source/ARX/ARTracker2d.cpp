@@ -141,7 +141,7 @@ bool ARTracker2d::isRunning()
     return m_running;
 }
 
-bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables)
+bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
     ARLOGd("ARX::ARTracker2d::update()\n");
     // Late loading of data now that we have image width and height.
@@ -177,9 +177,9 @@ bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trac
     return true;
 }
 
-bool ARTracker2d::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables)
+bool ARTracker2d::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
-    return update(buff0, trackables);
+    return update(buff0, trackables, lowRes);
 }
 
 bool ARTracker2d::stop()
@@ -200,7 +200,7 @@ void ARTracker2d::terminate()
     
 }
 
-ARTrackable *ARTracker2d::newTrackable(std::vector<std::string> config)
+ARTrackable *ARTracker2d::newTrackable(std::vector<std::string> config, int setUID)
 {
     // Minimum config length.
     if (config.size() < 1) {

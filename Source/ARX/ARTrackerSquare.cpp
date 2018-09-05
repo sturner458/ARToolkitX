@@ -53,6 +53,7 @@ ARTrackerSquare::ARTrackerSquare() :
     m_patternDetectionMode(AR_DEFAULT_PATTERN_DETECTION_MODE),
     m_matrixCodeType(AR_MATRIX_CODE_TYPE_DEFAULT),
     m_debugMode(FALSE),
+    m_cornerRefinementMode(FALSE),
     m_patternSize(AR_PATT_SIZE1),
     m_patternCountMax(AR_PATT_NUM_MAX),
     m_arHandle0(NULL),
@@ -94,11 +95,11 @@ void ARTrackerSquare::setDebugMode(bool debug)
 {
     m_debugMode = debug;
     if (m_arHandle0) {
-        arSetDebugMode(m_arHandle0, m_debugMode ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
+        arSetDebugMode(m_arHandle0, debug ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
         ARLOGi("Debug mode set to %s.\n", debug ? "on." : "off.");
     }
     if (m_arHandle1) {
-        arSetDebugMode(m_arHandle1, m_debugMode ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
+        arSetDebugMode(m_arHandle1, debug ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
         ARLOGi("Debug mode set to %s.\n", debug ? "on." : "off.");
     }
 }
@@ -108,18 +109,35 @@ bool ARTrackerSquare::debugMode() const
     return m_debugMode;
 }
 
+void ARTrackerSquare::setCornerRefinementMode(bool mode)
+{
+    m_cornerRefinementMode = mode;
+    if (m_arHandle0) {
+        arSetCornerRefinementMode(m_arHandle0, mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+    }
+    if (m_arHandle1) {
+        arSetCornerRefinementMode(m_arHandle1, mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+    }
+    ARLOGi("Corner Refinement mode set to %d.\n", mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+    
+}
+
+bool ARTrackerSquare::cornerRefinementMode() const
+{
+    return m_cornerRefinementMode;
+}
+
 void ARTrackerSquare::setImageProcMode(int mode)
 {
     m_imageProcMode = mode;
     
     if (m_arHandle0) {
         arSetImageProcMode(m_arHandle0, mode);
-        ARLOGi("Image proc. mode set to %d.\n", m_imageProcMode);
     }
     if (m_arHandle1) {
         arSetImageProcMode(m_arHandle1, mode);
-        ARLOGi("Image proc. mode set to %d.\n", m_imageProcMode);
      }
+    ARLOGi("Image proc. mode set to %d.\n", m_imageProcMode);
 }
 
 int ARTrackerSquare::imageProcMode() const
@@ -133,12 +151,11 @@ void ARTrackerSquare::setThreshold(int thresh)
     m_threshold = thresh;
     if (m_arHandle0) {
         arSetLabelingThresh(m_arHandle0, m_threshold);
-        ARLOGi("Threshold set to %d\n", m_threshold);
     }
     if (m_arHandle1) {
         arSetLabelingThresh(m_arHandle1, m_threshold);
-        ARLOGi("Threshold set to %d\n", m_threshold);
     }
+    ARLOGi("Threshold set to %d\n", m_threshold);
 }
 
 int ARTrackerSquare::threshold() const
@@ -151,12 +168,11 @@ void ARTrackerSquare::setThresholdMode(int mode)
     m_thresholdMode = (AR_LABELING_THRESH_MODE)mode;
     if (m_arHandle0) {
         arSetLabelingThreshMode(m_arHandle0, m_thresholdMode);
-        ARLOGi("Threshold mode set to %d\n", (int)m_thresholdMode);
     }
     if (m_arHandle1) {
         arSetLabelingThreshMode(m_arHandle1, m_thresholdMode);
-        ARLOGi("Threshold mode set to %d\n", (int)m_thresholdMode);
     }
+    ARLOGi("Threshold mode set to %d\n", (int)m_thresholdMode);
 }
 
 int ARTrackerSquare::thresholdMode() const
@@ -169,12 +185,11 @@ void ARTrackerSquare::setLabelingMode(int mode)
     m_labelingMode = mode;
     if (m_arHandle0) {
         arSetLabelingMode(m_arHandle0, m_labelingMode);
-        ARLOGi("Labeling mode set to %d\n", m_labelingMode);
     }
     if (m_arHandle1) {
         arSetLabelingMode(m_arHandle1, m_labelingMode);
-        ARLOGi("Labeling mode set to %d\n", m_labelingMode);
     }
+    ARLOGi("Labeling mode set to %d\n", m_labelingMode);
 }
 
 int ARTrackerSquare::labelingMode() const
@@ -303,11 +318,12 @@ bool ARTrackerSquare::start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, A
     arSetLabelingThresh(m_arHandle0, m_threshold);
     arSetLabelingThreshMode(m_arHandle0, m_thresholdMode);
     arSetImageProcMode(m_arHandle0, m_imageProcMode);
-    arSetDebugMode(m_arHandle0, m_debugMode);
+    arSetDebugMode(m_arHandle0, m_debugMode ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
     arSetLabelingMode(m_arHandle0, m_labelingMode);
     arSetPattRatio(m_arHandle0, m_pattRatio);
     arSetPatternDetectionMode(m_arHandle0, m_patternDetectionMode);
     arSetMatrixCodeType(m_arHandle0, m_matrixCodeType);
+    arSetCornerRefinementMode(m_arHandle0, m_cornerRefinementMode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
     
     if (paramLT1) {
         // Create AR handle
@@ -325,11 +341,12 @@ bool ARTrackerSquare::start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, A
         arSetLabelingThresh(m_arHandle1, m_threshold);
         arSetLabelingThreshMode(m_arHandle1, m_thresholdMode);
         arSetImageProcMode(m_arHandle1, m_imageProcMode);
-        arSetDebugMode(m_arHandle1, m_debugMode);
+        arSetDebugMode(m_arHandle1, m_debugMode ? AR_DEBUG_ENABLE : AR_DEBUG_DISABLE);
         arSetLabelingMode(m_arHandle1, m_labelingMode);
         arSetPattRatio(m_arHandle1, m_pattRatio);
         arSetPatternDetectionMode(m_arHandle1, m_patternDetectionMode);
         arSetMatrixCodeType(m_arHandle1, m_matrixCodeType);
+        arSetCornerRefinementMode(m_arHandle1, m_cornerRefinementMode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
     }
     
     if (!paramLT1) {
@@ -360,30 +377,36 @@ bail:
     return false;
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
-    return update(buff, NULL, trackables);
+    return update(buff, NULL, trackables, lowRes);
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes)
 {
     ARMarkerInfo *markerInfo0 = NULL;
     ARMarkerInfo *markerInfo1 = NULL;
     int markerNum0 = 0;
     int markerNum1 = 0;
 
-    ARLOGd("ARX::ARTrackerSquare::update()\n");
+    //ARLOGd("ARX::ARTrackerSquare::update()\n");
 
     if (!m_arHandle0 || (buff1 && !m_arHandle1)) return false;
 
-    if (arDetectMarker(m_arHandle0, buff0) < 0) {
+    if (arDetectMarker(m_arHandle0, buff0, lowRes ? 1 : 0) < 0) {
         ARLOGe("arDetectMarker().\n");
         return false;
     }
     markerInfo0 = arGetMarker(m_arHandle0);
     markerNum0 = arGetMarkerNum(m_arHandle0);
+    
+    //ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
+    //for (int i = 0; i < markerNum0; i++) {
+    //    ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
+    //}
+    
     if (buff1) {
-        if (arDetectMarker(m_arHandle1, buff1) < 0) {
+        if (arDetectMarker(m_arHandle1, buff1, lowRes ? 1 : 0) < 0) {
             ARLOGe("arDetectMarker().\n");
             return false;
         }
@@ -450,7 +473,7 @@ void ARTrackerSquare::terminate()
     }
 }
 
-ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config)
+ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config, int setUID)
 {
     // First token is trackable type.
     if (config.at(0).compare("single") == 0) {
@@ -478,7 +501,7 @@ ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config)
         }
         
         ARLOGi("Creating ARTrackableSquare with pattern='%s', width=%f.\n", config.at(1).c_str(), width);
-        ARTrackableSquare *ret = new ARTrackableSquare();
+        ARTrackableSquare *ret = new ARTrackableSquare(setUID);
         if (!ret->initWithPatternFile(config.at(1).c_str(), width, m_arPattHandle)) {
             // Marker failed to load, or was not added.
             delete ret;
@@ -515,7 +538,7 @@ ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config)
         }
         const char *bufferStart = config.at(2).c_str() + 7;
         
-        ARTrackableSquare *ret = new ARTrackableSquare();
+        ARTrackableSquare *ret = new ARTrackableSquare(setUID);
         if (!ret->initWithPatternFromBuffer(bufferStart, width, m_arPattHandle)) {
             // Marker failed to load, or was not added
             delete ret;
@@ -552,7 +575,7 @@ ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config)
             return nullptr;
         }
         
-        ARTrackableSquare *ret = new ARTrackableSquare();
+        ARTrackableSquare *ret = new ARTrackableSquare(setUID);
         if (!ret->initWithBarcode((int)barcodeID, width)) {
             // Marker failed to load, or was not added
             delete ret;
@@ -568,7 +591,7 @@ ARTrackable *ARTrackerSquare::newTrackable(std::vector<std::string> config)
             return nullptr;
         }
         
-        ARTrackableMultiSquare *ret = new ARTrackableMultiSquare();
+        ARTrackableMultiSquare *ret = new ARTrackableMultiSquare(setUID);
         if (!ret->load(config.at(1).c_str(), m_arPattHandle)) {
             // Marker failed to load, or was not added
             delete ret;

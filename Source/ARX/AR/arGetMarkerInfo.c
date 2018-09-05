@@ -62,9 +62,13 @@ int arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat, ARMa
         markerInfo[j].area   = markerInfo2[i].area;
 #ifdef ARDOUBLE_IS_FLOAT
         if (arParamObserv2IdealLTf(arParamLTf, markerInfo2[i].pos[0], markerInfo2[i].pos[1],
-                                   &(markerInfo[j].pos[0]), &(markerInfo[j].pos[1]) ) < 0) continue;
+                                   &(markerInfo[j].pos[0]), &(markerInfo[j].pos[1]) ) < 0) {
+            continue;
+        }
 #else
-        if (arParamObserv2IdealLTf(arParamLTf, (float)markerInfo2[i].pos[0], (float)markerInfo2[i].pos[1], &pos0, &pos1) < 0) continue;
+        if (arParamObserv2IdealLTf(arParamLTf, (float)markerInfo2[i].pos[0], (float)markerInfo2[i].pos[1], &pos0, &pos1) < 0) {
+            continue;
+        }
         markerInfo[j].pos[0] = (ARdouble)pos0;
         markerInfo[j].pos[1] = (ARdouble)pos1;
 #endif
@@ -73,7 +77,9 @@ int arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat, ARMa
 
         if( arGetLine(markerInfo2[i].x_coord, markerInfo2[i].y_coord, markerInfo2[i].coord_num,
                       markerInfo2[i].vertex, arParamLTf,
-                      markerInfo[j].line, markerInfo[j].vertex) < 0 ) continue;
+                      markerInfo[j].line, markerInfo[j].vertex) < 0 ) {
+            continue;
+        }
 
         result = arPattGetIDGlobal( pattHandle, imageProcMode, pattDetectMode, image, xsize, ysize, pixelFormat, arParamLTf, markerInfo[j].vertex, pattRatio, 
                      &markerInfo[j].idPatt, &markerInfo[j].dirPatt, &markerInfo[j].cfPatt,
@@ -99,6 +105,8 @@ int arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat, ARMa
             markerInfo[j].dir = markerInfo[j].dirMatrix;
             markerInfo[j].cf  = markerInfo[j].cfMatrix;
         }
+        
+        //ARPRINT("arGetMarkerInfo: markerInfo[%d].id=%d result=%d pattRatio=%f matrixCodeType=%d globalID=%d.\n", j, markerInfo[j].id, result, pattRatio, matrixCodeType, markerInfo[j].globalID);
 
         j++;
     }

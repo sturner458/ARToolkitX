@@ -58,7 +58,7 @@ public:
 	ARMultiMarkerInfoT *config;							///< Structure holding information about the multimarker patterns
 	bool robustFlag;									///< Flag specifying which pose estimation approach to use
 	
-	ARTrackableMultiSquare();
+	ARTrackableMultiSquare(int setUID = -1);
 	~ARTrackableMultiSquare();
 
 	bool load(const char *multiConfig, ARPattHandle *arPattHandle);

@@ -1,8 +1,6 @@
 /*
- *  ARTrackerVideo.h
+ *  calc.hpp
  *  artoolkitX
- *
- *  A C++ class encapsulating functionality of a tracker which tracks from video.
  *
  *  This file is part of artoolkitX.
  *
@@ -31,32 +29,26 @@
  *  statement from your version.
  *
  *  Copyright 2018 Realmax, Inc.
- *  Copyright 2015 Daqri, LLC.
- *  Copyright 2010-2015 ARToolworks, Inc.
+ *  Copyright 2015-2017 Daqri LLC. All Rights Reserved.
+ *  Copyright 2012-2015 ARToolworks, Inc. All Rights Reserved.
  *
- *  Author(s): Philip Lamb, Julian Looser.
+ *  Author(s): Philip Lamb, Hirokazu Kato
  *
  */
 
+#pragma once
 
-#ifndef ARTRACKERVIDEO_H
-#define ARTRACKERVIDEO_H
+#include <ARX/AR/ar.h>
+#include <opencv2/core/core.hpp>
+#include "Calibration.hpp"
 
-#include <ARX/ARTracker.h>
-
-class ARTrackerVideo : public ARTracker {
-public:
-    ARTrackerVideo() {};
-    virtual ~ARTrackerVideo() {};
-
-    virtual bool start(ARParamLT *paramLT, AR_PIXEL_FORMAT pixelFormat) = 0;
-    virtual bool start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, ARParamLT *paramLT1, AR_PIXEL_FORMAT pixelFormat1, const ARdouble transL2R[3][4]) = 0;
-    virtual bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes) = 0;
-    virtual bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes) = 0;
-private:
-    bool start() { return false; };
-    bool update() { return false; };
-};
-
-
-#endif // !ARTRACKERVIDEO_H
+float calc(const int capturedImageNum,
+          const Calibration::CalibrationPatternType patternType,
+		  const cv::Size patternSize,
+		  const float chessboardSquareWidth,
+          const std::vector<std::vector<cv::Point2f> >& cornerSet,
+		  const int width,
+		  const int height,
+          const int dist_function_version,
+		  ARParam *param_out,
+          float *results);

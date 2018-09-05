@@ -42,7 +42,7 @@
 #  define MAX(x,y) (x > y ? x : y)
 #endif
 
-ARTrackableSquare::ARTrackableSquare() : ARTrackable(SINGLE),
+ARTrackableSquare::ARTrackableSquare(int setUID) : ARTrackable(SINGLE, setUID),
     m_loaded(false),
     m_arPattHandle(NULL),
     m_cf(0.0f),
@@ -143,7 +143,7 @@ bool ARTrackableSquare::initWithBarcode(int barcodeID, ARdouble width)
     
     if (m_loaded) unload();
 
-	ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
+	//ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
 	
 	patt_id = barcodeID;
 	
@@ -179,7 +179,7 @@ void ARTrackableSquare::setConfidenceCutoff(ARdouble value)
 
 bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
 
-    ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
+    //ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
     
 	if (patt_id < 0) return false;	// Can't update if no pattern loaded
 

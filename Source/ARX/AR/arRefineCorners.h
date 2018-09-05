@@ -1,8 +1,6 @@
 /*
- *  ARTrackerVideo.h
+ *  arRefineCorners.h
  *  artoolkitX
- *
- *  A C++ class encapsulating functionality of a tracker which tracks from video.
  *
  *  This file is part of artoolkitX.
  *
@@ -30,33 +28,30 @@
  *  are not obligated to do so. If you do not wish to do so, delete this exception
  *  statement from your version.
  *
- *  Copyright 2018 Realmax, Inc.
- *  Copyright 2015 Daqri, LLC.
- *  Copyright 2010-2015 ARToolworks, Inc.
+ *  Copyright 2018 Dan Bell & Philip Lamb.
  *
- *  Author(s): Philip Lamb, Julian Looser.
+ *  Author(s): Dan Bell, Philip Lamb.
  *
  */
 
+#ifndef AR_REFINE_CORNERS_H
+#define AR_REFINE_CORNERS_H
 
-#ifndef ARTRACKERVIDEO_H
-#define ARTRACKERVIDEO_H
+#include <ARX/AR/ar.h>
 
-#include <ARX/ARTracker.h>
+#if HAVE_OPENCV
 
-class ARTrackerVideo : public ARTracker {
-public:
-    ARTrackerVideo() {};
-    virtual ~ARTrackerVideo() {};
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-    virtual bool start(ARParamLT *paramLT, AR_PIXEL_FORMAT pixelFormat) = 0;
-    virtual bool start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, ARParamLT *paramLT1, AR_PIXEL_FORMAT pixelFormat1, const ARdouble transL2R[3][4]) = 0;
-    virtual bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes) = 0;
-    virtual bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes) = 0;
-private:
-    bool start() { return false; };
-    bool update() { return false; };
-};
+// Given corner locations 'vertex' in observed coordinates, refine location.
+// buff is a luma-only buffer of dimensions width x height.
+void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height);
 
+#endif // HAVE_OPENCV
 
-#endif // !ARTRACKERVIDEO_H
+#ifdef __cplusplus
+}
+#endif
+#endif // AR_REFINE_CORNERS_H

@@ -179,7 +179,7 @@ bool ARController::startRunning(const char* vconf, const char* cparaName, const 
 	}
 
 	m_videoSource0->configure(vconf, false, cparaName, cparaBuff, cparaBuffLen);
-
+    
     if (!m_videoSource0->open()) {
         if (m_videoSource0->getError() == ARX_ERROR_DEVICE_UNAVAILABLE) {
             ARLOGe("Video source unavailable.\n");
@@ -370,7 +370,7 @@ bool ARController::update()
             else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
             if (!ret) goto done;
         }
-        m_squareTracker->update(image0, image1, m_trackables);
+        m_squareTracker->update(image0, image1, m_trackables, true);
     }
 #if HAVE_NFT
     if (doNFTMarkerDetection) {
@@ -379,7 +379,7 @@ bool ARController::update()
             else ret = m_nftTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
             if (!ret) goto done;
        }
-        m_nftTracker->update(image0, image1, m_trackables);
+        m_nftTracker->update(image0, image1, m_trackables, true);
     }
 #endif
 #if HAVE_2D
@@ -389,7 +389,7 @@ bool ARController::update()
             else ret = m_twoDTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
             if (!ret) goto done;
         }
-        m_twoDTracker->update(image0, image1, m_trackables);
+        m_twoDTracker->update(image0, image1, m_trackables, true);
     }
 #endif
 done:
@@ -398,6 +398,62 @@ done:
     if (m_videoSourceIsStereo) m_videoSource1->checkinFrame();
 
     ARLOGd("ARX::ARController::update(): done.\n");
+    
+    return ret;
+}
+
+bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
+{
+    //ARPRINT("ARX::ARController::updateWithImage() videoWidth = %d , pixelFormat = %d.\n", (int)m_videoSource0->getVideoWidth(), (int)m_videoSource0->getPixelFormat());
+
+    AR2VideoBufferT anImage;
+    arMalloc(anImage.buff, uint8_t, m_videoSource0->getVideoWidth() * m_videoSource0->getVideoHeight());
+    memcpy(anImage.buff, image, m_videoSource0->getVideoWidth() * m_videoSource0->getVideoHeight());
+    anImage.buffLuma = anImage.buff;
+    
+    AR2VideoBufferT *image0, *image1 = NULL;
+    image0 = &anImage;
+    m_updateFrameStamp0 = image0->time;
+    
+    //
+    // Tracker updates.
+    //
+    
+    bool ret = true;
+    
+    if (doSquareMarkerDetection) {
+        if (!m_squareTracker->isRunning()) {
+            if (!m_videoSourceIsStereo) ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+            else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+            if (!ret) goto done;
+        }
+        m_squareTracker->update(image0, image1, m_trackables, lowRes);
+    }
+#if HAVE_NFT
+    if (doNFTMarkerDetection) {
+        if (!m_nftTracker->isRunning()) {
+            if (!m_videoSourceIsStereo) ret = m_nftTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+            else ret = m_nftTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+            if (!ret) goto done;
+        }
+        m_nftTracker->update(image0, image1, m_trackables, lowRes);
+    }
+#endif
+#if HAVE_2D
+    if (doTwoDMarkerDetection) {
+        if (!m_twoDTracker->isRunning()) {
+            if (!m_videoSourceIsStereo) ret = m_twoDTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+            else ret = m_twoDTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+            if (!ret) goto done;
+        }
+        m_twoDTracker->update(image0, image1, m_trackables, lowRes);
+    }
+#endif
+done:
+    free(anImage.buff);
+    //free(anImage.buffLuma);
+    
+    //ARLOGe("ARX::ARController::updateWithImage(): done.\n");
     
     return ret;
 }
@@ -588,7 +644,7 @@ bool ARController::projectionMatrix(const int videoSourceIndex, const ARdouble p
     }
     
     arglCameraFrustumRH(&(paramLT->param), projectionNearPlane, projectionFarPlane, proj);
-    ARLOGd("Computed projection matrix using near=%f far=%f.\n", projectionNearPlane, projectionFarPlane);
+    //ARLOGd("Computed projection matrix using near=%f far=%f.\n", projectionNearPlane, projectionFarPlane);
     return true;
 }
 
@@ -621,7 +677,7 @@ bool ARController::videoParameters(const int videoSourceIndex, int *width, int *
 #pragma mark  Trackable list management functions.
 // ----------------------------------------------------------------------------------------------------
 
-int ARController::addTrackable(const std::string& cfgs)
+int ARController::addTrackable(const std::string& cfgs, int setUID)
 {
 	if (!isInited()) {
 		ARLOGe("Error: Cannot add trackable. artoolkitX not initialised\n");
@@ -643,7 +699,7 @@ int ARController::addTrackable(const std::string& cfgs)
     
     // Until we have a registry, have to manually request from all trackers.
     ARTrackable *trackable;
-    if ((trackable = m_squareTracker->newTrackable(config)) != nullptr) {
+    if ((trackable = m_squareTracker->newTrackable(config, setUID)) != nullptr) {
 #if HAVE_NFT
     } else if ((trackable = m_nftTracker->newTrackable(config)) != nullptr) {
 #endif
@@ -656,15 +712,17 @@ int ARController::addTrackable(const std::string& cfgs)
         return -1;
     }
     if (!addTrackable(trackable)) {
+        ARLOGe("Error: Failed to add trackable.\n");
         return -1;
     }
+    
     return trackable->UID;
 }
 
 // private
 bool ARController::addTrackable(ARTrackable* trackable)
 {
-    ARLOGd("ARController::addTrackable(): called\n");
+    //ARLOGd("ARController::addTrackable(): called\n");
 	if (!isInited()) {
         ARLOGe("Error: Cannot add trackable. artoolkitX not initialised.\n");
 		return false;
@@ -697,7 +755,7 @@ bool ARController::addTrackable(ARTrackable* trackable)
         doSquareMarkerDetection = true;
     }
 
-	ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
+	//ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
 	return true;
 }
 

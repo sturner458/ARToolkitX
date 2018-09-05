@@ -65,7 +65,7 @@ public:
 	int patt_id;							///< Unique pattern ID provided by artoolkitX
     int patt_type;
 
-	ARTrackableSquare();
+	ARTrackableSquare(int setUID = -1);
 	~ARTrackableSquare();
     
     bool useContPoseEstimation;
