@@ -87,8 +87,10 @@ float calc(const int capturedImageNum,
     int flags = 0;
     cv::Mat distortionCoeff;
     if (dist_function_version == 5) {
-        distortionCoeff = cv::Mat::zeros(12, 1, CV_64F);
-        flags |= cv::CALIB_RATIONAL_MODEL|cv::CALIB_THIN_PRISM_MODEL;
+		/* distortionCoeff = cv::Mat::zeros(12, 1, CV_64F);
+		flags |= cv::CALIB_RATIONAL_MODEL | cv::CALIB_THIN_PRISM_MODEL; */
+		distortionCoeff = cv::Mat::zeros(8, 1, CV_64F);
+		flags |= cv::CALIB_RATIONAL_MODEL;
     } else /* dist_function_version == 4 */ {
         distortionCoeff = cv::Mat::zeros(5, 1, CV_64F);
         flags |= cv::CALIB_FIX_K3;
