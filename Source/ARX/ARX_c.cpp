@@ -457,7 +457,7 @@ int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageB
 
 int arwCaptureChessboardCorners(int n)
 {
-    if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
+    if (n == -1 && foundCorners.size() >= maxCornersFound) return 0;
     
     ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
     

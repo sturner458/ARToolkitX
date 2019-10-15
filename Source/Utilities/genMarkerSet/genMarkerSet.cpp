@@ -394,7 +394,7 @@ static int detect(float **markerWidths_p)
     
     gSelectedMarkers.clear();
     
-    arDetectMarker(gARHandle, &image);
+    arDetectMarker(gARHandle, &image, false);
     ARPRINT("Pass 1: detected %d marker candidates.\n", arGetMarkerNum(gARHandle));
     
     if (*markerWidths_p) free(*markerWidths_p);

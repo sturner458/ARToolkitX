@@ -238,7 +238,7 @@ int main(int argc, char *argv[])
                 }
                 
                 // Detect the markers in the video frame.
-                if (arDetectMarker(gARHandle, image) < 0) {
+                if (arDetectMarker(gARHandle, image, false) < 0) {
                     quit(-1);
                 }
                 int markerNum = arGetMarkerNum(gARHandle);
