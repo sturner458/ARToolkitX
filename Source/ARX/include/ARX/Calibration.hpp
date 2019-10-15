@@ -43,7 +43,7 @@
 #include <opencv2/core/core.hpp>
 #include <ARX/ARVideoSource.h>
 #include <map>
-#include <CoreGraphics/CoreGraphics.h>
+// #include <CoreGraphics/CoreGraphics.h>
 
 class Calibration
 {

@@ -64,14 +64,14 @@ bool ARTrackable2d::load(const char* dataSetPathname_in)
     
     // Load AR2 data.
     ARLOGi("Loading image data %s.\n", dataSetPathname_in);
-    try {
+    //try {
         if(!ReadImageFromFile(dataSetPathname_in, m_refImage, &m_refImageX, &m_refImageY, false)) {
             ARLOGi("Unable to load image '%s'.\n", dataSetPathname_in);
             return(false);
         }
-    } catch (std::runtime_error) { // File not found.
-        return (false);
-    }
+    //} catch () { // File not found.
+    //    return (false);
+    //}
     if (m_refImageX == 0 || m_refImageY == 0) { // FIXME: Is this the best way to determine whether loading was OK?
         ARLOGe("Error reading image data from '%s'.\n", dataSetPathname_in);
         m_refImage.reset();

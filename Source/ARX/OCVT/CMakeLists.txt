@@ -69,7 +69,7 @@ else()
 		list (APPEND LINK_LIST debug ${x_debug} optimized ${x})
 	endforeach()
 	target_link_libraries(OCVT
-	    ${LINK_LIST}
+	    PRIVATE ${LINK_LIST}
 	)
 endif()
 
