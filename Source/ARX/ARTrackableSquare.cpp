@@ -286,6 +286,9 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 		err = arGetTransMatDatumSquare(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
 		if (err > 10.0f) visible = false;
 	}
+	else {
+		visible = false;
+	}
 
 	return visible;
 }
