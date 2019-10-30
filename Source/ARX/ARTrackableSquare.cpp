@@ -241,6 +241,178 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 	return (ARTrackable::update()); // Parent class will finish update.
 }
 
+bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle) {
+
+	ARdouble* datumCoords2D = new ARdouble[8];
+	ARdouble* datumCoords = new ARdouble[12];
+
+	cv::Mat grayImage = cv::Mat(imageWidth, imageHeight, CV_8UC1, (void*)buffLuma, imageWidth);
+
+	ARdouble ox, oy;
+	std::vector<cv::Point2f> corners;
+	if (GetCenterPointForDatum(-55, 30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+		corners.push_back(cv::Point2f(ox, oy));
+		datumCoords[0] = -55;
+		datumCoords[1] = 30;
+		datumCoords[2] = 0;
+	}
+	if (GetCenterPointForDatum(-55, -30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+		corners.push_back(cv::Point2f(ox, oy));
+		datumCoords[3] = -55;
+		datumCoords[4] = -30;
+		datumCoords[5] = 0;
+	}
+	if (GetCenterPointForDatum(55, 30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+		corners.push_back(cv::Point2f(ox, oy));
+		datumCoords[6] = 55;
+		datumCoords[7] = 30;
+		datumCoords[8] = 0;
+	}
+	if (GetCenterPointForDatum(55, -30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+		corners.push_back(cv::Point2f(ox, oy));
+		datumCoords[9] = 55;
+		datumCoords[10] = -30;
+		datumCoords[11] = 0;
+	}
+
+	if ((int)corners.size() == 4) {
+		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+		for (int i = 0; i < 4; i = i + 1) {
+			datumCoords2D[i * 2] = corners[i].x;
+			datumCoords2D[i * 2 + 1] = corners[i].y;
+		}
+
+		ARdouble err;
+		err = arGetTransMatDatumSquare(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+		if (err > 10.0f) visible = false;
+	}
+
+	return visible;
+}
+
+bool ARTrackableSquare::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble *ox, ARdouble *oy) {
+	ModelToImageSpace(arParams, trans, x, y, ox, oy);
+	int halfSquare = GetSquareForDatum(x, y, arParams, trans);
+	if (halfSquare < 10) return false;
+	if (*ox - halfSquare < 0 || *ox + halfSquare > imageWidth || *oy - halfSquare < 0 || *oy + halfSquare > imageHeight) return false;
+
+	cv::Rect rect = cv::Rect((int)*ox - halfSquare, (int)*oy - halfSquare, 2 * halfSquare, 2 * halfSquare);
+	cv::Mat region = cv::Mat(grayImage, rect);
+	cv::Mat binaryRegion = region.clone();
+	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, CV_THRESH_OTSU);
+	int nonzero = cv::countNonZero(binaryRegion);
+	int square = 4 * halfSquare * halfSquare;
+	return (nonzero > square * 0.333f && nonzero < square * 0.666f);
+}
+
+void ARTrackableSquare::ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble *ox, ARdouble *oy) {
+	ARdouble        cx, cy, cz, hx, hy, h, sx, sy;
+
+	*ox = ix;
+	*oy = iy;
+
+	cx = trans[0][0] * ix + trans[0][1] * iy + trans[0][3];
+	cy = trans[1][0] * ix + trans[1][1] * iy + trans[1][3];
+	cz = trans[2][0] * ix + trans[2][1] * iy + trans[2][3];
+	hx = param.mat[0][0] * cx + param.mat[0][1] * cy + param.mat[0][2] * cz + param.mat[0][3];
+	hy = param.mat[1][0] * cx + param.mat[1][1] * cy + param.mat[1][2] * cz + param.mat[1][3];
+	h = param.mat[2][0] * cx + param.mat[2][1] * cy + param.mat[2][2] * cz + param.mat[2][3];
+	if (h == 0.0) return;
+	sx = hx / h;
+	sy = hy / h;
+	arParamIdeal2Observ(param.dist_factor, sx, sy, ox, oy, param.dist_function_version);
+}
+
+int ARTrackableSquare::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]) {
+	ARdouble ox, oy, ox1, oy1, ox2, oy2, ox3, oy3, ox4, oy4;
+	ModelToImageSpace(arParams, trans, x, y, &ox, &oy);
+	ModelToImageSpace(arParams, trans, x - 8, y - 8, &ox1, &oy1);
+	ModelToImageSpace(arParams, trans, x + 8, y - 8, &ox2, &oy2);
+	ModelToImageSpace(arParams, trans, x + 8, y + 8, &ox3, &oy3);
+	ModelToImageSpace(arParams, trans, x - 8, y + 8, &ox4, &oy4);
+	ox1 = ox1 - ox;
+	oy1 = oy1 - oy;
+	ox2 = ox2 - ox;
+	oy2 = oy2 - oy;
+	ox3 = ox3 - ox;
+	oy3 = oy3 - oy;
+	ox4 = ox4 - ox;
+	oy4 = oy4 - oy;
+
+	ARdouble maxD = 100;
+
+	ARdouble nx = oy1 - oy2;
+	ARdouble ny = ox2 - ox1;
+	ARdouble d = sqrt(nx * nx + ny * ny);
+	if (d > 0) {
+		nx = nx / d;
+		ny = ny / d;
+	}
+	d = ox1 * nx + oy1 * ny;
+	if (d > 10 && d < maxD) maxD = d;
+
+	nx = oy2 - oy3;
+	ny = ox3 - ox2;
+	d = sqrt(nx * nx + ny * ny);
+	if (d > 10) {
+		nx = nx / d;
+		ny = ny / d;
+	}
+	d = ox2 * nx + oy2 * ny;
+	if (d > 10 && d < maxD) maxD = d;
+
+	nx = oy3 - oy4;
+	ny = ox4 - ox3;
+	d = sqrt(nx * nx + ny * ny);
+	if (d > 0) {
+		nx = nx / d;
+		ny = ny / d;
+	}
+	d = ox3 * nx + oy3 * ny;
+	if (d > 10 && d < maxD) maxD = d;
+
+	nx = oy4 - oy1;
+	ny = ox1 - ox4;
+	d = sqrt(nx * nx + ny * ny);
+	if (d > 0) {
+		nx = nx / d;
+		ny = ny / d;
+	}
+	d = ox4 * nx + oy4 * ny;
+	if (d > 10 && d < maxD) maxD = d;
+
+	return (int)(maxD / sqrt(2.0));
+}
+
+ARdouble ARTrackableSquare::arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
+{
+	const int numCoords = 2 * numDatums;
+	ICP2DCoordT*    screenCoord = new ICP2DCoordT[numDatums];
+	ICP3DCoordT*    worldCoord = new ICP3DCoordT[numDatums];
+	ICPDataT       data;
+	ARdouble         initMatXw2Xc[3][4];
+	ARdouble         err;
+
+	for (int i = 0; i < numDatums; i++) {
+		screenCoord[i].x = datumCoords2D[i * 2];
+		screenCoord[i].y = datumCoords2D[i * 2 + 1];
+		worldCoord[0].x = datumCoords2D[i * 3];
+		worldCoord[0].y = datumCoords2D[i * 3 + 1];
+		worldCoord[0].z = datumCoords2D[i * 3 + 2];
+	}
+	data.screenCoord = screenCoord;
+	data.worldCoord = worldCoord;
+	data.num = numDatums;
+
+	if (icpGetInitXw2Xc_from_PlanarData(handle->icpHandle->matXc2U, data.screenCoord, data.worldCoord, data.num, initMatXw2Xc) < 0) return 100000000.0;
+	if (icpPoint(handle->icpHandle, &data, initMatXw2Xc, conv, &err) < 0) return 100000000.0;
+
+	delete[] screenCoord;
+	delete[] worldCoord;
+
+	return err;
+}
+
 bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]) {
     
     ARLOGd("ARTrackableSquare::updateWithDetectedMarkersStereo(...)\n");

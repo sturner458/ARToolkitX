@@ -427,7 +427,8 @@ bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
             else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
             if (!ret) goto done;
         }
-        m_squareTracker->update(image0, image1, m_trackables, lowRes);
+		m_squareTracker->update(image0, image1, m_trackables, lowRes);
+		m_squareTracker->updateWithDatums(m_videoSource0->getCameraParameters()->param, image0->buffLuma, m_videoSource0->getVideoWidth(), m_videoSource0->getVideoHeight(), m_trackables);
     }
 #if HAVE_NFT
     if (doNFTMarkerDetection) {
@@ -449,6 +450,9 @@ bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
         m_twoDTracker->update(image0, image1, m_trackables, lowRes);
     }
 #endif
+
+
+
 done:
     free(anImage.buff);
     //free(anImage.buffLuma);

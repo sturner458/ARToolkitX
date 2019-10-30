@@ -292,6 +292,10 @@ bool ARTrackerNFT::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::v
     return update(buff0, trackables, lowRes);
 }
 
+bool ARTrackerNFT::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables) {
+	return true; // Not implemented
+}
+
 bool ARTrackerNFT::stop()
 {
     // Tracking thread is holding a reference to the camera parameters. Closing the

@@ -110,7 +110,7 @@ float calc(const int capturedImageNum,
     std::vector<cv::Mat> translationVectors;
     
     double rms = calibrateCamera(objectPoints, cornerSet, cv::Size(width, height), intrinsics,
-                                 distortionCoeff, rotationVectors, translationVectors, flags);
+                                 distortionCoeff, rotationVectors, translationVectors, flags, cv::TermCriteria(CV_TERMCRIT_ITER, 30, 0.1));
     
     ARLOGi("RMS error reported by calibrateCamera: %g\n", rms);
     

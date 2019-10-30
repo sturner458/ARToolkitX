@@ -77,6 +77,7 @@ public:
     bool isRunning() override;
     bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes) override;
     bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes) override;
+	bool updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables) override;
     bool stop() override;
     void terminate() override;
 

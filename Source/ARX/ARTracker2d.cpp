@@ -182,6 +182,10 @@ bool ARTracker2d::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::ve
     return update(buff0, trackables, lowRes);
 }
 
+bool ARTracker2d::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables) {
+	return true; // Not implemented
+}
+
 bool ARTracker2d::stop()
 {
     // Tracking thread is holding a reference to the camera parameters. Closing the

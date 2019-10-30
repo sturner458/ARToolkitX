@@ -441,6 +441,22 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     return true;
 }
 
+bool ARTrackerSquare::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables)
+{
+	// Update square markers.
+	for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+		if ((*it)->type == ARTrackable::SINGLE) {
+			ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
+			bool success;
+			if (target->visible) {
+				success = target->updateWithDetectedDatums(arParams, buffLuma, imageWidth, imageHeight, m_ar3DHandle);
+			}
+		}
+	}
+
+	return true;
+}
+
 bool ARTrackerSquare::stop()
 {
     //ARLOGd("Cleaning up artoolkitX handles.\n");

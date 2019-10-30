@@ -266,7 +266,8 @@ extern "C" {
     ARX_EXTERN bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize, int xsizeLowRes, int ysizeLowRes);
     ARX_EXTERN int arwFindChessboardCorners(float* corners, int *corner_count, ARUint8 *imageBytes, bool lowRes);
     ARX_EXTERN int arwCaptureChessboardCorners(int n = -1);
-    ARX_EXTERN float arwCalibChessboardCorners(char *file_name, float *results);
+	ARX_EXTERN float arwCalibChessboardCorners(char* file_name, float* results);
+	ARX_EXTERN float arwCalibChessboardCornersSimple(char* file_name, float* results);
     ARX_EXTERN void arwCleanupChessboardCorners();
     
     // ----------------------------------------------------------------------------------------------------
