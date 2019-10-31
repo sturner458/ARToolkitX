@@ -238,14 +238,14 @@ void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vcon
     return;
 }
 
-bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes)
+bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes, bool doDatums)
 {
     //ARLOGe("UpdateARToolKit called.\n");
     //ARPRINT("UpdateARToolKit called.\n");
     
     if (!lowRes) {
         if (!gARTK) return false;
-        return gARTK->updateWithImage(imageBytes, lowRes);
+        return gARTK->updateWithImage(imageBytes, lowRes, doDatums);
     } else {
         if (!gARTKLowRes) return false;
         return gARTKLowRes->updateWithImage(imageBytes, lowRes);

@@ -402,7 +402,7 @@ done:
     return ret;
 }
 
-bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
+bool ARController::updateWithImage(ARUint8 *image, bool lowRes, bool doDatums)
 {
     //ARPRINT("ARX::ARController::updateWithImage() videoWidth = %d , pixelFormat = %d.\n", (int)m_videoSource0->getVideoWidth(), (int)m_videoSource0->getPixelFormat());
 
@@ -428,7 +428,9 @@ bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
             if (!ret) goto done;
         }
 		m_squareTracker->update(image0, image1, m_trackables, lowRes);
-		m_squareTracker->updateWithDatums(m_videoSource0->getCameraParameters()->param, image0->buffLuma, m_videoSource0->getVideoWidth(), m_videoSource0->getVideoHeight(), m_trackables);
+		if (doDatums) {
+			m_squareTracker->updateWithDatums(m_videoSource0->getCameraParameters()->param, image0->buffLuma, m_videoSource0->getVideoWidth(), m_videoSource0->getVideoHeight(), m_trackables);
+		}
     }
 #if HAVE_NFT
     if (doNFTMarkerDetection) {

@@ -290,7 +290,7 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 		visible = false;
 	}
 
-	return visible;
+	if (visible) return (ARTrackable::update()); // Parent class will finish update.
 }
 
 bool ARTrackableSquare::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble *ox, ARdouble *oy) {
@@ -399,9 +399,9 @@ ARdouble ARTrackableSquare::arGetTransMatDatumSquare(AR3DHandle* handle, ARdoubl
 	for (int i = 0; i < numDatums; i++) {
 		screenCoord[i].x = datumCoords2D[i * 2];
 		screenCoord[i].y = datumCoords2D[i * 2 + 1];
-		worldCoord[0].x = datumCoords2D[i * 3];
-		worldCoord[0].y = datumCoords2D[i * 3 + 1];
-		worldCoord[0].z = datumCoords2D[i * 3 + 2];
+		worldCoord[i].x = datumCoords[i * 3];
+		worldCoord[i].y = datumCoords[i * 3 + 1];
+		worldCoord[i].z = datumCoords[i * 3 + 2];
 	}
 	data.screenCoord = screenCoord;
 	data.worldCoord = worldCoord;
