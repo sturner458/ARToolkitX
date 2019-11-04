@@ -734,17 +734,21 @@ float arwGetTrackerOptionFloat(int option, bool lowRes)
 #pragma mark  Trackable management
 // ---------------------------------------------------------------------------------------------
 
-int arwAddTrackable(const char *cfg)
+int arwAddTrackable(const char *cfg, bool avoidLowRes, int overrideUID)
 {
     int n = -1;
     
     if (gARTK) {
-        n = gARTK->addTrackable(cfg);
+        n = gARTK->addTrackable(cfg, overrideUID);
     }
     if (gARTKLowRes) {
-        gARTKLowRes->addTrackable(cfg, n);
+        if (!avoidLowRes) gARTKLowRes->addTrackable(cfg, n);
     }
     return n;
+}
+
+bool arwAddMultiSquare(int originUID, float width) {
+	return gARTK->addMultiSquare(originUID, (ARdouble)width);
 }
 
 bool arwGetTrackables(int *count_p, ARWTrackableStatus **statuses_p)

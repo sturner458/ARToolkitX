@@ -241,43 +241,46 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 	return (ARTrackable::update()); // Parent class will finish update.
 }
 
-bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle) {
+bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard) {
 
-	ARdouble* datumCoords2D = new ARdouble[8];
-	ARdouble* datumCoords = new ARdouble[12];
+	ARdouble* datumCoords2D;
+	ARdouble* datumCoords;
 
-	cv::Mat grayImage = cv::Mat(imageWidth, imageHeight, CV_8UC1, (void*)buffLuma, imageWidth);
+	cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
+
+	std::vector<cv::Point2f> datumCentres;
+	if (largeBoard) {
+		datumCoords2D = new ARdouble[8];
+		datumCoords = new ARdouble[12];
+		datumCentres.push_back(cv::Point2f(-128.5, 85));
+		datumCentres.push_back(cv::Point2f(-128.5, -85));
+		datumCentres.push_back(cv::Point2f(128.5, 85));
+		datumCentres.push_back(cv::Point2f(128.5, -85));
+	}
+	else {
+		datumCoords2D = new ARdouble[8];
+		datumCoords = new ARdouble[12];
+		datumCentres.push_back(cv::Point2f(-55, 30));
+		datumCentres.push_back(cv::Point2f(-55, -30));
+		datumCentres.push_back(cv::Point2f(55, 30));
+		datumCentres.push_back(cv::Point2f(55, -30));
+	}
 
 	ARdouble ox, oy;
 	std::vector<cv::Point2f> corners;
-	if (GetCenterPointForDatum(-55, 30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
-		corners.push_back(cv::Point2f(ox, oy));
-		datumCoords[0] = -55;
-		datumCoords[1] = 30;
-		datumCoords[2] = 0;
-	}
-	if (GetCenterPointForDatum(-55, -30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
-		corners.push_back(cv::Point2f(ox, oy));
-		datumCoords[3] = -55;
-		datumCoords[4] = -30;
-		datumCoords[5] = 0;
-	}
-	if (GetCenterPointForDatum(55, 30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
-		corners.push_back(cv::Point2f(ox, oy));
-		datumCoords[6] = 55;
-		datumCoords[7] = 30;
-		datumCoords[8] = 0;
-	}
-	if (GetCenterPointForDatum(55, -30, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
-		corners.push_back(cv::Point2f(ox, oy));
-		datumCoords[9] = 55;
-		datumCoords[10] = -30;
-		datumCoords[11] = 0;
+	for (int i = 0; i < (int)datumCentres.size(); i++) {
+		cv::Point2f pt = datumCentres.at(i);
+		if (GetCenterPointForDatum(pt.x, pt.y, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+			corners.push_back(cv::Point2f(ox, oy));
+			datumCoords[i * 3] = pt.x;
+			datumCoords[i * 3 + 1] = pt.y;
+			datumCoords[i * 3 + 2] = 0;
+		}
 	}
 
-	if ((int)corners.size() == 4) {
+	if (corners.size() == datumCentres.size()) {
 		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
-		for (int i = 0; i < 4; i = i + 1) {
+		for (int i = 0; i < (int)corners.size(); i = i + 1) {
 			datumCoords2D[i * 2] = corners[i].x;
 			datumCoords2D[i * 2 + 1] = corners[i].y;
 		}
@@ -290,7 +293,11 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 		visible = false;
 	}
 
+	delete[] datumCoords2D;
+	delete[] datumCoords;
+
 	if (visible) return (ARTrackable::update()); // Parent class will finish update.
+	return false;
 }
 
 bool ARTrackableSquare::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble *ox, ARdouble *oy) {

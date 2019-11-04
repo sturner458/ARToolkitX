@@ -47,6 +47,7 @@
 #include <ARX/ARVideoSource.h>
 #include <ARX/ARVideoView.h>
 #include <ARX/ARTrackerSquare.h>
+#include <ARX/ARTrackableMultiSquareAuto.h>
 #if HAVE_NFT
 #  include <ARX/ARTrackerNFT.h>
 #endif
@@ -106,6 +107,7 @@ private:
     ARVideoView *m_arVideoViews[2];
     
     std::vector<ARTrackable *> m_trackables;    ///< List of trackables.
+	ARTrackableMultiSquareAuto* m_MultiSquare;
 
     bool doSquareMarkerDetection;
     std::shared_ptr<ARTrackerSquare> m_squareTracker;
@@ -297,6 +299,7 @@ public:
 	 * @return			The UID of the trackable instantiated based on the configuration string, or -1 if an error occurred.
 	 */
 	int addTrackable(const std::string& cfgs, int setUID = -1);
+	bool addMultiSquare(int originUID, ARdouble width);
 
 	/**
 	 * Removes the trackable with the given ID.

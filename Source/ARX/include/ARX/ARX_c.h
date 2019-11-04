@@ -487,8 +487,10 @@ extern "C" {
      * @param cfg        The configuration string
      * @return            The unique identifier (UID) of the trackable instantiated based on the configuration string, or -1 if an error occurred
      */
-    ARX_EXTERN int arwAddTrackable(const char *cfg);
+    ARX_EXTERN int arwAddTrackable(const char *cfg, bool avoidLowRes = false, int overrideUID = -1);
     
+    ARX_EXTERN bool arwAddMultiSquare(int originUID, float width);
+
     typedef struct {
         int uid;
         bool visible;

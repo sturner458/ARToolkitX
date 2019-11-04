@@ -448,8 +448,10 @@ bool ARTrackerSquare::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int 
 		if ((*it)->type == ARTrackable::SINGLE) {
 			ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
 			bool success;
-			if (target->visible) {
-				success = target->updateWithDetectedDatums(arParams, buffLuma, imageWidth, imageHeight, m_ar3DHandle);
+			if (target->visible && target->UID < 102) {
+				bool largeBoard = false;
+				if (target->UID < 2) largeBoard = true;
+				success = target->updateWithDetectedDatums(arParams, buffLuma, imageWidth, imageHeight, m_ar3DHandle, largeBoard);
 			}
 		}
 	}
