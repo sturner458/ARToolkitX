@@ -39,6 +39,7 @@
 
 #include <ARX/ARTrackable.h>
 #include <ARX/AR/arMulti.h>
+#include "../../mapper.hpp"
 
 /**
  * An ARTrackable that auto-builds a map of matrix (2D barcode) markers.
@@ -48,7 +49,6 @@ class ARTrackableMultiSquareAuto : public ARTrackable {
 private:
     int m_OriginMarkerUid; // The UID of the barcode marker which defines the origin of the world coordinate system.
     ARdouble m_markerWidth;
-    ARMultiMarkerInfoT *m_MultiConfig;
 
     // A holder for a struct which holds member variables which we don't want to appear to the header.
     std::unique_ptr<struct ARTrackableMapPrivateMembers> m_pm;
@@ -64,10 +64,15 @@ public:
     bool initWithOriginMarkerUID(int originMarkerUID, ARdouble markerWidth);
     
     // Tracking parameters.
+    ARMultiMarkerInfoT *m_MultiConfig;
     ARdouble m_ImageBorderZone = 0.2f; ///< The proportion of the image width/height to consider as an "border" zone in which markers are not to be detected. Set to 0.0f to allow markers to appear anywhere in the image.
     bool m_robustFlag = true; ///< Flag specifying which pose estimation approach to use
     ARdouble m_maxErr = 4.0f; ///< The maximum allowable pose estimate error.
 
+	bool lastUpdateSuccessful = false;
+	ARdouble lastTrans[3][4];
+	std::vector<arx_mapper::Marker> lastMarkers;
+	int numSuccessfulUpdates = 0;
 
 	/**
 	 * Updates the marker with new tracking info.
@@ -76,7 +81,10 @@ public:
      * @param markerNum			Number of items in the array
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
-	bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle *ar3DHandle);
+	bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
+	bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
+	bool updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers);
+	void addStoredMarkers(float thisTrans[12], std::vector<arx_mapper::Marker> markers);
 
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, int videoWidthL, int videoHeightL, ARMarkerInfo* markerInfoR, int markerNumR, int videoWidthR, int videoHeightR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
     

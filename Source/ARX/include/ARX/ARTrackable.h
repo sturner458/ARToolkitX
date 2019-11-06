@@ -109,6 +109,7 @@ public:
 	
     void setPositionScalefactor(ARdouble scale);
     ARdouble positionScalefactor();
+	ARdouble GetTrans(int i, int j);
     
 	/**
 	 * Completes an update begun in the parent class, performing filtering, generating

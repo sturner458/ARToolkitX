@@ -363,6 +363,7 @@ public:
 	 * @return				true if update completed successfully, false if an error occurred
 	 */
 	bool update();
+	bool updateWithImage(ARUint8* image0, bool doDatums = false);
 
     /**
      * Populates the provided buffer with the current contents of the debug image.

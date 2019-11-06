@@ -130,6 +130,10 @@ ARdouble ARTrackable::positionScalefactor()
     return m_positionScaleFactor;
 }
 
+ARdouble ARTrackable::GetTrans(int i, int j) {
+	return trans[i][j];
+}
+
 bool ARTrackable::update(const ARdouble transL2R[3][4])
 {
     // Subclasses will have already determined visibility and set/cleared 'visible' and 'visiblePrev',

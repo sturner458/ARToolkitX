@@ -402,6 +402,65 @@ done:
     return ret;
 }
 
+bool ARController::updateWithImage(ARUint8* image, bool doDatums)
+{
+	//ARPRINT("ARX::ARController::updateWithImage() videoWidth = %d , pixelFormat = %d.\n", (int)m_videoSource0->getVideoWidth(), (int)m_videoSource0->getPixelFormat());
+
+	AR2VideoBufferT anImage;
+	arMalloc(anImage.buff, uint8_t, m_videoSource0->getVideoWidth() * m_videoSource0->getVideoHeight());
+	memcpy(anImage.buff, image, m_videoSource0->getVideoWidth() * m_videoSource0->getVideoHeight());
+	anImage.buffLuma = anImage.buff;
+
+	AR2VideoBufferT* image0, * image1 = NULL;
+	image0 = &anImage;
+	m_updateFrameStamp0 = image0->time;
+
+	//
+	// Tracker updates.
+	//
+
+	bool ret = true;
+
+	if (doSquareMarkerDetection) {
+		if (!m_squareTracker->isRunning()) {
+			if (!m_videoSourceIsStereo) ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+			else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+			if (!ret) goto done;
+		}
+		m_squareTracker->update(image0, image1, m_trackables, doDatums);
+	}
+#if HAVE_NFT
+	if (doNFTMarkerDetection) {
+		if (!m_nftTracker->isRunning()) {
+			if (!m_videoSourceIsStereo) ret = m_nftTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+			else ret = m_nftTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+			if (!ret) goto done;
+		}
+		m_nftTracker->update(image0, image1, m_trackables);
+	}
+#endif
+#if HAVE_2D
+	if (doTwoDMarkerDetection) {
+		if (!m_twoDTracker->isRunning()) {
+			if (!m_videoSourceIsStereo) ret = m_twoDTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+			else ret = m_twoDTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
+			if (!ret) goto done;
+		}
+		m_twoDTracker->update(image0, image1, m_trackables);
+	}
+#endif
+
+
+
+done:
+	free(anImage.buff);
+	//free(anImage.buffLuma);
+
+	//ARLOGe("ARX::ARController::updateWithImage(): done.\n");
+
+	return ret;
+}
+
 bool ARController::stopRunning()
 {
 	ARLOGd("ARX::ARController::stopRunning()\n");

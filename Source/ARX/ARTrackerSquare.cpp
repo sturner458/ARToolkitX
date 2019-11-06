@@ -108,6 +108,24 @@ bool ARTrackerSquare::debugMode() const
     return m_debugMode;
 }
 
+bool ARTrackerSquare::cornerRefinementMode() const
+{
+	return m_cornerRefinementMode;
+}
+
+void ARTrackerSquare::setCornerRefinementMode(bool mode)
+{
+	m_cornerRefinementMode = mode;
+	if (m_arHandle0) {
+		arSetCornerRefinementMode(m_arHandle0, mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+	}
+	if (m_arHandle1) {
+		arSetCornerRefinementMode(m_arHandle1, mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+	}
+	ARLOGi("Corner Refinement mode set to %d.\n", mode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
+
+}
+
 void ARTrackerSquare::setImageProcMode(int mode)
 {
     m_imageProcMode = mode;
@@ -308,6 +326,7 @@ bool ARTrackerSquare::start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, A
     arSetPattRatio(m_arHandle0, m_pattRatio);
     arSetPatternDetectionMode(m_arHandle0, m_patternDetectionMode);
     arSetMatrixCodeType(m_arHandle0, m_matrixCodeType);
+	arSetCornerRefinementMode(m_arHandle0, m_cornerRefinementMode ? AR_CORNER_REFINEMENT_ENABLE : AR_CORNER_REFINEMENT_DISABLE);
     
     if (paramLT1) {
         // Create AR handle
@@ -360,12 +379,12 @@ bail:
     return false;
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums)
 {
-    return update(buff, NULL, trackables);
+    return update(buff, NULL, trackables, doDatums);
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums)
 {
     ARMarkerInfo *markerInfo0 = NULL;
     ARMarkerInfo *markerInfo1 = NULL;
@@ -394,15 +413,54 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     // Update square markers.
     bool success = true;
     if (!buff1) {
+		// Do all the square and multi-markers before the multi_auto one
+		std::vector<arx_mapper::Marker> markers;
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {
-                success &= ((ARTrackableSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				bool success2 = ((ARTrackableSquare*)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                success &= success2;
+				if (success2 && doDatums) {
+					ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
+					if (target->visible && target->UID < 102) {
+						bool largeBoard = false;
+						if (target->UID < 2) largeBoard = true;
+						success2 = target->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard);
+						success &= success2;
+					}
+				}
+				if (success2 && (*it)->visible) {
+					arx_mapper::Marker marker;
+					marker.uid = (*it)->UID;
+					for (int i = 0; i < 3; i++) {
+						for (int j = 0; j < 4; j++) {
+							marker.trans[i][j] = (*it)->GetTrans(i, j);
+						}
+					}
+					markers.push_back(marker);
+				}
             } else if ((*it)->type == ARTrackable::MULTI) {
-                success &= ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-            } else if ((*it)->type == ARTrackable::MULTI_AUTO) {
-                success &= ((ARTrackableMultiSquareAuto *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
+                bool success2 = ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				success &= success2;
+				if (success2 && (*it)->visible) {
+					arx_mapper::Marker marker;
+					marker.uid = (*it)->UID;
+					for (int i = 0; i < 3; i++) {
+						for (int j = 0; j < 4; j++) {
+							marker.trans[i][j] = (*it)->GetTrans(i, j);
+						}
+					}
+					markers.push_back(marker);
+				}
             }
         }
+
+		// Now do the multi_auto marker
+		for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+			if ((*it)->type == ARTrackable::MULTI_AUTO) {
+				success &= ((ARTrackableMultiSquareAuto*)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				success &= ((ARTrackableMultiSquareAuto*)(*it))->updateMapperWithMarkers(markers);
+			}
+		}
     } else {
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {
@@ -416,6 +474,24 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     }
 
     return true;
+}
+
+bool ARTrackerSquare::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables)
+{
+	// Update square markers.
+	for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+		if ((*it)->type == ARTrackable::SINGLE) {
+			ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
+			bool success;
+			if (target->visible && target->UID < 102) {
+				bool largeBoard = false;
+				if (target->UID < 2) largeBoard = true;
+				success = target->updateWithDetectedDatums(arParams, buffLuma, imageWidth, imageHeight, m_ar3DHandle, largeBoard);
+			}
+		}
+	}
+
+	return true;
 }
 
 bool ARTrackerSquare::stop()

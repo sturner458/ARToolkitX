@@ -180,6 +180,7 @@ AR2VideoParamDummyT *ar2VideoOpenDummy( const char *config )
         goto bail;
     }
 
+	vid->format = AR_PIXEL_FORMAT_MONO;
     ARLOGi("Dummy video size %dx%d@%dBpp.\n", vid->width, vid->height, arVideoUtilGetPixelSize(vid->format));
 
     return vid;

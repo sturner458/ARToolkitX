@@ -42,6 +42,7 @@
 
 #include <ARX/ARX_c.h>
 #include <ARX/ARController.h>
+#include <ARX/ARTrackableMultiSquareAuto.h>
 #ifdef DEBUG
 #  ifdef _WIN32
 #    define MAXPATHLEN MAX_PATH
@@ -180,6 +181,37 @@ bool arwShutdownAR()
     }
 
     return (true);
+}
+
+// ----------------------------------------------------------------------------------------------------
+#pragma mark  Single image functions
+// -------------------------------------------------------------------------------------------------
+
+void arwInitARToolKit(const char* vconf, const char* cparaName)
+{
+	if (!gARTK) gARTK = new ARController;
+	//gARTK->logCallback = log;
+	gARTK->initialiseBase();
+
+	gARTK->startRunning(vconf, cparaName, NULL, 0);
+
+	return;
+}
+
+bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums)
+{
+	//ARLOGe("UpdateARToolKit called.\n");
+	if (!gARTK) return false;
+	return gARTK->updateWithImage(imageBytes, doDatums);
+}
+
+void arwCleanupARToolKit()
+{
+	if (gARTK) {
+		delete gARTK; // Delete the ARToolKit instance to initiate shutdown.
+		gARTK = NULL;
+	}
+	return;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -327,7 +359,9 @@ void arwSetTrackerOptionBool(int option, bool value)
 #endif
     } else if (option == ARW_TRACKER_OPTION_SQUARE_DEBUG_MODE) {
         gARTK->getSquareTracker()->setDebugMode(value);
-    }
+    } else if (option == ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT) {
+		gARTK->getSquareTracker()->setCornerRefinementMode(value);
+	}
 }
 
 void arwSetTrackerOptionInt(int option, int value)
@@ -503,6 +537,91 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix
     }
     for (int i = 0; i < 16; i++) matrix[i] = (float)trackable->transformationMatrix[i];
     return trackable->visible;
+}
+
+bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float* matrix) {
+	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+	if (t) {
+		ARMultiMarkerInfoT* map = t->copyMultiConfig();
+		if (map) {
+			for (int n = 0; n < map->marker_num; n++) {
+				if (map->marker[n].patt_id == trackableUID) {
+					for (int i = 0; i < 3; i++) {
+						for (int j = 0; j < 4; j++) {
+							matrix[i + j * 4] = (float)map->marker[n].trans[i][j];
+							matrix[3 + j * 4] = 0;
+						}
+					}
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+void arwListTrackables(int gMapUID) {
+	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+	if (t) {
+		ARMultiMarkerInfoT* map = t->copyMultiConfig();
+		if (map) {
+			for (int n = 0; n < map->marker_num; n++) {
+				ARLOGd("Found trackable with UID %d\n", map->marker[n].patt_id);
+			}
+		}
+	}
+}
+
+bool arwLastUpdateSuccessful(int gMapUID, int* numMarkers, int* numSuccessfulUpdates, float* trans) {
+	*numMarkers = 0;
+	*numSuccessfulUpdates = 0;
+	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+	if (t) {
+		*numMarkers = (int)t->lastMarkers.size();
+		*numSuccessfulUpdates = t->numSuccessfulUpdates;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 4; j++) {
+				trans[i * 4 + j] = t->lastTrans[i][j];
+			}
+		}
+		return t->lastUpdateSuccessful;
+	}
+	return false;
+}
+
+void arwGetMappedMarkerTrans(int gMapUID, int nMarker, float* lastTrans, int* uid) {
+	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+	if (t) {
+		*uid = t->lastMarkers.at(nMarker).uid;
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 4; j++) {
+				lastTrans[i * 4 + j] = t->lastMarkers.at(nMarker).trans[i][j];
+			}
+		}
+	}
+}
+
+int arwResetMapperTrackable(int gMapUID, const char* cfg) {
+	gARTK->removeTrackable(gMapUID);
+	return gARTK->addTrackable(cfg);
+}
+
+void arwAddMappedMarkers(int gMapUID, int nMarkers, float* thisTrans, float* markerTrans, int* uids) {
+	std::vector<arx_mapper::Marker> markers;
+	for (int n = 0; n < nMarkers; n++) {
+		arx_mapper::Marker marker;
+		marker.uid = uids[n];
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 4; j++) {
+				marker.trans[i][j] = (ARdouble)(markerTrans[n * 12 + i * 4 + j]);
+			}
+		}
+		markers.push_back(marker);
+	}
+	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+	if (t) {
+		t->addStoredMarkers(thisTrans, markers);
+	}
 }
 
 bool arwQueryTrackableVisibilityAndTransformationStereo(int trackableUID, float matrixL[16], float matrixR[16])
@@ -720,7 +839,8 @@ float arwGetTrackableOptionFloat(int trackableUID, int option)
             else return (NAN);
             break;
         case ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB:
-            if (trackable->type == ARTrackable::MULTI) return (float)((ARTrackableMultiSquare *)trackable)->config->minInlierProb;
+			if (trackable->type == ARTrackable::MULTI) return (float)((ARTrackableMultiSquare*)trackable)->config->minInlierProb;
+			if (trackable->type == ARTrackable::MULTI_AUTO) return (float)((ARTrackableMultiSquareAuto*)trackable)->m_MultiConfig->minInlierProb;
             else return (NAN);
             break;
         default:
@@ -762,7 +882,8 @@ void arwSetTrackableOptionFloat(int trackableUID, int option, float value)
             if (trackable->type == ARTrackable::MULTI) ((ARTrackableMultiSquare *)trackable)->config->cfPattCutoff = value;
             break;
         case ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB:
-            if (trackable->type == ARTrackable::MULTI) ((ARTrackableMultiSquare *)trackable)->config->minInlierProb = value;
+			if (trackable->type == ARTrackable::MULTI) ((ARTrackableMultiSquare*)trackable)->config->minInlierProb = value;
+			if (trackable->type == ARTrackable::MULTI_AUTO) ((ARTrackableMultiSquareAuto*)trackable)->m_MultiConfig->minInlierProb = value;
             break;
         default:
             ARLOGe("arwSetTrackableOptionFloat(): Unrecognised option %d.\n", option);

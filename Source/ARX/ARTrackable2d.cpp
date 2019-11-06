@@ -38,6 +38,7 @@
 
 #include <ARX/ARTrackable2d.h>
 #include <ARX/ARUtil/image_utils.h>
+#include <stdexcept>
 
 
 #if HAVE_2D
