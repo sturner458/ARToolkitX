@@ -540,12 +540,14 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix
 }
 
 bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float* matrix) {
+	ARTrackableMultiSquare* tr = reinterpret_cast<ARTrackableMultiSquare*>(gARTK->findTrackable(trackableUID));
+	int barcodeId = tr->config->marker[0].patt_id;
 	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
 	if (t) {
 		ARMultiMarkerInfoT* map = t->copyMultiConfig();
 		if (map) {
 			for (int n = 0; n < map->marker_num; n++) {
-				if (map->marker[n].patt_id == trackableUID) {
+				if (map->marker[n].patt_id == barcodeId) {
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
 							matrix[i + j * 4] = (float)map->marker[n].trans[i][j];

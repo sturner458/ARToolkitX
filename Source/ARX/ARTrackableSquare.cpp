@@ -143,7 +143,7 @@ bool ARTrackableSquare::initWithBarcode(int barcodeID, ARdouble width)
     
     if (m_loaded) unload();
 
-	ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
+	//ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
 	
 	patt_id = barcodeID;
 	
@@ -179,7 +179,7 @@ void ARTrackableSquare::setConfidenceCutoff(ARdouble value)
 
 bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
 
-    ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
+    //ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
     
 	if (patt_id < 0) return false;	// Can't update if no pattern loaded
 

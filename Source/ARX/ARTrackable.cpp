@@ -86,7 +86,7 @@ void ARTrackable::allocatePatterns(int count)
 
     if (count) {
         patternCount = count;
-        ARLOGd("Allocating %d patterns on trackable %d.\n", patternCount, UID);
+        //ARLOGd("Allocating %d patterns on trackable %d.\n", patternCount, UID);
         patterns = new ARPattern*[patternCount];
         for (int i = 0; i < patternCount; i++) {
             patterns[i] = new ARPattern();
@@ -148,7 +148,7 @@ bool ARTrackable::update(const ARdouble transL2R[3][4])
         }
         
         if (!visiblePrev) {
-            ARLOGi("trackable %d now visible.\n", UID);
+            //ARLOGi("trackable %d now visible.\n", UID);
         }
         
         // Convert to GL matrix.
@@ -173,7 +173,7 @@ bool ARTrackable::update(const ARdouble transL2R[3][4])
     } else {
         
         if (visiblePrev) {
-            ARLOGi("Trackable %d no longer visible.\n", UID);
+            //ARLOGi("Trackable %d no longer visible.\n", UID);
         }
         
     }

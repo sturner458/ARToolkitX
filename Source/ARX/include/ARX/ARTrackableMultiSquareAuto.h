@@ -47,7 +47,8 @@
 class ARTrackableMultiSquareAuto : public ARTrackable {
 
 private:
-    int m_OriginMarkerUid; // The UID of the barcode marker which defines the origin of the world coordinate system.
+	int m_OriginMarkerUid; // The UID of the barcode marker which defines the origin of the world coordinate system.
+	int m_OriginBarcodeId; // The UID of the barcode marker which defines the origin of the world coordinate system.
     ARdouble m_markerWidth;
 
     // A holder for a struct which holds member variables which we don't want to appear to the header.

@@ -324,8 +324,14 @@ bool ARTrackableMultiSquareAuto::updateMapperWithMarkers(std::vector<arx_mapper:
 	if (m_MultiConfig->marker_num == 0) {
 		for (int i = 0; i < (int)markers.size(); i++) {
 			if (markers.at(i).uid == m_OriginMarkerUid) {
+				m_OriginBarcodeId = markers.at(i).barcodeId;
 				ARdouble origin[3][4] = { {1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0} };
-				arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
+				arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginBarcodeId, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
+				for (int j = 0; j < 3; j++) {
+					for (int k = 0; k < 4; k++) {
+						m_MultiConfig->trans[j][k] = markers.at(i).trans[j][k];
+					}
+				}
 			}
 		}
 	}
@@ -388,7 +394,7 @@ bool ARTrackableMultiSquareAuto::updateMapperWithMarkers(std::vector<arx_mapper:
 		if (!m_pm->m_mapper.inited()) {
 			// Add a landmark for the origin marker.
 			// We fix this in the map at the origin and thus fix the scale for first pose and first landmark.
-			m_pm->m_mapper.Initialize(m_OriginMarkerUid, m_markerWidth);
+			m_pm->m_mapper.Initialize(m_OriginBarcodeId, m_markerWidth);
 		}
 		else {
 			// This will add new landmarks for each marker not previously seen, with the

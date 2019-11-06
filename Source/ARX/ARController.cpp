@@ -647,7 +647,7 @@ bool ARController::projectionMatrix(const int videoSourceIndex, const ARdouble p
     }
     
     arglCameraFrustumRH(&(paramLT->param), projectionNearPlane, projectionFarPlane, proj);
-    ARLOGd("Computed projection matrix using near=%f far=%f.\n", projectionNearPlane, projectionFarPlane);
+    //ARLOGd("Computed projection matrix using near=%f far=%f.\n", projectionNearPlane, projectionFarPlane);
     return true;
 }
 
@@ -723,7 +723,7 @@ int ARController::addTrackable(const std::string& cfgs)
 // private
 bool ARController::addTrackable(ARTrackable* trackable)
 {
-    ARLOGd("ARController::addTrackable(): called\n");
+    //ARLOGd("ARController::addTrackable(): called\n");
 	if (!isInited()) {
         ARLOGe("Error: Cannot add trackable. artoolkitX not initialised.\n");
 		return false;
@@ -756,7 +756,7 @@ bool ARController::addTrackable(ARTrackable* trackable)
         doSquareMarkerDetection = true;
     }
 
-	ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
+	//ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
 	return true;
 }
 

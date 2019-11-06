@@ -391,7 +391,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     int markerNum0 = 0;
     int markerNum1 = 0;
 
-    ARLOGd("ARX::ARTrackerSquare::update()\n");
+    //ARLOGd("ARX::ARTrackerSquare::update()\n");
 
     if (!m_arHandle0 || (buff1 && !m_arHandle1)) return false;
 
@@ -417,10 +417,10 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 		std::vector<arx_mapper::Marker> markers;
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {
-				bool success2 = ((ARTrackableSquare*)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
+				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
                 success &= success2;
 				if (success2 && doDatums) {
-					ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
 					if (target->visible && target->UID < 102) {
 						bool largeBoard = false;
 						if (target->UID < 2) largeBoard = true;
@@ -431,6 +431,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				if (success2 && (*it)->visible) {
 					arx_mapper::Marker marker;
 					marker.uid = (*it)->UID;
+					marker.barcodeId = target->patt_id;
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
 							marker.trans[i][j] = (*it)->GetTrans(i, j);
@@ -439,11 +440,13 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 					markers.push_back(marker);
 				}
             } else if ((*it)->type == ARTrackable::MULTI) {
-                bool success2 = ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
+                bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				success &= success2;
 				if (success2 && (*it)->visible) {
 					arx_mapper::Marker marker;
 					marker.uid = (*it)->UID;
+					marker.barcodeId = target->config->marker[0].patt_id;
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
 							marker.trans[i][j] = (*it)->GetTrans(i, j);
@@ -457,8 +460,9 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 		// Now do the multi_auto marker
 		for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
 			if ((*it)->type == ARTrackable::MULTI_AUTO) {
-				success &= ((ARTrackableMultiSquareAuto*)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-				success &= ((ARTrackableMultiSquareAuto*)(*it))->updateMapperWithMarkers(markers);
+				ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
+				success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				if (success && (marker->m_MultiConfig->marker_num == 0 || (*it)->visible)) success = ((ARTrackableMultiSquareAuto*)(*it))->updateMapperWithMarkers(markers);
 			}
 		}
     } else {

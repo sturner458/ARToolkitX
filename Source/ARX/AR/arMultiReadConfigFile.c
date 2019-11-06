@@ -81,7 +81,7 @@ ARMultiMarkerInfoT *arMultiReadConfigFile( const char *filename, ARPattHandle *p
         fclose(fp);
         return NULL;
     }
-    ARLOGd("Reading %d markers from multimarker file '%s'\n", num, filename);
+    //ARLOGd("Reading %d markers from multimarker file '%s'\n", num, filename);
 
     arMalloc(marker, ARMultiEachMarkerInfoT, num);
 
@@ -108,7 +108,7 @@ ARMultiMarkerInfoT *arMultiReadConfigFile( const char *filename, ARPattHandle *p
             
             if ((marker[i].globalID & 0xffff8000ULL) == 0ULL) marker[i].patt_id = (int)(marker[i].globalID & 0x00007fffULL); // If upper 33 bits are zero, use lower 31 bits as regular matrix code.
             else marker[i].patt_id = 0;
-            ARLOGd("Marker %3d is matrix code %" PRIu64 ".\n", i + 1, marker[i].globalID);
+            //ARLOGd("Marker %3d is matrix code %" PRIu64 ".\n", i + 1, marker[i].globalID);
             marker[i].patt_type = AR_MULTI_PATTERN_TYPE_MATRIX;
             have_matrix_submarker = true;
         }
