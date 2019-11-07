@@ -428,13 +428,12 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 						success &= success2;
 					}
 				}
-				if (success2 && (*it)->visible) {
+				if (success2 && target->visible) {
 					arx_mapper::Marker marker;
-					marker.uid = (*it)->UID;
-					marker.barcodeId = target->patt_id;
+					marker.uid = target->patt_id;
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
-							marker.trans[i][j] = (*it)->GetTrans(i, j);
+							marker.trans[i][j] = target->GetTrans(i, j);
 						}
 					}
 					markers.push_back(marker);
@@ -443,17 +442,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
                 bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				success &= success2;
-				if (success2 && (*it)->visible) {
-					arx_mapper::Marker marker;
-					marker.uid = (*it)->UID;
-					marker.barcodeId = target->config->marker[0].patt_id;
-					for (int i = 0; i < 3; i++) {
-						for (int j = 0; j < 4; j++) {
-							marker.trans[i][j] = (*it)->GetTrans(i, j);
-						}
-					}
-					markers.push_back(marker);
-				}
+				// Don't add multi-markers to the mapper
             }
         }
 
@@ -462,6 +451,9 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 			if ((*it)->type == ARTrackable::MULTI_AUTO) {
 				ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
 				success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				if (success && marker->visible && doDatums) {
+					success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
+				}
 				if (success && (marker->m_MultiConfig->marker_num == 0 || (*it)->visible)) success = ((ARTrackableMultiSquareAuto*)(*it))->updateMapperWithMarkers(markers);
 			}
 		}
@@ -478,24 +470,6 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     }
 
     return true;
-}
-
-bool ARTrackerSquare::updateWithDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, std::vector<ARTrackable*>& trackables)
-{
-	// Update square markers.
-	for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
-		if ((*it)->type == ARTrackable::SINGLE) {
-			ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
-			bool success;
-			if (target->visible && target->UID < 102) {
-				bool largeBoard = false;
-				if (target->UID < 2) largeBoard = true;
-				success = target->updateWithDetectedDatums(arParams, buffLuma, imageWidth, imageHeight, m_ar3DHandle, largeBoard);
-			}
-		}
-	}
-
-	return true;
 }
 
 bool ARTrackerSquare::stop()

@@ -50,7 +50,7 @@ namespace arx_mapper {
     void Mapper::AddFactors(const std::vector<Marker>& markers) {
         Symbol x_i('x', pose_cnt);
         for (const Marker& marker : markers) {
-            graph_.push_back(BetweenFactor<Pose3>(x_i, Symbol('l', marker.barcodeId), PoseFromARTrans(marker.trans), marker_noise_));
+            graph_.push_back(BetweenFactor<Pose3>(x_i, Symbol('l', marker.uid), PoseFromARTrans(marker.trans), marker_noise_));
         }
     }
     
@@ -82,11 +82,11 @@ namespace arx_mapper {
     void Mapper::AddLandmarks(const std::vector<Marker>& markers) {
         for (const Marker& marker : markers) {
             // Only add landmark if it's not already added
-            if (all_uids_.find(marker.barcodeId) == all_uids_.end()) {
+            if (all_uids_.find(marker.uid) == all_uids_.end()) {
                 const Pose3 &w_T_c = pose_;
                 const Pose3 c_T_t = PoseFromARTrans(marker.trans);
                 const Pose3 w_T_t = w_T_c.compose(c_T_t);
-                AddLandmark(marker.barcodeId, w_T_t);
+                AddLandmark(marker.uid, w_T_t);
             }
         }
     }

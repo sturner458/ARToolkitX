@@ -42,7 +42,6 @@ namespace arx_mapper {
     
     struct Marker {
         int uid;
-		int barcodeId;
         ARdouble trans[3][4]; // Marker pose in camera coordinates.
     };
 
