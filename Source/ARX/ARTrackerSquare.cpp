@@ -454,7 +454,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				if (success && marker->visible && doDatums) {
 					success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
 				}
-				if (success && (marker->m_MultiConfig->marker_num == 0 || (*it)->visible)) success = ((ARTrackableMultiSquareAuto*)(*it))->updateMapperWithMarkers(markers);
+				if (success && (marker->m_MultiConfig->marker_num == 0 || marker->visible)) success = marker->updateMapperWithMarkers(markers);
 			}
 		}
     } else {
