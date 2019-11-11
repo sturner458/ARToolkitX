@@ -654,7 +654,7 @@ int arwGetTrackablePatternCount(int trackableUID)
     return trackable->patternCount;
 }
 
-bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY)
+bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int* imageSizeY, int* barcodeId)
 {
     ARTrackable *trackable;
     ARPattern *p;
@@ -677,6 +677,7 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[
     if (height) *height = (float)p->m_height;
     if (imageSizeX) *imageSizeX = p->m_imageSizeX;
     if (imageSizeY) *imageSizeY = p->m_imageSizeY;
+	if (barcodeId) *barcodeId = p->m_patternID;
     return true;
 }
 

@@ -84,6 +84,8 @@ public:
     int m_imageSizeX;
     int m_imageSizeY;
 	uint32_t *m_image;      ///< RGBA32 image of the pattern.
+	// Template/matrix.
+	int m_patternID;        ///< ID of the pattern (artoolkitX internal ID)
     
 private:
 
@@ -92,8 +94,6 @@ private:
 	bool loadImage(ARPattHandle *arPattHandle);
 	void freeImage();
     
-    // Template/matrix.
-    int m_patternID;        ///< ID of the pattern (artoolkitX internal ID)
 
 };
 

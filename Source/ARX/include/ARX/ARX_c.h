@@ -555,7 +555,7 @@ extern "C" {
 	 * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
 	 * @return			true if successful, false if an error occurred
 	 */
-	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY);
+	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int* barcodeId);
 	
 	/**
 	 * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the

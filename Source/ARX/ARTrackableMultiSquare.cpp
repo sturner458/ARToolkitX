@@ -143,6 +143,111 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
 	return (ARTrackable::update()); // Parent class will finish update.
 }
 
+bool ARTrackableMultiSquare::updateWithDetectedDatums(ARHandle* arHandle, ARUint8* buffLuma, AR3DHandle* ar3DHandle) {
+
+	ARdouble* datumCoords2D;
+	ARdouble* datumCoords;
+
+	datumCoords2D = new ARdouble[8 * config->marker_num];
+	datumCoords = new ARdouble[12 * config->marker_num];
+
+	cv::Mat grayImage = cv::Mat(arHandle->ysize, arHandle->xsize, CV_8UC1, (void*)buffLuma, arHandle->xsize);
+
+	std::vector<cv::Point2d> datumCentres;
+	for (int i = 0; i < config->marker_num; i++) {
+
+		std::vector<cv::Point2d> datumCentres2;
+		datumCentres2.push_back(cv::Point2d(-config->marker[i].width / 2.0f, config->marker[i].width / 2.0f));
+		datumCentres2.push_back(cv::Point2d(-config->marker[i].width / 2.0f, -config->marker[i].width / 2.0f));
+		datumCentres2.push_back(cv::Point2d(config->marker[i].width / 2.0f, config->marker[i].width / 2.0f));
+		datumCentres2.push_back(cv::Point2d(config->marker[i].width / 2.0f, -config->marker[i].width / 2.0f));
+
+		for (int j = 0; j < 4; j++) {
+			cv::Point2d pt = datumCentres2.at(j);
+			float cx = config->marker[i].trans[0][0] * pt.x + config->marker[i].trans[0][1] * pt.y + config->marker[i].trans[0][3];
+			float cy = config->marker[i].trans[1][0] * pt.x + config->marker[i].trans[1][1] * pt.y + config->marker[i].trans[1][3];
+			float cz = config->marker[i].trans[2][0] * pt.x + config->marker[i].trans[2][1] * pt.y + config->marker[i].trans[2][3];
+			datumCentres.push_back(cv::Point2d(cx, cy));
+		}
+	}
+
+	ARdouble ox, oy;
+	std::vector<cv::Point2f> corners;
+	for (int i = 0; i < (int)datumCentres.size(); i++) {
+		cv::Point2d pt = datumCentres.at(i);
+		ModelToImageSpace(arHandle->arParamLT->param, trans, pt.x, pt.y, &ox, &oy);
+		corners.push_back(cv::Point2f(ox, oy));
+		datumCoords[i * 3] = pt.x;
+		datumCoords[i * 3 + 1] = pt.y;
+		datumCoords[i * 3 + 2] = 0;
+	}
+
+	cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+	for (int i = 0; i < (int)corners.size(); i = i + 1) {
+		ARdouble newX, newY;
+		arParamObserv2Ideal(arHandle->arParamLT->param.dist_factor, corners[i].x, corners[i].y, &newX, &newY, arHandle->arParamLT->param.dist_function_version);
+		datumCoords2D[i * 2] = newX;
+		datumCoords2D[i * 2 + 1] = newY;
+	}
+
+	ARdouble err;
+	err = arGetTransMatDatumSquare(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+	if (err > 10.0f) visible = false;
+
+	delete[] datumCoords2D;
+	delete[] datumCoords;
+
+	if (visible) return (ARTrackable::update()); // Parent class will finish update.
+	return false;
+}
+
+void ARTrackableMultiSquare::ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy) {
+	ARdouble        cx, cy, cz, hx, hy, h, sx, sy;
+
+	*ox = ix;
+	*oy = iy;
+
+	cx = trans[0][0] * ix + trans[0][1] * iy + trans[0][3];
+	cy = trans[1][0] * ix + trans[1][1] * iy + trans[1][3];
+	cz = trans[2][0] * ix + trans[2][1] * iy + trans[2][3];
+	hx = param.mat[0][0] * cx + param.mat[0][1] * cy + param.mat[0][2] * cz + param.mat[0][3];
+	hy = param.mat[1][0] * cx + param.mat[1][1] * cy + param.mat[1][2] * cz + param.mat[1][3];
+	h = param.mat[2][0] * cx + param.mat[2][1] * cy + param.mat[2][2] * cz + param.mat[2][3];
+	if (h == 0.0) return;
+	sx = hx / h;
+	sy = hy / h;
+	arParamIdeal2Observ(param.dist_factor, sx, sy, ox, oy, param.dist_function_version);
+}
+
+ARdouble ARTrackableMultiSquare::arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
+{
+	const int numCoords = 2 * numDatums;
+	ICP2DCoordT* screenCoord = new ICP2DCoordT[numDatums];
+	ICP3DCoordT* worldCoord = new ICP3DCoordT[numDatums];
+	ICPDataT       data;
+	ARdouble         initMatXw2Xc[3][4];
+	ARdouble         err;
+
+	for (int i = 0; i < numDatums; i++) {
+		screenCoord[i].x = datumCoords2D[i * 2];
+		screenCoord[i].y = datumCoords2D[i * 2 + 1];
+		worldCoord[i].x = datumCoords[i * 3];
+		worldCoord[i].y = datumCoords[i * 3 + 1];
+		worldCoord[i].z = datumCoords[i * 3 + 2];
+	}
+	data.screenCoord = screenCoord;
+	data.worldCoord = worldCoord;
+	data.num = numDatums;
+
+	if (icpGetInitXw2Xc_from_PlanarData(handle->icpHandle->matXc2U, data.screenCoord, data.worldCoord, data.num, initMatXw2Xc) < 0) return 100000000.0;
+	if (icpPoint(handle->icpHandle, &data, initMatXw2Xc, conv, &err) < 0) return 100000000.0;
+
+	delete[] screenCoord;
+	delete[] worldCoord;
+
+	return err;
+}
+
 bool ARTrackableMultiSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4])
 {
 	if (!m_loaded || !config) return false;			// Can't update without multimarker config

@@ -124,6 +124,7 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
         if (patt_type == AR_MULTI_PATTERN_TYPE_MATRIX) {
             marker_info->marker[i].globalID = globalID;
         }
+		//ARLOGe("arMultiAddOrUpdateSubmarker Added marker id %d\n", patt_id);
     }
     
     arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);

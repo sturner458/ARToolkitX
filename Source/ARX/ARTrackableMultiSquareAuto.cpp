@@ -590,10 +590,12 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
 		arMalloc(datumCoords2D, ARdouble, vnum * 4 * 2);
 		arMalloc(datumCoords, ARdouble, vnum * 4 * 3);
 
-		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+		cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
 		for (int i = 0; i < vnum; i = i + 1) {
-			datumCoords2D[i * 2] = corners[i].x;
-			datumCoords2D[i * 2 + 1] = corners[i].y;
+			ARdouble newX, newY;
+			arParamObserv2Ideal(arParams.dist_factor, corners[i].x, corners[i].y, &newX, &newY, arParams.dist_function_version);
+			datumCoords2D[i * 2] = newX;
+			datumCoords2D[i * 2 + 1] = newY;
 			datumCoords[i * 3] = datumCoords3D[i].x;
 			datumCoords[i * 3 + 1] = datumCoords3D[i].y;
 			datumCoords[i * 3 + 2] = datumCoords3D[i].z;

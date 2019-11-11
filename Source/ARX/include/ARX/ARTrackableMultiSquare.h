@@ -71,7 +71,9 @@ public:
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
 	bool updateWithDetectedMarkers(ARMarkerInfo *markerInfo, int markerNum, AR3DHandle *ar3DHandle);
-
+	bool updateWithDetectedDatums(ARHandle* arHandle, ARUint8* buffLuma, AR3DHandle* ar3DHandle);
+	void ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy);
+	ARdouble arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4]);
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
 };
 

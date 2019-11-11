@@ -441,8 +441,28 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
             } else if ((*it)->type == ARTrackable::MULTI) {
 				ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
                 bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				//if (success2 && target->visible) success2 = target->updateWithDetectedDatums(m_arHandle0, buff0->buffLuma, m_ar3DHandle);
 				success &= success2;
-				// Don't add multi-markers to the mapper
+
+				if (success2 && target->visible) {
+					ARMultiMarkerInfoT* map = target->config;
+
+					for (int i = 0; i < map->marker_num; i++) {
+						arx_mapper::Marker marker;
+						ARMultiMarkerInfoT* map = target->config;
+						marker.uid = map->marker[i].patt_id;
+						ARdouble trans[3][4];
+						for (int i = 0; i < 3; i++) {
+							for (int j = 0; j < 4; j++) {
+								trans[i][j] = target->GetTrans(i, j);
+							}
+						}
+
+						arUtilMatMul(trans, map->marker[i].trans, marker.trans);
+
+						markers.push_back(marker);
+					}
+				}
             }
         }
 
