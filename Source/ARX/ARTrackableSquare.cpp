@@ -379,7 +379,7 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 	}
 
 	if (corners.size() == datumCentres.size()) {
-		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
 		for (int i = 0; i < (int)corners.size(); i = i + 1) {
 			datumCoords2D[i * 2] = corners[i].x;
 			datumCoords2D[i * 2 + 1] = corners[i].y;
@@ -409,7 +409,7 @@ bool ARTrackableSquare::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam a
 	cv::Rect rect = cv::Rect((int)*ox - halfSquare, (int)*oy - halfSquare, 2 * halfSquare, 2 * halfSquare);
 	cv::Mat region = cv::Mat(grayImage, rect);
 	cv::Mat binaryRegion = region.clone();
-	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, CV_THRESH_OTSU);
+	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
 	int nonzero = cv::countNonZero(binaryRegion);
 	int square = 4 * halfSquare * halfSquare;
 	return (nonzero > square * 0.333f && nonzero < square * 0.666f);

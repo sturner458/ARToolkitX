@@ -590,7 +590,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
 		arMalloc(datumCoords2D, ARdouble, vnum * 4 * 2);
 		arMalloc(datumCoords, ARdouble, vnum * 4 * 3);
 
-		cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+		cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
 		for (int i = 0; i < vnum; i = i + 1) {
 			ARdouble newX, newY;
 			arParamObserv2Ideal(arParams.dist_factor, corners[i].x, corners[i].y, &newX, &newY, arParams.dist_function_version);
@@ -625,7 +625,7 @@ bool ARTrackableMultiSquareAuto::GetCenterPointForDatum(ARdouble x, ARdouble y, 
 	cv::Rect rect = cv::Rect((int)*ox - halfSquare, (int)*oy - halfSquare, 2 * halfSquare, 2 * halfSquare);
 	cv::Mat region = cv::Mat(grayImage, rect);
 	cv::Mat binaryRegion = region.clone();
-	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, CV_THRESH_OTSU);
+	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
 	int nonzero = cv::countNonZero(binaryRegion);
 	int square = 4 * halfSquare * halfSquare;
 	return (nonzero > square * 0.333f && nonzero < square * 0.666f);

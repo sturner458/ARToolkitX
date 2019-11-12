@@ -182,7 +182,7 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums(ARHandle* arHandle, ARUint
 		datumCoords[i * 3 + 2] = 0;
 	}
 
-	cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+	cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
 	for (int i = 0; i < (int)corners.size(); i = i + 1) {
 		ARdouble newX, newY;
 		arParamObserv2Ideal(arHandle->arParamLT->param.dist_factor, corners[i].x, corners[i].y, &newX, &newY, arHandle->arParamLT->param.dist_function_version);

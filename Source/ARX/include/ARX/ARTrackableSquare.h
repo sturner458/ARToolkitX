@@ -40,6 +40,7 @@
 #define ARMARKERSQUARE_H
 
 #include <ARX/ARTrackable.h>
+#include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #define    AR_PATTERN_TYPE_TEMPLATE    0
