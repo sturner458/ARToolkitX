@@ -219,7 +219,7 @@ void arwCleanupARToolKit()
 // -------------------------------------------------------------------------------------------------
 
 
-bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16])
+bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, double p[16])
 {
     if (!gARTK) return false;
 
@@ -230,7 +230,7 @@ bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p
     if (!gARTK->projectionMatrix(0, nearPlane, farPlane, p0)) {
         return false;
     }
-    for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
+    for (int i = 0; i < 16; i++) p[i] = (double)p0[i];
     return true;
 #endif
 }
@@ -526,7 +526,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16])
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16])
 {
     ARTrackable *trackable;
     
@@ -535,11 +535,11 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix
         ARLOGe("arwQueryTrackableVisibilityAndTransformation(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return false;
     }
-    for (int i = 0; i < 16; i++) matrix[i] = (float)trackable->transformationMatrix[i];
+    for (int i = 0; i < 16; i++) matrix[i] = (double)trackable->transformationMatrix[i];
     return trackable->visible;
 }
 
-bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float* matrix) {
+bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double* matrix) {
 	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
 	if (t) {
 		ARMultiMarkerInfoT* map = t->copyMultiConfig();
@@ -548,7 +548,7 @@ bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float*
 				if (map->marker[n].patt_id == trackableUID) {
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
-							matrix[i + j * 4] = (float)map->marker[n].trans[i][j];
+							matrix[i + j * 4] = (double)map->marker[n].trans[i][j];
 							matrix[3 + j * 4] = 0;
 						}
 					}
@@ -654,7 +654,7 @@ int arwGetTrackablePatternCount(int trackableUID)
     return trackable->patternCount;
 }
 
-bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int* imageSizeY, int* barcodeId)
+bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], float *width, float *height, int *imageSizeX, int* imageSizeY, int* barcodeId)
 {
     ARTrackable *trackable;
     ARPattern *p;
@@ -671,7 +671,7 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[
     }
 
     if (matrix) {
-        for (int i = 0; i < 16; i++) matrix[i] = (float)p->m_matrix[i];
+        for (int i = 0; i < 16; i++) matrix[i] = (double)p->m_matrix[i];
     }
     if (width) *width = (float)p->m_width;
     if (height) *height = (float)p->m_height;

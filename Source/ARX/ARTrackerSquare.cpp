@@ -418,7 +418,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {
 				ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
-				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
                 success &= success2;
 				if (success2 && doDatums) {
 					if (target->visible && target->UID < 102) {

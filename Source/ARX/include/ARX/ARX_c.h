@@ -181,7 +181,7 @@ extern "C" {
 	 * @param p         Float array to populate with OpenGL compatible projection matrix.
 	 * @return          true if successful, false if an error occurred
 	 */
-	ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16]);
+	ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, double p[16]);
     
 	/**
 	 * Populates the given float arrays with the projection matrices computed from camera parameters for each of the stereo video sources.
@@ -517,9 +517,9 @@ extern "C" {
 	 * @param matrix	A float array to populate with an OpenGL-compatible transformation matrix.
 	 * @return			true if the specified trackable is visible, false if not, or an error occurred.
 	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16]);
+	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16]);
 
-	ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float* matrix);
+	ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double* matrix);
 	ARX_EXTERN void arwListTrackables(int gMapUID);
     
 	/**
@@ -555,7 +555,7 @@ extern "C" {
 	 * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
 	 * @return			true if successful, false if an error occurred
 	 */
-	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int* barcodeId);
+	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int* barcodeId);
 	
 	/**
 	 * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the

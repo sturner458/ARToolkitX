@@ -177,7 +177,7 @@ void ARTrackableSquare::setConfidenceCutoff(ARdouble value)
     }
 }
 
-bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
+bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle, ARParam arParams) {
 
     //ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
     
@@ -229,7 +229,8 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 				err = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
 			} else {
 				// If the marker wasn't visible last time, use normal version of arGetTransMatSquare
-				err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
+				//err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
+				err = arGetTransMatSquare2(arParams, &(markerInfo[k]), m_width, trans);
 			}
             if (err < 10.0f) {
                 visible = true;
@@ -239,6 +240,58 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
     }
 
 	return (ARTrackable::update()); // Parent class will finish update.
+}
+
+ARdouble ARTrackableSquare::arGetTransMatSquare2(ARParam arParams, ARMarkerInfo* markerInfo, ARdouble width, ARdouble conv[3][4]) {
+		ARdouble* datumCoords2D;
+		ARdouble* datumCoords;
+
+		std::vector<cv::Point3f> objectPoints;
+		std::vector<cv::Point2f> imagePoints;
+		int            dir;
+		if (markerInfo->idMatrix < 0)
+			dir = markerInfo->dirPatt;
+		else if (markerInfo->idPatt < 0)
+			dir = markerInfo->dirMatrix;
+		else
+			dir = markerInfo->dir;
+
+		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(4 - dir) % 4][0], markerInfo->vertex[(4 - dir) % 4][1]));
+		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(5 - dir) % 4][0], markerInfo->vertex[(5 - dir) % 4][1]));
+		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(6 - dir) % 4][0], markerInfo->vertex[(6 - dir) % 4][1]));
+		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(7 - dir) % 4][0], markerInfo->vertex[(7 - dir) % 4][1]));
+
+		objectPoints.push_back(cv::Point3f(-width / 2.0, width / 2.0, 0));
+		objectPoints.push_back(cv::Point3f(width / 2.0, width / 2.0, 0));
+		objectPoints.push_back(cv::Point3f(width / 2.0, -width / 2.0, 0));
+		objectPoints.push_back(cv::Point3f(-width / 2.0, -width / 2.0, 0));
+
+		cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
+		cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
+		cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
+			}
+		}
+		cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
+		for (int i = 0; i < 8; i++) {
+			distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
+		}
+		cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+		cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
+		Rodrigues(rvec, rotationMatrix);
+
+		for (int j = 0; j < 3; j++) {
+			for (int i = 0; i < 3; i++) {
+				conv[j][i] = (float)rotationMatrix.at<double>(j, i);
+			}
+			conv[j][3] = (float)tvec.at<double>(j);
+		}
+
+		std::vector<cv::Point2f> reprojectPoints;
+		cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
+		return cv::norm(reprojectPoints, imagePoints);
 }
 
 bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]) {
@@ -368,26 +421,61 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 
 	ARdouble ox, oy;
 	std::vector<cv::Point2f> corners;
+	std::vector<cv::Point3f> objectPoints;
 	for (int i = 0; i < (int)datumCentres.size(); i++) {
 		cv::Point2f pt = datumCentres.at(i);
 		if (GetCenterPointForDatum(pt.x, pt.y, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
 			corners.push_back(cv::Point2f(ox, oy));
+			objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
 			datumCoords[i * 3] = pt.x;
 			datumCoords[i * 3 + 1] = pt.y;
 			datumCoords[i * 3 + 2] = 0;
 		}
 	}
 
+	std::vector<cv::Point2f> imagePoints;
 	if (corners.size() == datumCentres.size()) {
-		cv::cornerSubPix(grayImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
+		cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
 		for (int i = 0; i < (int)corners.size(); i = i + 1) {
-			datumCoords2D[i * 2] = corners[i].x;
-			datumCoords2D[i * 2 + 1] = corners[i].y;
+			ARdouble ox, oy;
+			arParamObserv2Ideal(arParams.dist_factor, corners[i].x, corners[i].y, &ox, &oy, arParams.dist_function_version);
+			imagePoints.push_back(cv::Point2f(ox, oy));
+			datumCoords2D[i * 2] = ox;
+			datumCoords2D[i * 2 + 1] = oy;
 		}
 
 		ARdouble err;
-		err = arGetTransMatDatumSquare(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
-		if (err > 10.0f) visible = false;
+		//err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+		//if (err > 10.0f) visible = false;
+
+		cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
+		cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
+		cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 3; j++) {
+				cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
+			}
+		}
+		cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
+		for (int i = 0; i < 8; i++) {
+			distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
+		}
+		cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+		cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
+		Rodrigues(rvec, rotationMatrix);
+
+		for (int j = 0; j < 3; j++) {
+			for (int i = 0; i < 3; i++) {
+				trans[j][i] = (float)rotationMatrix.at<double>(j, i);
+			}
+			trans[j][3] = (float)tvec.at<double>(j);
+		}
+
+		std::vector<cv::Point2f> reprojectPoints;
+		cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
+		err = cv::norm(reprojectPoints, imagePoints);
+		if (err > 10.0) visible = false;
+
 	}
 	else {
 		visible = false;
@@ -494,7 +582,7 @@ int ARTrackableSquare::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParam
 	return (int)(maxD / sqrt(2.0));
 }
 
-ARdouble ARTrackableSquare::arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
+ARdouble ARTrackableSquare::arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
 {
 	const int numCoords = 2 * numDatums;
 	ICP2DCoordT* screenCoord = new ICP2DCoordT[numDatums];
