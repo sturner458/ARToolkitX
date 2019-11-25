@@ -43,6 +43,7 @@
 #include <ARX/ARX_c.h>
 #include <ARX/ARController.h>
 #include <ARX/ARTrackableMultiSquareAuto.h>
+#include <ARX/calc.hpp>
 #ifdef DEBUG
 #  ifdef _WIN32
 #    define MAXPATHLEN MAX_PATH
@@ -69,6 +70,16 @@ static union { unsigned char __c[4]; float __d; } __nan_union = { __nan_bytes };
 // ----------------------------------------------------------------------------------------------------
 
 static ARController *gARTK = NULL;
+
+// Calibration variables:
+cv::Mat calibImage;
+cv::Size gCalibrationPatternSize;
+std::vector<std::vector<cv::Point2f> > foundCorners;
+std::vector<cv::Point2f> corners;
+int maxCornersFound;
+float cornerSpacing;
+int videoWidth;
+int videoHeight;
 
 // ----------------------------------------------------------------------------------------------------
 
@@ -313,6 +324,101 @@ bool arwUpdateTexture32Stereo(uint32_t *bufferL, uint32_t *bufferR)
 }
 
 // ----------------------------------------------------------------------------------------------------
+#pragma mark  Calibration.
+// ----------------------------------------------------------------------------------------------------
+
+bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize)
+{
+	gCalibrationPatternSize = cv::Size(nHorizontal, nVertical);
+	maxCornersFound = calibImageNum;
+	cornerSpacing = patternSpacing;
+	foundCorners.clear();
+	videoWidth = xsize;
+	videoHeight = ysize;
+
+	ARLOGe("Initialised corner calibration OK.\n");
+	return true;
+}
+
+int arwFindChessboardCorners(float* vertices, int* corner_count, ARUint8* imageBytes)
+{
+	int cornerFoundAllFlag;
+	int i;
+
+
+	calibImage = cv::Mat(videoHeight, videoWidth, CV_8UC1, imageBytes);
+
+	corners.clear();
+	cornerFoundAllFlag = cv::findChessboardCorners(calibImage, gCalibrationPatternSize, corners, cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FILTER_QUADS);
+
+	*corner_count = (int)corners.size();
+
+	if (cornerFoundAllFlag) ARLOGe("Found %d corners\n", (int)corners.size());
+
+	if (*corner_count != gCalibrationPatternSize.width * gCalibrationPatternSize.height) cornerFoundAllFlag = 0;
+
+	for (i = 0; i < *corner_count; i++) {
+		vertices[i * 2] = corners[i].x;
+		vertices[i * 2 + 1] = corners[i].y;
+	}
+
+	return cornerFoundAllFlag;
+}
+
+int arwCaptureChessboardCorners(int n)
+{
+	if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
+
+	ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
+
+	// Refine the corner positions.
+	cornerSubPix(calibImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
+
+	ARLOGe("Capturing %d corners\n", (int)corners.size());
+
+	// Save the corners.
+	if (n == -1 || n >= foundCorners.size()) {
+		foundCorners.push_back(corners);
+	}
+	else {
+		foundCorners[n] = corners;
+	}
+
+	return (int)foundCorners.size();
+}
+
+float arwCalibChessboardCorners(char* file_name, float* results)
+{
+	ARParam param_out;
+	float projectionError;
+
+	ARLOGe("About to calibrate corners. foundCorners.Size=%d\n", (int)foundCorners.size());
+	for (int i = 0; i < foundCorners.size(); i++) {
+		ARLOGe("Corner set %d size=%d\n", i + 1, foundCorners[i].size());
+	}
+	ARLOGe("Pattern Size=%d,%d\n", gCalibrationPatternSize.width, gCalibrationPatternSize.height);
+	ARLOGe("Pattern Spacing=%f\n", cornerSpacing);
+
+	projectionError = calc((int)foundCorners.size(), Calibration::CalibrationPatternType::CHESSBOARD, gCalibrationPatternSize, cornerSpacing, foundCorners, videoWidth, videoHeight, AR_DIST_FUNCTION_VERSION_DEFAULT, &param_out, results);
+
+	ARLOGe("About to save calibration file...\n");
+
+	if (arParamSave(file_name, 1, &param_out) < 0) {
+		ARLOGe("Error writing camera_para.dat file.\n");
+	}
+	else {
+		ARLOGe("Success in saving camera_para.dat file.\n");
+	}
+
+	return projectionError;
+}
+
+void arwCleanupChessboardCorners()
+{
+
+}
+
+// ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream drawing.
 // ----------------------------------------------------------------------------------------------------
 bool arwDrawVideoInit(const int videoSourceIndex)
@@ -526,7 +632,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16])
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners)
 {
     ARTrackable *trackable;
     
@@ -536,6 +642,14 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matri
         return false;
     }
     for (int i = 0; i < 16; i++) matrix[i] = (double)trackable->transformationMatrix[i];
+	if (trackable->visible && (trackable->type == ARTrackable::SINGLE || trackable->type == ARTrackable::MULTI || trackable->type == ARTrackable::MULTI_AUTO)) {
+		*numCorners = trackable->imagePoints.size();
+		if (*numCorners > 16) *numCorners = 16;
+		for (int i = 0; i < *numCorners; i++) {
+			corners[i * 2] = trackable->imagePoints.at(i).x;
+			corners[i * 2 + 1] = trackable->imagePoints.at(i).y;
+		}
+	}
     return trackable->visible;
 }
 
@@ -567,35 +681,6 @@ void arwListTrackables(int gMapUID) {
 		if (map) {
 			for (int n = 0; n < map->marker_num; n++) {
 				ARLOGd("Found trackable with UID %d\n", map->marker[n].patt_id);
-			}
-		}
-	}
-}
-
-bool arwLastUpdateSuccessful(int gMapUID, int* numMarkers, int* numSuccessfulUpdates, float* trans) {
-	*numMarkers = 0;
-	*numSuccessfulUpdates = 0;
-	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
-	if (t) {
-		*numMarkers = (int)t->lastMarkers.size();
-		*numSuccessfulUpdates = t->numSuccessfulUpdates;
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 4; j++) {
-				trans[i * 4 + j] = t->lastTrans[i][j];
-			}
-		}
-		return t->lastUpdateSuccessful;
-	}
-	return false;
-}
-
-void arwGetMappedMarkerTrans(int gMapUID, int nMarker, float* lastTrans, int* uid) {
-	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
-	if (t) {
-		*uid = t->lastMarkers.at(nMarker).uid;
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 4; j++) {
-				lastTrans[i * 4 + j] = t->lastMarkers.at(nMarker).trans[i][j];
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 /*
- *  ARTrackableMulti.h
+ *  calc.hpp
  *  artoolkitX
  *
  *  This file is part of artoolkitX.
@@ -29,50 +29,26 @@
  *  statement from your version.
  *
  *  Copyright 2018 Realmax, Inc.
- *  Copyright 2015 Daqri, LLC.
- *  Copyright 2010-2015 ARToolworks, Inc.
+ *  Copyright 2015-2017 Daqri LLC. All Rights Reserved.
+ *  Copyright 2012-2015 ARToolworks, Inc. All Rights Reserved.
  *
- *  Author(s): Philip Lamb.
+ *  Author(s): Philip Lamb, Hirokazu Kato
  *
  */
 
-#ifndef ARMARKERMULTI_H
-#define ARMARKERMULTI_H
+#pragma once
 
-#include <ARX/ARTrackable.h>
-#include <ARX/AR/arMulti.h>
+#include <ARX/AR/ar.h>
+#include <opencv2/core/core.hpp>
+#include "Calibration.hpp"
 
-/**
- * Multiple marker type of ARTrackable.
- */
-class ARTrackableMultiSquare : public ARTrackable {
-
-private:
-    bool m_loaded;
-    
-protected:
-    bool unload();
-
-public:
-
-	ARMultiMarkerInfoT *config;							///< Structure holding information about the multimarker patterns
-	bool robustFlag;									///< Flag specifying which pose estimation approach to use
-	
-	ARTrackableMultiSquare();
-	~ARTrackableMultiSquare();
-
-	bool load(const char *multiConfig, ARPattHandle *arPattHandle);
-
-	/**
-	 * Updates the marker with new tracking info.
-     * Then calls ARTrackable::update()
-     * @param markerInfo		Array containing detected marker information
-     * @param markerNum			Number of items in the array
-     * @param ar3DHandle        AR3DHandle used to extract marker pose.
-     */
-	bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
-	bool updateWithDetectedMarkersOpenCV(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, ARHandle* arHandle);
-    bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
-};
-
-#endif // !ARMARKERMULTI_H
+float calc(const int capturedImageNum,
+          const Calibration::CalibrationPatternType patternType,
+		  const cv::Size patternSize,
+		  const float chessboardSquareWidth,
+          const std::vector<std::vector<cv::Point2f> >& cornerSet,
+		  const int width,
+		  const int height,
+          const int dist_function_version,
+		  ARParam *param_out,
+          float *results);

@@ -55,9 +55,6 @@
 static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
                                          ARMultiMarkerInfoT *config, int robustFlag);
 
-static ARdouble  arGetTransMatMultiSquare3(AR3DHandle* handle, ARMarkerInfo* marker_info, int marker_num,
-	ARMultiMarkerInfoT* config, int robustFlag);
-
 ARdouble  arGetTransMatMultiSquare(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
                                  ARMultiMarkerInfoT *config)
 {
@@ -178,13 +175,27 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         j++;
     }
 
-    if (config->prevF == 0) {
+	ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
+	if (vnum < 2) {
+		maxDeviation = 20.0;
+	}
+	else if (vnum < 3) {
+		maxDeviation = 40.0;
+	}
+	else if (vnum < 4) {
+		maxDeviation = 60.0;
+	}
+	else {
+		maxDeviation = 120.0;
+	}
+
+    if (config->prevF == 0 || !robustFlag) {
         if (robustFlag) {
             ARdouble inlierProb = 1.0;
             do {
                 icpSetInlierProbability(handle->icpHandle, inlierProb);
                 err = arGetTransMat(handle, trans2, (ARdouble (*)[2])pos2d, (ARdouble (*)[3])pos3d, vnum*4, config->trans);
-                if (err < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) break;
+                if (err < maxDeviation) break;
                 inlierProb -= 0.2;
             } while (inlierProb >= config->minInlierProb && inlierProb >= 0.0);
         } else {
@@ -203,7 +214,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
                     for (j = 0; j < 3; j++) for (i = 0; i < 4; i++) config->trans[j][i] = trans1[j][i];
                     err = err2;
                 }
-                if (err < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) break;
+                if (err < maxDeviation) break;
                 inlierProb -= 0.2;
             } while (inlierProb >= config->minInlierProb && inlierProb >= 0.0);
         } else {
@@ -218,7 +229,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         free(pos2d);
     }
     
-    if (err < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) config->prevF = 1;
+    if (err < maxDeviation) config->prevF = 1;
     else {
         config->prevF = 0;
         for (i = 0; i < config->marker_num; i++) { 
@@ -230,163 +241,3 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
     return err;
 }
 
-static ARdouble  arGetTransMatMultiSquare3(AR3DHandle* handle, ARMarkerInfo* marker_info, int marker_num,
-	ARMultiMarkerInfoT* config, int robustFlag)
-{
-	ARdouble* pos2d, * pos3d;
-	ARdouble              trans1[3][4], trans2[3][4], trans3[3][4];
-	ARdouble              err, err2, err3;
-	int                   vnum;
-	int                   dir;
-	int                   i, j, k;
-	//char  mes[12];
-
-	//ARLOGd("-- Pass1--\n");
-	for (i = 0; i < config->marker_num; i++) {
-		k = -1;
-		if (config->marker[i].patt_type == AR_MULTI_PATTERN_TYPE_TEMPLATE) {
-			for (j = 0; j < marker_num; j++) {
-				if (marker_info[j].idPatt != config->marker[i].patt_id) continue;
-				if (marker_info[j].cfPatt < config->cfPattCutoff) continue;
-				if (k == -1) k = j;
-				else if (marker_info[k].cfPatt < marker_info[j].cfPatt) k = j;
-			}
-			config->marker[i].visible = k;
-			if (k >= 0) marker_info[k].dir = marker_info[k].dirPatt;
-		}
-		else { // config->marker[i].patt_type == AR_MULTI_PATTERN_TYPE_MATRIX
-			for (j = 0; j < marker_num; j++) {
-				// Check if we need to examine the globalID rather than patt_id.
-				if (marker_info[j].idMatrix == 0 && marker_info[j].globalID != 0ULL) {
-					if (marker_info[j].globalID != config->marker[i].globalID) continue;
-				}
-				else {
-					if (marker_info[j].idMatrix != config->marker[i].patt_id) continue;
-				}
-				if (marker_info[j].cfMatrix < config->cfMatrixCutoff) continue;
-				if (k == -1) k = j;
-				else if (marker_info[k].cfMatrix < marker_info[j].cfMatrix) k = j;
-			}
-			config->marker[i].visible = k;
-			if (k >= 0) marker_info[k].dir = marker_info[k].dirMatrix;
-		}
-		//if(k>=0) ARLOGd(" *%d\n",i);
-	}
-
-	//ARLOGd("-- Pass2--\n");
-	vnum = 0;
-	for (i = 0; i < config->marker_num; i++) {
-		if ((j = config->marker[i].visible) < 0) continue;
-
-		err = arGetTransMatSquare(handle, &marker_info[j], config->marker[i].width, trans2);
-		if (err > AR_MULTI_POSE_ERROR_CUTOFF_EACH_DEFAULT) {
-			config->marker[i].visible = -1;
-			if (marker_info[j].cutoffPhase == AR_MARKER_INFO_CUTOFF_PHASE_NONE) marker_info[j].cutoffPhase = AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR;
-			continue;
-		}
-
-		vnum++;
-	}
-	if (vnum == 0 || vnum < config->min_submarker) {
-		config->prevF = 0;
-		return -1;
-	}
-
-	arMalloc(pos2d, ARdouble, vnum * 4 * 2);
-	arMalloc(pos3d, ARdouble, vnum * 4 * 3);
-
-	j = 0;
-	for (i = 0; i < config->marker_num; i++) {
-		if ((k = config->marker[i].visible) < 0) continue;
-
-		dir = marker_info[k].dir;
-		pos2d[j * 8 + 0] = marker_info[k].vertex[(4 - dir) % 4][0];
-		pos2d[j * 8 + 1] = marker_info[k].vertex[(4 - dir) % 4][1];
-		pos2d[j * 8 + 2] = marker_info[k].vertex[(5 - dir) % 4][0];
-		pos2d[j * 8 + 3] = marker_info[k].vertex[(5 - dir) % 4][1];
-		pos2d[j * 8 + 4] = marker_info[k].vertex[(6 - dir) % 4][0];
-		pos2d[j * 8 + 5] = marker_info[k].vertex[(6 - dir) % 4][1];
-		pos2d[j * 8 + 6] = marker_info[k].vertex[(7 - dir) % 4][0];
-		pos2d[j * 8 + 7] = marker_info[k].vertex[(7 - dir) % 4][1];
-		pos3d[j * 12 + 0] = config->marker[i].pos3d[0][0];
-		pos3d[j * 12 + 1] = config->marker[i].pos3d[0][1];
-		pos3d[j * 12 + 2] = config->marker[i].pos3d[0][2];
-		pos3d[j * 12 + 3] = config->marker[i].pos3d[1][0];
-		pos3d[j * 12 + 4] = config->marker[i].pos3d[1][1];
-		pos3d[j * 12 + 5] = config->marker[i].pos3d[1][2];
-		pos3d[j * 12 + 6] = config->marker[i].pos3d[2][0];
-		pos3d[j * 12 + 7] = config->marker[i].pos3d[2][1];
-		pos3d[j * 12 + 8] = config->marker[i].pos3d[2][2];
-		pos3d[j * 12 + 9] = config->marker[i].pos3d[3][0];
-		pos3d[j * 12 + 10] = config->marker[i].pos3d[3][1];
-		pos3d[j * 12 + 11] = config->marker[i].pos3d[3][2];
-		j++;
-	}
-
-	err = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT + 10.0;
-	for (int i1 = 0; i1 < config->marker_num; i1++) {
-		if ((j = config->marker[i1].visible) < 0) continue;
-
-		err2 = arGetTransMatSquare(handle, &marker_info[j], config->marker[i1].width, trans1);
-		arUtilMatMul((const ARdouble(*)[4])trans1, (const ARdouble(*)[4])config->marker[i1].itrans, trans2);
-
-		if (config->prevF == 0) {
-			if (robustFlag) {
-				ARdouble inlierProb = 1.0;
-				do {
-					icpSetInlierProbability(handle->icpHandle, inlierProb);
-					err3 = arGetTransMat(handle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans3);
-					if (err3 < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) break;
-					inlierProb -= 0.2;
-				} while (inlierProb >= config->minInlierProb && inlierProb >= 0.0);
-			}
-			else {
-				err3 = arGetTransMat(handle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans3);
-			}
-		}
-		else {
-			if (robustFlag) {
-				ARdouble inlierProb = 1.0;
-				do {
-					icpSetInlierProbability(handle->icpHandle, inlierProb);
-					err2 = arGetTransMat(handle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans1);
-					err3 = arGetTransMat(handle, config->trans, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans3);
-					if (err2 < err3) {
-						for (j = 0; j < 3; j++) for (i = 0; i < 4; i++) trans3[j][i] = trans1[j][i];
-						err3 = err2;
-					}
-					if (err3 < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) break;
-					inlierProb -= 0.2;
-				} while (inlierProb >= config->minInlierProb && inlierProb >= 0.0);
-			}
-			else {
-				err2 = arGetTransMat(handle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans1);
-				err3 = arGetTransMat(handle, config->trans, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, trans3);
-				if (err2 < err3) {
-					for (j = 0; j < 3; j++) for (i = 0; i < 4; i++) trans3[j][i] = trans1[j][i];
-					err3 = err2;
-				}
-			}
-		}
-
-		if (err3 < err) {
-			for (j = 0; j < 3; j++) for (i = 0; i < 4; i++) config->trans[j][i] = trans3[j][i];
-			err = err3;
-		}
-	}
-
-	free(pos3d);
-	free(pos2d);
-
-	if (err < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) {
-		config->prevF = 1;
-	} else {
-		config->prevF = 0;
-		for (i = 0; i < config->marker_num; i++) {
-			if ((k = config->marker[i].visible) < 0) continue;
-			if (marker_info[k].cutoffPhase == AR_MARKER_INFO_CUTOFF_PHASE_NONE) marker_info[k].cutoffPhase = AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI;
-		}
-	}
-
-	return err;
-}

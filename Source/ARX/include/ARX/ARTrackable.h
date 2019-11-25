@@ -41,7 +41,7 @@
 
 #include <ARX/AR/ar.h>
 #include <ARX/AR/arFilterTransMat.h>
-
+#include <opencv2/core/core.hpp>
 #include <ARX/ARPattern.h>
 
 #include <vector>
@@ -93,7 +93,9 @@ public:
     // Output.
 	ARdouble transformationMatrix[16];		///< Transformation suitable for use in OpenGL
 	ARdouble transformationMatrixR[16];		///< Transformation suitable for use in OpenGL
-	
+
+	std::vector<cv::Point2f> imagePoints;
+
 	int patternCount;						///< If this trackable has a surface appearance, the number of patterns that it has (1 for single).
 	ARPattern** patterns;					///< Array of pointers to patterns
 
@@ -133,6 +135,11 @@ public:
     void setFilterSampleRate(ARdouble rate);
     ARdouble filterCutoffFrequency();
     void setFilterCutoffFrequency(ARdouble freq);
+
+	bool GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy);
+	void ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy);
+	int GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]);
+	ARdouble arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4]);
 
 };
 

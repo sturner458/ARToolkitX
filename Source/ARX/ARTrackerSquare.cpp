@@ -413,6 +413,17 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     // Update square markers.
     bool success = true;
     if (!buff1) {
+		//Find the mapper
+		int m_OriginUid = -1;
+		ARTrackable* originTrackable = 0;
+		for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+			if ((*it)->type == ARTrackable::MULTI_AUTO) {
+				ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
+				m_OriginUid = marker->m_OriginMarkerUid;
+				break;
+			}
+		}
+
 		// Do all the square and multi-markers before the multi_auto one
 		std::vector<arx_mapper::Marker> markers;
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
@@ -426,11 +437,19 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 						if (target->UID < 2) largeBoard = true;
 						success2 = target->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard);
 						success &= success2;
+						if (!target->visible) {
+							for (int j = 0; j < markerNum0; j++) {
+								if (markerInfo0[j].idMatrix == target->patt_id) {
+									markerInfo0[j].idMatrix = -1;
+								}
+							}
+						}
 					}
 				}
 				if (success2 && target->visible) {
 					arx_mapper::Marker marker;
 					marker.uid = target->patt_id;
+					if (marker.uid == m_OriginUid) originTrackable = target;
 					for (int i = 0; i < 3; i++) {
 						for (int j = 0; j < 4; j++) {
 							marker.trans[i][j] = target->GetTrans(i, j);
@@ -440,27 +459,31 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				}
             } else if ((*it)->type == ARTrackable::MULTI) {
 				ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
-                bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-				//if (success2 && target->visible) success2 = target->updateWithDetectedDatums(m_arHandle0, buff0->buffLuma, m_ar3DHandle);
+				ARMultiMarkerInfoT* map = target->config;
+				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				success &= success2;
-
 				if (success2 && target->visible) {
-					ARMultiMarkerInfoT* map = target->config;
-
 					for (int i = 0; i < map->marker_num; i++) {
 						arx_mapper::Marker marker;
-						ARMultiMarkerInfoT* map = target->config;
 						marker.uid = map->marker[i].patt_id;
+						if (marker.uid == m_OriginUid) originTrackable = target;
 						ARdouble trans[3][4];
 						for (int i = 0; i < 3; i++) {
 							for (int j = 0; j < 4; j++) {
 								trans[i][j] = target->GetTrans(i, j);
 							}
 						}
-
 						arUtilMatMul(trans, map->marker[i].trans, marker.trans);
-
 						markers.push_back(marker);
+					}
+				}
+				else {
+					for (int i = 0; i < map->marker_num; i++) {
+						for (int j = 0; j < markerNum0; j++) {
+							if (markerInfo0[j].idMatrix == map->marker[i].patt_id) {
+								markerInfo0[j].idMatrix = -1;
+							}
+						}
 					}
 				}
             }
@@ -470,11 +493,16 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 		for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
 			if ((*it)->type == ARTrackable::MULTI_AUTO) {
 				ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
+				if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::MULTI && marker->m_MultiConfig->marker_num == 0) {
+					marker->initialiseWithMultiSquareTrackable((ARTrackableMultiSquare*)originTrackable);
+				} else if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::SINGLE && marker->m_MultiConfig->marker_num == 0) {
+					marker->initialiseWithSquareTrackable((ARTrackableSquare*)originTrackable);
+				}
 				success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				if (success && marker->visible && doDatums) {
 					success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
 				}
-				if (success && (marker->m_MultiConfig->marker_num == 0 || marker->visible)) success = marker->updateMapperWithMarkers(markers);
+				if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
 			}
 		}
     } else {

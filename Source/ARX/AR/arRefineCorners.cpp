@@ -70,7 +70,8 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
         cv::Mat src = cv::Mat(height, width, CV_8UC1, (void *)buff, width);
         cv::Size winSize = cv::Size(5, 5);
         cv::Size zeroZone = cv::Size(-1, -1);
-        cv::TermCriteria criteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+		// cv::TermCriteria criteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+		cv::TermCriteria criteria = cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0);
         
         // Calculate the refined corner locations.
         cv::cornerSubPix(src, corners, winSize, zeroZone, criteria);
@@ -80,8 +81,11 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
                 ARLOGd("arRefineCorners adjusted vertex %d from (%.1f, %.1f) to (%.1f, %.1f).\n", i, vertex[i][0], vertex[i][1], corners[i].x, corners[i].y);
             }
 #endif
-            vertex[i][0] = (ARdouble)corners[i].x;
-            vertex[i][1] = (ARdouble)corners[i].y;
+			double d = sqrt((vertex[i][0] - corners[i].x) * (vertex[i][0] - corners[i].x) + (vertex[i][1] - corners[i].y) * (vertex[i][1] - corners[i].y));
+			if (d < 4) {
+				vertex[i][0] = (ARdouble)corners[i].x;
+				vertex[i][1] = (ARdouble)corners[i].y;
+			}
         }
         src.release();
     }

@@ -42,6 +42,7 @@
 #include <ARX/Platform.h>
 #include <ARX/Error.h>
 #include <stdint.h>
+#include "Calibration.hpp"
 
 /**
  * \file ARToolKitWrapperExportedAPI.h
@@ -169,6 +170,16 @@ extern "C" {
 	ARX_EXTERN void arwInitARToolKit(const char* vconf, const char* cparaName);
 	ARX_EXTERN bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums = false);
 	ARX_EXTERN void arwCleanupARToolKit();
+
+	// ----------------------------------------------------------------------------------------------------
+#pragma mark  Calibration.
+	// ----------------------------------------------------------------------------------------------------
+
+	ARX_EXTERN bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize);
+	ARX_EXTERN int arwFindChessboardCorners(float* corners, int* corner_count, ARUint8* imageBytes);
+	ARX_EXTERN int arwCaptureChessboardCorners(int n = -1);
+	ARX_EXTERN float arwCalibChessboardCorners(char* file_name, float* results);
+	ARX_EXTERN void arwCleanupChessboardCorners();
 
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Video stream management
@@ -517,7 +528,7 @@ extern "C" {
 	 * @param matrix	A float array to populate with an OpenGL-compatible transformation matrix.
 	 * @return			true if the specified trackable is visible, false if not, or an error occurred.
 	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16]);
+	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners);
 
 	ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double* matrix);
 	ARX_EXTERN void arwListTrackables(int gMapUID);

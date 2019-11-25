@@ -229,8 +229,8 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 				err = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
 			} else {
 				// If the marker wasn't visible last time, use normal version of arGetTransMatSquare
-				//err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
-				err = arGetTransMatSquare2(arParams, &(markerInfo[k]), m_width, trans);
+				err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
+				//err = arGetTransMatSquareOpenCV(arParams, &(markerInfo[k]), m_width, trans);
 			}
             if (err < 10.0f) {
                 visible = true;
@@ -242,12 +242,11 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 	return (ARTrackable::update()); // Parent class will finish update.
 }
 
-ARdouble ARTrackableSquare::arGetTransMatSquare2(ARParam arParams, ARMarkerInfo* markerInfo, ARdouble width, ARdouble conv[3][4]) {
+ARdouble ARTrackableSquare::arGetTransMatSquareOpenCV(ARParam arParams, ARMarkerInfo* markerInfo, ARdouble width, ARdouble conv[3][4]) {
 		ARdouble* datumCoords2D;
 		ARdouble* datumCoords;
 
 		std::vector<cv::Point3f> objectPoints;
-		std::vector<cv::Point2f> imagePoints;
 		int            dir;
 		if (markerInfo->idMatrix < 0)
 			dir = markerInfo->dirPatt;
@@ -256,6 +255,7 @@ ARdouble ARTrackableSquare::arGetTransMatSquare2(ARParam arParams, ARMarkerInfo*
 		else
 			dir = markerInfo->dir;
 
+		imagePoints.clear();
 		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(4 - dir) % 4][0], markerInfo->vertex[(4 - dir) % 4][1]));
 		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(5 - dir) % 4][0], markerInfo->vertex[(5 - dir) % 4][1]));
 		imagePoints.push_back(cv::Point2f(markerInfo->vertex[(6 - dir) % 4][0], markerInfo->vertex[(6 - dir) % 4][1]));
@@ -274,6 +274,13 @@ ARdouble ARTrackableSquare::arGetTransMatSquare2(ARParam arParams, ARMarkerInfo*
 				cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
 			}
 		}
+
+		double s = (double)(arParams.dist_factor[16]);
+		cameraMatrix.at<double>(0, 0) *= s;
+		cameraMatrix.at<double>(0, 1) *= s;
+		cameraMatrix.at<double>(1, 0) *= s;
+		cameraMatrix.at<double>(1, 1) *= s;
+
 		cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
 		for (int i = 0; i < 8; i++) {
 			distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
@@ -402,21 +409,24 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 	cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
 
 	std::vector<cv::Point2f> datumCentres;
+	ARdouble errMax;
 	if (largeBoard) {
-		datumCoords2D = new ARdouble[8];
-		datumCoords = new ARdouble[12];
+		datumCoords2D = new ARdouble[16];
+		datumCoords = new ARdouble[24];
 		datumCentres.push_back(cv::Point2f(-128.5, 85));
 		datumCentres.push_back(cv::Point2f(-128.5, -85));
 		datumCentres.push_back(cv::Point2f(128.5, 85));
 		datumCentres.push_back(cv::Point2f(128.5, -85));
+		errMax = 20.0;
 	}
 	else {
-		datumCoords2D = new ARdouble[8];
-		datumCoords = new ARdouble[12];
+		datumCoords2D = new ARdouble[16];
+		datumCoords = new ARdouble[24];
 		datumCentres.push_back(cv::Point2f(-55, 30));
 		datumCentres.push_back(cv::Point2f(-55, -30));
 		datumCentres.push_back(cv::Point2f(55, 30));
 		datumCentres.push_back(cv::Point2f(55, -30));
+		errMax = 15.0;
 	}
 
 	ARdouble ox, oy;
@@ -433,48 +443,84 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 		}
 	}
 
-	std::vector<cv::Point2f> imagePoints;
-	if (corners.size() == datumCentres.size()) {
+	imagePoints.clear();
+	if (corners.size() == 4) {
+
+		datumCentres.push_back(cv::Point2f(-40, 40));
+		datumCentres.push_back(cv::Point2f(-40, -40));
+		datumCentres.push_back(cv::Point2f(40, -40));
+		datumCentres.push_back(cv::Point2f(40, 40));
+		for (int i = 4; i < (int)datumCentres.size(); i++) {
+			cv::Point2f pt = datumCentres.at(i);
+			ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
+			corners.push_back(cv::Point2f(ox, oy));
+			objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+			datumCoords[i * 3] = pt.x;
+			datumCoords[i * 3 + 1] = pt.y;
+			datumCoords[i * 3 + 2] = 0;
+		}
+
+		std::vector<cv::Point2f> cornersCopy;
+		for (int i = 0; i < corners.size(); i++) {
+			cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
+		}
 		cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
-		for (int i = 0; i < (int)corners.size(); i = i + 1) {
+		for (int i = 0; i < (int)corners.size(); i++) {
+			ARdouble ix, iy;
 			ARdouble ox, oy;
-			arParamObserv2Ideal(arParams.dist_factor, corners[i].x, corners[i].y, &ox, &oy, arParams.dist_function_version);
-			imagePoints.push_back(cv::Point2f(ox, oy));
+			double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
+			if (d < 4) {
+				ix = corners.at(i).x;
+				iy = corners.at(i).y;
+			}
+			else {
+				ix = cornersCopy.at(i).x;
+				iy = cornersCopy.at(i).y;
+			}
+			imagePoints.push_back(cv::Point2f(ix, iy));
+			arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
 			datumCoords2D[i * 2] = ox;
 			datumCoords2D[i * 2 + 1] = oy;
 		}
 
 		ARdouble err;
-		//err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
-		//if (err > 10.0f) visible = false;
+		err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+		if (err > 10.0f) visible = false;
 
-		cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
-		cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
-		cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
-		for (int i = 0; i < 3; i++) {
-			for (int j = 0; j < 3; j++) {
-				cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
-			}
-		}
-		cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
-		for (int i = 0; i < 8; i++) {
-			distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
-		}
-		cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
-		cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
-		Rodrigues(rvec, rotationMatrix);
+		//cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
+		//cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
+		//cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
+		//for (int i = 0; i < 3; i++) {
+		//	for (int j = 0; j < 3; j++) {
+		//		cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
+		//	}
+		//}
 
-		for (int j = 0; j < 3; j++) {
-			for (int i = 0; i < 3; i++) {
-				trans[j][i] = (float)rotationMatrix.at<double>(j, i);
-			}
-			trans[j][3] = (float)tvec.at<double>(j);
-		}
+		//double s = (double)(arParams.dist_factor[16]);
+		//cameraMatrix.at<double>(0, 0) *= s;
+		//cameraMatrix.at<double>(0, 1) *= s;
+		//cameraMatrix.at<double>(1, 0) *= s;
+		//cameraMatrix.at<double>(1, 1) *= s;
 
-		std::vector<cv::Point2f> reprojectPoints;
-		cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
-		err = cv::norm(reprojectPoints, imagePoints);
-		if (err > 10.0) visible = false;
+		//cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
+		//for (int i = 0; i < 8; i++) {
+		//	distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
+		//}
+		//cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+		//cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
+		//Rodrigues(rvec, rotationMatrix);
+
+		//for (int j = 0; j < 3; j++) {
+		//	for (int i = 0; i < 3; i++) {
+		//		trans[j][i] = (float)rotationMatrix.at<double>(j, i);
+		//	}
+		//	trans[j][3] = (float)tvec.at<double>(j);
+		//}
+
+		//std::vector<cv::Point2f> reprojectPoints;
+		//cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
+		//err = cv::norm(reprojectPoints, imagePoints);
+		//if (err > errMax) visible = false;
 
 	}
 	else {
@@ -487,128 +533,4 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 	if (visible) return (ARTrackable::update()); // Parent class will finish update.
 	return false;
 }
-
-bool ARTrackableSquare::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy) {
-	ModelToImageSpace(arParams, trans, x, y, ox, oy);
-	int halfSquare = GetSquareForDatum(x, y, arParams, trans);
-	if (halfSquare < 10) return false;
-	if (*ox - halfSquare < 0 || *ox + halfSquare > imageWidth || *oy - halfSquare < 0 || *oy + halfSquare > imageHeight) return false;
-
-	cv::Rect rect = cv::Rect((int)*ox - halfSquare, (int)*oy - halfSquare, 2 * halfSquare, 2 * halfSquare);
-	cv::Mat region = cv::Mat(grayImage, rect);
-	cv::Mat binaryRegion = region.clone();
-	double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
-	int nonzero = cv::countNonZero(binaryRegion);
-	int square = 4 * halfSquare * halfSquare;
-	return (nonzero > square * 0.333f && nonzero < square * 0.666f);
-}
-
-void ARTrackableSquare::ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy) {
-	ARdouble        cx, cy, cz, hx, hy, h, sx, sy;
-
-	*ox = ix;
-	*oy = iy;
-
-	cx = trans[0][0] * ix + trans[0][1] * iy + trans[0][3];
-	cy = trans[1][0] * ix + trans[1][1] * iy + trans[1][3];
-	cz = trans[2][0] * ix + trans[2][1] * iy + trans[2][3];
-	hx = param.mat[0][0] * cx + param.mat[0][1] * cy + param.mat[0][2] * cz + param.mat[0][3];
-	hy = param.mat[1][0] * cx + param.mat[1][1] * cy + param.mat[1][2] * cz + param.mat[1][3];
-	h = param.mat[2][0] * cx + param.mat[2][1] * cy + param.mat[2][2] * cz + param.mat[2][3];
-	if (h == 0.0) return;
-	sx = hx / h;
-	sy = hy / h;
-	arParamIdeal2Observ(param.dist_factor, sx, sy, ox, oy, param.dist_function_version);
-}
-
-int ARTrackableSquare::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]) {
-	ARdouble ox, oy, ox1, oy1, ox2, oy2, ox3, oy3, ox4, oy4;
-	ModelToImageSpace(arParams, trans, x, y, &ox, &oy);
-	ModelToImageSpace(arParams, trans, x - 8, y - 8, &ox1, &oy1);
-	ModelToImageSpace(arParams, trans, x + 8, y - 8, &ox2, &oy2);
-	ModelToImageSpace(arParams, trans, x + 8, y + 8, &ox3, &oy3);
-	ModelToImageSpace(arParams, trans, x - 8, y + 8, &ox4, &oy4);
-	ox1 = ox1 - ox;
-	oy1 = oy1 - oy;
-	ox2 = ox2 - ox;
-	oy2 = oy2 - oy;
-	ox3 = ox3 - ox;
-	oy3 = oy3 - oy;
-	ox4 = ox4 - ox;
-	oy4 = oy4 - oy;
-
-	ARdouble maxD = 100;
-
-	ARdouble nx = oy1 - oy2;
-	ARdouble ny = ox2 - ox1;
-	ARdouble d = sqrt(nx * nx + ny * ny);
-	if (d > 0) {
-		nx = nx / d;
-		ny = ny / d;
-	}
-	d = ox1 * nx + oy1 * ny;
-	if (d > 10 && d < maxD) maxD = d;
-
-	nx = oy2 - oy3;
-	ny = ox3 - ox2;
-	d = sqrt(nx * nx + ny * ny);
-	if (d > 10) {
-		nx = nx / d;
-		ny = ny / d;
-	}
-	d = ox2 * nx + oy2 * ny;
-	if (d > 10 && d < maxD) maxD = d;
-
-	nx = oy3 - oy4;
-	ny = ox4 - ox3;
-	d = sqrt(nx * nx + ny * ny);
-	if (d > 0) {
-		nx = nx / d;
-		ny = ny / d;
-	}
-	d = ox3 * nx + oy3 * ny;
-	if (d > 10 && d < maxD) maxD = d;
-
-	nx = oy4 - oy1;
-	ny = ox1 - ox4;
-	d = sqrt(nx * nx + ny * ny);
-	if (d > 0) {
-		nx = nx / d;
-		ny = ny / d;
-	}
-	d = ox4 * nx + oy4 * ny;
-	if (d > 10 && d < maxD) maxD = d;
-
-	return (int)(maxD / sqrt(2.0));
-}
-
-ARdouble ARTrackableSquare::arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
-{
-	const int numCoords = 2 * numDatums;
-	ICP2DCoordT* screenCoord = new ICP2DCoordT[numDatums];
-	ICP3DCoordT* worldCoord = new ICP3DCoordT[numDatums];
-	ICPDataT       data;
-	ARdouble         initMatXw2Xc[3][4];
-	ARdouble         err;
-
-	for (int i = 0; i < numDatums; i++) {
-		screenCoord[i].x = datumCoords2D[i * 2];
-		screenCoord[i].y = datumCoords2D[i * 2 + 1];
-		worldCoord[i].x = datumCoords[i * 3];
-		worldCoord[i].y = datumCoords[i * 3 + 1];
-		worldCoord[i].z = datumCoords[i * 3 + 2];
-	}
-	data.screenCoord = screenCoord;
-	data.worldCoord = worldCoord;
-	data.num = numDatums;
-
-	if (icpGetInitXw2Xc_from_PlanarData(handle->icpHandle->matXc2U, data.screenCoord, data.worldCoord, data.num, initMatXw2Xc) < 0) return 100000000.0;
-	if (icpPoint(handle->icpHandle, &data, initMatXw2Xc, conv, &err) < 0) return 100000000.0;
-
-	delete[] screenCoord;
-	delete[] worldCoord;
-
-	return err;
-}
-
 
