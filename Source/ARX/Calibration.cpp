@@ -96,11 +96,10 @@ void Calibration::CalibrationCornerFinderData::init()
 {
     if (videoWidth > 0 && videoHeight > 0) {
         arMalloc(videoFrame, uint8_t, videoWidth * videoHeight);
-        calibImage = cvCreateImageHeader(cvSize(videoWidth, videoHeight), IPL_DEPTH_8U, 1);
-        cvSetData(calibImage, videoFrame, videoWidth); // Last parameter is rowBytes.
+        calibImage = cv::Mat(videoWidth, videoHeight, CV_8UC3, videoFrame);
     } else {
         videoFrame = nullptr;
-        calibImage = nullptr;
+        // calibImage = nullptr;
     }
 }
 
@@ -111,7 +110,7 @@ void Calibration::CalibrationCornerFinderData::copy(const CalibrationCornerFinde
 
 void Calibration::CalibrationCornerFinderData::dealloc()
 {
-    if (calibImage) cvReleaseImageHeader(&calibImage);
+    //if (calibImage) cvReleaseImageHeader(&calibImage);
     free(videoFrame);
 }
 
@@ -146,7 +145,7 @@ bool Calibration::findCorners(ARUint8 *imageBytes)
     
     memcpy(m_cornerFinderData.videoFrame, imageBytes, m_cornerFinderData.videoWidth * m_cornerFinderData.videoHeight);
 
-    m_cornerFinderData.cornerFoundAllFlag = cv::findChessboardCorners(cv::cvarrToMat(m_cornerFinderData.calibImage), m_cornerFinderData.patternSize, m_cornerFinderData.corners, CV_CALIB_CB_FAST_CHECK|CV_CALIB_CB_ADAPTIVE_THRESH|CV_CALIB_CB_FILTER_QUADS);
+    m_cornerFinderData.cornerFoundAllFlag = cv::findChessboardCorners(m_cornerFinderData.calibImage, m_cornerFinderData.patternSize, m_cornerFinderData.corners, cv::CALIB_CB_FAST_CHECK|cv::CALIB_CB_ADAPTIVE_THRESH|cv::CALIB_CB_FILTER_QUADS);
     
     return true;
 }
@@ -159,7 +158,7 @@ bool Calibration::capture()
     
     if (m_cornerFinderResultData.cornerFoundAllFlag) {
         // Refine the corner positions.
-        cornerSubPix(cv::cvarrToMat(m_cornerFinderResultData.calibImage), m_cornerFinderResultData.corners, cv::Size(5,5), cvSize(-1,-1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+        cornerSubPix(m_cornerFinderResultData.calibImage, m_cornerFinderResultData.corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
         
         // Save the corners.
         m_corners.push_back(m_cornerFinderResultData.corners);

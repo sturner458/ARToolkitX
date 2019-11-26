@@ -85,7 +85,7 @@ private:
         int                  videoWidth;
         int                  videoHeight;
         uint8_t             *videoFrame;
-        IplImage            *calibImage;
+        cv::Mat              calibImage;
         int                  cornerFoundAllFlag;
         std::vector<cv::Point2f> corners;
     private:

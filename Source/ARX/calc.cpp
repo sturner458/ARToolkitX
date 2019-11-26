@@ -87,8 +87,10 @@ float calc(const int capturedImageNum,
     int flags = 0;
     cv::Mat distortionCoeff;
     if (dist_function_version == 5) {
-        distortionCoeff = cv::Mat::zeros(12, 1, CV_64F);
-        flags |= cv::CALIB_RATIONAL_MODEL|cv::CALIB_THIN_PRISM_MODEL;
+        //distortionCoeff = cv::Mat::zeros(12, 1, CV_64F);
+        //flags |= cv::CALIB_RATIONAL_MODEL|cv::CALIB_THIN_PRISM_MODEL;
+        distortionCoeff = cv::Mat::zeros(8, 1, CV_64F);
+        flags |= cv::CALIB_RATIONAL_MODEL;
     } else /* dist_function_version == 4 */ {
         distortionCoeff = cv::Mat::zeros(5, 1, CV_64F);
         flags |= cv::CALIB_FIX_K3;
@@ -128,31 +130,32 @@ float calc(const int capturedImageNum,
         intr[j][3] = 0.0f;
     }
     if (dist_function_version == 5) {
-        for (i = 0; i < 12; i++) dist[i] = (float)distortionCoeff.at<double>(i);
+        for (i = 0; i < 8; i++) dist[i] = (float)distortionCoeff.at<double>(i);
+        for (i = 8; i < 12; i++) dist[i] = 0.0;
     } else /* dist_function_version == 4 */ {
         for (i = 0; i < 4; i++) dist[i] = (float)distortionCoeff.at<double>(i);
     }
     convParam(intr, dist, width, height, dist_function_version, &param);
     arParamDisp(&param);
 
-    CvMat          *rotationVector;
-    CvMat          *rotationMatrix;
+    cv::Mat          rotationVector;
+    cv::Mat          rotationMatrix;
     double          trans[3][4];
     ARdouble        cx, cy, cz, hx, hy, h, sx, sy, ox, oy, err, totErr;
-    rotationVector     = cvCreateMat(1, 3, CV_32FC1);
-    rotationMatrix     = cvCreateMat(3, 3, CV_32FC1);
+    rotationVector     = cv::Mat(1, 3, CV_32FC1);
+    rotationMatrix     = cv::Mat(3, 3, CV_32FC1);
 
     totErr = 0;
     for (k = 0; k < capturedImageNum; k++) {
         for (i = 0; i < 3; i++) {
-            ((float *)(rotationVector->data.ptr))[i] = (float)rotationVectors.at(k).at<double>(i);
+            rotationVector.at<float>(i) = (float)rotationVectors.at(k).at<double>(i);
         }
-        cvRodrigues2(rotationVector, rotationMatrix, 0);
+        cv::Rodrigues(rotationVector, rotationMatrix);
         for (j = 0; j < 3; j++) {
             for (i = 0; i < 3; i++) {
-                trans[j][i] = ((float *)(rotationMatrix->data.ptr + rotationMatrix->step*j))[i];
+                trans[j][i] = rotationMatrix.at<float>(j, i);
             }
-            trans[j][3] = (float)translationVectors.at(k).at<double>(j);
+            trans[j][3] = translationVectors.at(k).at<double>(j);
         }
         //arParamDispExt(trans);
 
@@ -189,8 +192,8 @@ float calc(const int capturedImageNum,
 
     *param_out = param;
 
-    cvReleaseMat(&rotationVector);
-    cvReleaseMat(&rotationMatrix);
+    // cvReleaseMat(&rotationVector);
+    // cvReleaseMat(&rotationMatrix);
     
     return (float)totErr;
 }

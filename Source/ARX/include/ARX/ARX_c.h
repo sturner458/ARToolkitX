@@ -41,8 +41,8 @@
 
 #include <ARX/Platform.h>
 #include <ARX/Error.h>
+#include <ARX/AR/ar.h>
 #include <stdint.h>
-#include "Calibration.hpp"
 
 /**
  * \file ARToolKitWrapperExportedAPI.h
@@ -255,7 +255,7 @@ extern "C" {
     // ----------------------------------------------------------------------------------------------------
     
     ARX_EXTERN void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes);
-    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false);
+    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false, bool doDatums = false);
     ARX_EXTERN void arwCleanupARToolKit();
     
     
@@ -265,7 +265,7 @@ extern "C" {
     
     ARX_EXTERN bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpacing, int calibImageNum, int xsize, int ysize, int xsizeLowRes, int ysizeLowRes);
     ARX_EXTERN int arwFindChessboardCorners(float* corners, int *corner_count, ARUint8 *imageBytes, bool lowRes);
-    ARX_EXTERN int arwCaptureChessboardCorners(int n = -1);
+    ARX_EXTERN int arwCaptureChessboardCorners(ARUint8 *imageBytes, int n = -1);
     ARX_EXTERN float arwCalibChessboardCorners(char *file_name, float *results);
     ARX_EXTERN void arwCleanupChessboardCorners();
     
@@ -486,7 +486,7 @@ extern "C" {
      * @param cfg        The configuration string
      * @return            The unique identifier (UID) of the trackable instantiated based on the configuration string, or -1 if an error occurred
      */
-    ARX_EXTERN int arwAddTrackable(const char *cfg);
+    ARX_EXTERN int arwAddTrackable(const char *cfg, bool avoidLowRes = false, int overrideUID = -1);
     
     typedef struct {
         int uid;
@@ -528,6 +528,9 @@ extern "C" {
      */
     ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes);
     
+    ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float *matrix);
+    ARX_EXTERN void arwListTrackables(int gMapUID);
+    
     /**
      * Returns the visibility and stereo pose of the specified trackable.
      *
@@ -561,7 +564,7 @@ extern "C" {
      * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
      * @return            true if successful, false if an error occurred
      */
-    ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY);
+    ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int *barcodeID);
     
     /**
      * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the
@@ -592,6 +595,7 @@ extern "C" {
         ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS = 8,             ///< int, minimum number of submarkers for tracking to be valid.
         ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX = 9,            ///< float, minimum confidence value for submarker matrix tracking to be valid.
         ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_PATTERN = 10,          ///< float, minimum confidence value for submarker pattern tracking to be valid.
+        ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB = 11,           ///< float, minimum inlier probability value for robust multimarker pose estimation (range 1.0 - 0.0).
     };
     
     /**

@@ -44,6 +44,8 @@
 #include <ARX/ARController.h>
 #include <opencv2/calib3d/calib3d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <ARX/ARTrackableMultiSquareAuto.h>
+#include <ARX/Calibration.hpp>
 #include <ARX/calc.hpp>
 
 #ifdef DEBUG
@@ -75,10 +77,6 @@ static ARController *gARTK = NULL;
 static ARController *gARTKLowRes = NULL;
 
 // Calibration variables:
-uint8_t             *videoFrame;
-IplImage            *calibImage;
-uint8_t             *videoFrameLowRes;
-IplImage            *calibImageLowRes;
 cv::Size gCalibrationPatternSize;
 std::vector<std::vector<cv::Point2f> > foundCorners;
 std::vector<cv::Point2f> corners;
@@ -223,6 +221,13 @@ bool arwShutdownAR()
 
 void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes)
 {
+    
+#ifdef ARDOUBLE_IS_FLOAT
+    ARLOGe("ARDOUBLE_IS_FLOAT is defined\n");
+#else
+    ARLOGe("ARDOUBLE_IS_FLOAT is NOT defined\n");
+#endif
+    
     if (!gARTK) gARTK = new ARController;
     //gARTK->logCallback = log;
     gARTK->initialiseBase();
@@ -238,17 +243,17 @@ void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vcon
     return;
 }
 
-bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes)
+bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes, bool doDatums)
 {
     //ARLOGe("UpdateARToolKit called.\n");
     //ARPRINT("UpdateARToolKit called.\n");
     
     if (!lowRes) {
         if (!gARTK) return false;
-        return gARTK->updateWithImage(imageBytes, lowRes);
+        return gARTK->updateWithImage(imageBytes, lowRes, doDatums);
     } else {
         if (!gARTKLowRes) return false;
-        return gARTKLowRes->updateWithImage(imageBytes, lowRes);
+        return gARTKLowRes->updateWithImage(imageBytes, lowRes, doDatums);
     }
 }
 
@@ -403,14 +408,6 @@ bool arwInitChessboardCorners(int nHorizontal, int nVertical, float patternSpaci
     videoWidthLowRes = xsizeLowRes;
     videoHeightLowRes = ysizeLowRes;
 
-    arMalloc(videoFrame, uint8_t, xsize * ysize);
-    calibImage = cvCreateImageHeader(cvSize(xsize, ysize), IPL_DEPTH_8U, 1);
-    cvSetData(calibImage, videoFrame, xsize); // Last parameter is rowBytes.
-    
-    arMalloc(videoFrameLowRes, uint8_t, xsizeLowRes * ysizeLowRes);
-    calibImageLowRes = cvCreateImageHeader(cvSize(xsizeLowRes, ysizeLowRes), IPL_DEPTH_8U, 1);
-    cvSetData(calibImageLowRes, videoFrameLowRes, xsizeLowRes); // Last parameter is rowBytes.
-    
     ARLOGe("Initialised corner calibration OK.\n");
     return true;
 }
@@ -422,10 +419,10 @@ int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageB
     
     if (!lowRes) {
         
-        memcpy(videoFrame, imageBytes, videoWidth * videoHeight);
+        cv::Mat calibImage = cv::Mat(videoHeight, videoWidth, CV_8UC1, imageBytes);
 
         corners.clear();
-        cornerFoundAllFlag = cv::findChessboardCorners(cv::cvarrToMat(calibImage), gCalibrationPatternSize, corners, CV_CALIB_CB_FAST_CHECK|CV_CALIB_CB_ADAPTIVE_THRESH|CV_CALIB_CB_FILTER_QUADS);
+        cornerFoundAllFlag = cv::findChessboardCorners(calibImage, gCalibrationPatternSize, corners, cv::CALIB_CB_FAST_CHECK|cv::CALIB_CB_ADAPTIVE_THRESH|cv::CALIB_CB_FILTER_QUADS);
         
         *corner_count = (int)corners.size();
         
@@ -440,10 +437,10 @@ int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageB
         
     } else {
         
-        memcpy(videoFrameLowRes, imageBytes, videoWidthLowRes * videoHeightLowRes);
+        cv::Mat calibImageLowRes = cv::Mat(videoHeightLowRes, videoWidthLowRes, CV_8UC1, imageBytes);
 
         cornersLowRes.clear();
-        cornerFoundAllFlag = cv::findChessboardCorners(cv::cvarrToMat(calibImageLowRes), gCalibrationPatternSize, cornersLowRes, CV_CALIB_CB_FAST_CHECK|CV_CALIB_CB_ADAPTIVE_THRESH|CV_CALIB_CB_FILTER_QUADS);
+        cornerFoundAllFlag = cv::findChessboardCorners(calibImageLowRes, gCalibrationPatternSize, cornersLowRes, cv::CALIB_CB_FAST_CHECK|cv::CALIB_CB_ADAPTIVE_THRESH|cv::CALIB_CB_FILTER_QUADS);
         
         *corner_count = (int)cornersLowRes.size();
         for (i = 0; i < *corner_count; i++) {
@@ -455,14 +452,16 @@ int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageB
     return cornerFoundAllFlag;
 }
 
-int arwCaptureChessboardCorners(int n)
+int arwCaptureChessboardCorners(ARUint8 *imageBytes, int n)
 {
     if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
     
     ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
-    
+
+    cv::Mat calibImage = cv::Mat(videoHeight, videoWidth, CV_8UC1, imageBytes);
+
     // Refine the corner positions.
-    cornerSubPix(cv::cvarrToMat(calibImage), corners, cv::Size(5,5), cvSize(-1,-1), cv::TermCriteria(CV_TERMCRIT_ITER, 100, 0.1));
+    cornerSubPix(calibImage, corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
     
     ARLOGe("Capturing %d corners\n", (int)corners.size());
     
@@ -503,11 +502,11 @@ float arwCalibChessboardCorners(char *file_name, float *results)
 
 void arwCleanupChessboardCorners()
 {
-    if (calibImage) cvReleaseImageHeader(&calibImage);
-    free(videoFrame);
+    // if (calibImage) cvReleaseImageHeader(&calibImage);
+    // free(videoFrame);
     
-    if (calibImageLowRes) cvReleaseImageHeader(&calibImageLowRes);
-    free(videoFrameLowRes);
+    // if (calibImageLowRes) cvReleaseImageHeader(&calibImageLowRes);
+    // free(videoFrameLowRes);
 }
 
 
@@ -709,15 +708,15 @@ float arwGetTrackerOptionFloat(int option, bool lowRes)
 #pragma mark  Trackable management
 // ---------------------------------------------------------------------------------------------
 
-int arwAddTrackable(const char *cfg)
+int arwAddTrackable(const char *cfg, bool avoidLowRes, int overrideUID)
 {
     int n = -1;
     
     if (gARTK) {
-        n = gARTK->addTrackable(cfg);
+        n = gARTK->addTrackable(cfg, overrideUID);
     }
     if (gARTKLowRes) {
-        gARTKLowRes->addTrackable(cfg, n);
+        if (!avoidLowRes) gARTKLowRes->addTrackable(cfg, n);
     }
     return n;
 }
@@ -803,6 +802,39 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix
     return trackable->visible;
 }
 
+bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float *matrix) {
+    ARTrackableMultiSquareAuto *t = reinterpret_cast<ARTrackableMultiSquareAuto *>(gARTK->findTrackable(gMapUID));
+    if (t) {
+        ARMultiMarkerInfoT *map = t->copyMultiConfig();
+        if (map) {
+            for (int n = 0; n < map->marker_num; n++) {
+                if (map->marker[n].patt_id == trackableUID) {
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            matrix[i + j * 4] = (float)map->marker[n].trans[i][j];
+                            matrix[3 + j * 4] = 0;
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+void arwListTrackables(int gMapUID) {
+    ARTrackableMultiSquareAuto *t = reinterpret_cast<ARTrackableMultiSquareAuto *>(gARTK->findTrackable(gMapUID));
+    if (t) {
+        ARMultiMarkerInfoT *map = t->copyMultiConfig();
+        if (map) {
+            for (int n = 0; n < map->marker_num; n++) {
+                ARLOGd("Found trackable with UID %d\n", map->marker[n].patt_id);
+            }
+        }
+    }
+}
+
 bool arwQueryTrackableVisibilityAndTransformationStereo(int trackableUID, float matrixL[16], float matrixR[16])
 {
     ARTrackable *trackable;
@@ -833,7 +865,7 @@ int arwGetTrackablePatternCount(int trackableUID)
     return trackable->patternCount;
 }
 
-bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY)
+bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int *barcodeID)
 {
     ARTrackable *trackable;
     ARPattern *p;
@@ -843,7 +875,7 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[
         ARLOGe("arwGetTrackablePatternConfig(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return false;
     }
-
+    
     if (!(p = trackable->getPattern(patternID))) {
         ARLOGe("arwGetTrackablePatternConfig(): Trackable with UID %d has no pattern with ID %d.\n", trackableUID, patternID);
         return false;
@@ -856,6 +888,9 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[
     if (height) *height = (float)p->m_height;
     if (imageSizeX) *imageSizeX = p->m_imageSizeX;
     if (imageSizeY) *imageSizeY = p->m_imageSizeY;
+    
+    if (trackable->type == ARTrackable::MULTI) *barcodeID = ((ARTrackableMultiSquare *)trackable)->config->marker[patternID].patt_id;
+    
     return true;
 }
 
@@ -1057,6 +1092,10 @@ float arwGetTrackableOptionFloat(int trackableUID, int option, bool lowRes)
             if (trackable->type == ARTrackable::MULTI) return (float)((ARTrackableMultiSquare *)trackable)->config->cfPattCutoff;
             else return (NAN);
             break;
+        case ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB:
+            if (trackable->type == ARTrackable::MULTI) return (float)((ARTrackableMultiSquare *)trackable)->config->minInlierProb;
+            else return (NAN);
+            break;
         default:
             ARLOGe("arwGetTrackableOptionFloat(): Unrecognised option %d.\n", option);
             break;
@@ -1102,6 +1141,10 @@ void arwSetTrackableOptionFloat(int trackableUID, int option, float value, bool 
             break;
         case ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_PATTERN:
             if (trackable->type == ARTrackable::MULTI) ((ARTrackableMultiSquare *)trackable)->config->cfPattCutoff = value;
+            break;
+        case ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB:
+        if (trackable->type == ARTrackable::MULTI) ((ARTrackableMultiSquare*)trackable)->config->minInlierProb = value;
+        if (trackable->type == ARTrackable::MULTI_AUTO) ((ARTrackableMultiSquareAuto*)trackable)->m_MultiConfig->minInlierProb = value;
             break;
         default:
             ARLOGe("arwSetTrackableOptionFloat(): Unrecognised option %d.\n", option);

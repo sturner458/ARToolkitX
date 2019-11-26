@@ -75,6 +75,7 @@ namespace arx_mapper {
     
     // private
     void Mapper::AddLandmark(int uid, const Pose3 &pose) {
+        ARLOGi("Add landmark on uid %d.\n", uid);
         initial_estimates_.insert(Symbol('l', uid), pose);
         all_uids_.insert(uid);
     }
@@ -110,6 +111,8 @@ namespace arx_mapper {
         
         // Update the current camera pose.
         ARTransFromPose(map->trans, (results.at<Pose3>(Symbol('x', pose_cnt))).inverse());
+        //ARPRINT("Mapper::Update\n");
+        //arUtilPrintTransMat(map->trans);
         
         // Update the current map.
         for (const int uid : all_uids_) {

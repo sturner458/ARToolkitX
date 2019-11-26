@@ -70,7 +70,7 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
         cv::Mat src = cv::Mat(height, width, CV_8UC1, (void *)buff, width);
         cv::Size winSize = cv::Size(5, 5);
         cv::Size zeroZone = cv::Size(-1, -1);
-        cv::TermCriteria criteria = cv::TermCriteria(CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001);
+        cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
         
         // Calculate the refined corner locations.
         cv::cornerSubPix(src, corners, winSize, zeroZone, criteria);

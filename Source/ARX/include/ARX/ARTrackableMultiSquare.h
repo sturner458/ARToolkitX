@@ -55,23 +55,23 @@ protected:
 
 public:
 
-	ARMultiMarkerInfoT *config;							///< Structure holding information about the multimarker patterns
-	bool robustFlag;									///< Flag specifying which pose estimation approach to use
-	
-	ARTrackableMultiSquare(int setUID = -1);
-	~ARTrackableMultiSquare();
+    ARMultiMarkerInfoT *config;                            ///< Structure holding information about the multimarker patterns
+    bool robustFlag;                                    ///< Flag specifying which pose estimation approach to use
+    
+    ARTrackableMultiSquare(int setUID = -1);
+    ~ARTrackableMultiSquare();
 
-	bool load(const char *multiConfig, ARPattHandle *arPattHandle);
+    bool load(const char *multiConfig, ARPattHandle *arPattHandle);
 
-	/**
-	 * Updates the marker with new tracking info.
+    /**
+     * Updates the marker with new tracking info.
      * Then calls ARTrackable::update()
-     * @param markerInfo		Array containing detected marker information
-     * @param markerNum			Number of items in the array
+     * @param markerInfo        Array containing detected marker information
+     * @param markerNum            Number of items in the array
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
-	bool updateWithDetectedMarkers(ARMarkerInfo *markerInfo, int markerNum, AR3DHandle *ar3DHandle);
-
+    bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
+    bool updateWithDetectedMarkersOpenCV(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, ARHandle* arHandle);
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
 };
 

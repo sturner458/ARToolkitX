@@ -41,7 +41,7 @@
 
 #include <ARX/AR/ar.h>
 #include <ARX/AR/arFilterTransMat.h>
-
+#include <opencv2/core/core.hpp>
 #include <ARX/ARPattern.h>
 
 #include <vector>
@@ -60,70 +60,73 @@ private:
 
 protected:
     ARdouble trans[3][4];                   ///< Transformation from camera to this trackable. If stereo, transform from left camera to this trackable.
-	/**
-	 * Allocates space for patterns within this trackable.
-	 * @param count	The number of patterns to allocate
-	 */
-	void allocatePatterns(int count);
+    /**
+     * Allocates space for patterns within this trackable.
+     * @param count    The number of patterns to allocate
+     */
+    void allocatePatterns(int count);
 
-	/**
-	 * Frees allocated patterns and resets the pattern count to zero.
-	 */
-	void freePatterns();
+    /**
+     * Frees allocated patterns and resets the pattern count to zero.
+     */
+    void freePatterns();
 
     ARdouble m_positionScaleFactor;
 
 public:
     
-	enum TrackableType {
-		SINGLE,								///< A standard single square marker.
-		MULTI,								///< A composite marker made up of multiple square markers.
+    enum TrackableType {
+        SINGLE,                                ///< A standard single square marker.
+        MULTI,                                ///< A composite marker made up of multiple square markers.
         NFT,                                ///< A rectangular textured marker backed by an NFT data set.
         TwoD,                               ///< A 2D textured marker backed by an image.
         MULTI_AUTO                          ///< An automatically mapped composite marker made up of multiple square matrix (2D barcode) markers.
-	};
+    };
 
-	int UID;								///< Internal unique ID (note: not the same as artoolkitX pattern ID)
-	TrackableType type;						///< Type of trackable: single, multi, ...
-	
+    int UID;                                ///< Internal unique ID (note: not the same as artoolkitX pattern ID)
+    TrackableType type;                        ///< Type of trackable: single, multi, ...
+    
     // Inputs from subclasses.
     bool visiblePrev;                       ///< Whether or not the trackable was visible prior to last update.
-	bool visible;							///< Whether or not the trackable is visible at current time.
+    bool visible;                            ///< Whether or not the trackable is visible at current time.
     
     // Output.
-	ARdouble transformationMatrix[16];		///< Transformation suitable for use in OpenGL
-	ARdouble transformationMatrixR[16];		///< Transformation suitable for use in OpenGL
-	
-	int patternCount;						///< If this trackable has a surface appearance, the number of patterns that it has (1 for single).
-	ARPattern** patterns;					///< Array of pointers to patterns
+    ARdouble transformationMatrix[16];        ///< Transformation suitable for use in OpenGL
+    ARdouble transformationMatrixR[16];        ///< Transformation suitable for use in OpenGL
 
-	/**
-	 * Constructor takes the type of this trackable.
-	 */
-	ARTrackable(TrackableType type, int setUID = -1);
+    std::vector<cv::Point2f> imagePoints;
+
+    int patternCount;                        ///< If this trackable has a surface appearance, the number of patterns that it has (1 for single).
+    ARPattern** patterns;                    ///< Array of pointers to patterns
+
+    /**
+     * Constructor takes the type of this trackable.
+     */
+    ARTrackable(TrackableType type, int setUID = -1);
     
     ARTrackable(const ARTrackable&) = delete; ///< Copy construction is undefined.
     ARTrackable& operator=(const ARTrackable&) = delete; ///< Copy assignment is undefined.
 
-	virtual ~ARTrackable();
-	
+    virtual ~ARTrackable();
+    
     void setPositionScalefactor(ARdouble scale);
     ARdouble positionScalefactor();
+    ARdouble GetTrans(int i, int j);
     
-	/**
-	 * Completes an update begun in the parent class, performing filtering, generating
+    /**
+     * Completes an update begun in the parent class, performing filtering, generating
      * OpenGL view matrix and notifying listeners (just a log message at the moment).
      * Subclasses should first do their required updates, set visible, visiblePrev,
      * and trans[3][4] then call ARTrackable::update().
-	 * @return true if successful, false if an error occurred
-	 */
+     * @return true if successful, false if an error occurred
+     */
     virtual bool update(const ARdouble transL2R[3][4] = NULL);
 
-	/**
-	 * Returns the specified pattern within this trackable.
-	 * @param n		The pattern to retrieve
-	 */
-	ARPattern* getPattern(int n);
+    /**
+     * Returns the specified pattern within this trackable.
+     * @param n        The pattern to retrieve
+     */
+    ARPattern* getPattern(int n);
     
     // Filter control.
     void setFiltered(bool flag);
@@ -132,6 +135,11 @@ public:
     void setFilterSampleRate(ARdouble rate);
     ARdouble filterCutoffFrequency();
     void setFilterCutoffFrequency(ARdouble freq);
+
+    bool GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy);
+    void ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy);
+    int GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]);
+    ARdouble arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4]);
 
 };
 

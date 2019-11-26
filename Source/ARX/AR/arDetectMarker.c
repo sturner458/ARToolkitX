@@ -204,7 +204,7 @@ cnt = 0;
     } // !detectionIsDone
     
     if (arHandle->arCornerRefinementMode == AR_CORNER_REFINEMENT_ENABLE) {
-        ARPRINT("Starting corner refinement.\n");
+        //ARPRINT("Starting corner refinement.\n");
         // Refine marker co-ordinates.
         ARfloat obVertex[4][2];
         for (int i = 0; i < 4; i++) {

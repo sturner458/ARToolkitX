@@ -55,6 +55,7 @@ ARMultiMarkerInfoT *arMultiAllocConfig(void)
     marker_info->cfPattCutoff = AR_MULTI_CONFIDENCE_PATTERN_CUTOFF_DEFAULT;
     marker_info->cfMatrixCutoff = AR_MULTI_CONFIDENCE_MATRIX_CUTOFF_DEFAULT;
     marker_info->min_submarker = 0;
+    marker_info->minInlierProb = ICP_INLIER_PROBABILITY;
     
     return (marker_info);
 }
@@ -84,6 +85,7 @@ ARMultiMarkerInfoT *arMultiCopyConfig(const ARMultiMarkerInfoT *marker_info)
     mi->cfPattCutoff = marker_info->cfPattCutoff;
     mi->cfMatrixCutoff = marker_info->cfMatrixCutoff;
     mi->min_submarker = marker_info->min_submarker;
+    mi->minInlierProb = marker_info->minInlierProb;
     
     return (mi);
 }
@@ -101,6 +103,8 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
     }
     
     if (i == marker_info->marker_num) { // Not found, need to add to it.
+        
+        //ARLOGd("arMultiAddOrUpdateSubmarker adding marker with patt_id %d\n", patt_id);
         
         // Increase the array size.
         ARMultiEachMarkerInfoT *emi;

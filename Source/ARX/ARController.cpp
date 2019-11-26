@@ -83,14 +83,14 @@ ARController::ARController() :
 
 ARController::~ARController()
 {
-	shutdown();
+    shutdown();
     if (versionString) free(versionString);
 }
 
 const char* ARController::getARToolKitVersion()
 {
     if (!versionString) arGetVersion(&versionString);
-	return versionString;
+    return versionString;
 }
 
 void ARController::setError(int error)
@@ -116,16 +116,16 @@ int ARController::getError()
 bool ARController::initialiseBase()
 {
     ARLOGd("ARX::ARController::initialiseBase(...)\n");
-	if (state != NOTHING_INITIALISED) {
+    if (state != NOTHING_INITIALISED) {
         ARLOGe("Initialise called while already initialised. Will finish first.\n");
         if (!shutdown()) {
             return false;
         }
-	}
+    }
     
     char *versionString = NULL;
     arGetVersion(&versionString);
-	ARLOGi("artoolkitX v%s initalised.\n", versionString);
+    ARLOGi("artoolkitX v%s initalised.\n", versionString);
     free(versionString);
 
     // At present, trackers are hard-coded. In the future, we'll dynamically
@@ -151,10 +151,10 @@ bool ARController::initialiseBase()
     }
 #endif
     
-	state = BASE_INITIALISED;
+    state = BASE_INITIALISED;
 
     ARLOGd("ARX::ARController::initialiseBase() done.\n");
-	return true;
+    return true;
 
 bail2:
     m_squareTracker.reset();
@@ -164,21 +164,21 @@ bail:
 
 bool ARController::startRunning(const char* vconf, const char* cparaName, const char* cparaBuff, const long cparaBuffLen)
 {
-	ARLOGi("Starting...\n");
+    ARLOGi("Starting...\n");
 
-	// Check for initialization before starting video
-	if (state != BASE_INITIALISED) {
+    // Check for initialization before starting video
+    if (state != BASE_INITIALISED) {
         ARLOGe("Start running called but base not initialised.\n");
-		return false;
-	}
+        return false;
+    }
 
-	m_videoSource0 = new ARVideoSource;
-	if (!m_videoSource0) {
+    m_videoSource0 = new ARVideoSource;
+    if (!m_videoSource0) {
         ARLOGe("No video source.\n");
-		return false;
-	}
+        return false;
+    }
 
-	m_videoSource0->configure(vconf, false, cparaName, cparaBuff, cparaBuffLen);
+    m_videoSource0->configure(vconf, false, cparaName, cparaBuff, cparaBuffLen);
     
     if (!m_videoSource0->open()) {
         if (m_videoSource0->getError() == ARX_ERROR_DEVICE_UNAVAILABLE) {
@@ -193,11 +193,11 @@ bool ARController::startRunning(const char* vconf, const char* cparaName, const 
     }
 
     m_videoSourceIsStereo = false;
-	state = WAITING_FOR_VIDEO;
+    state = WAITING_FOR_VIDEO;
     stateWaitingMessageLogged = false;
 
     ARLOGd("ARController::startRunning(): done.\n");
-	return true;
+    return true;
 }
 
 bool ARController::startRunningStereo(const char* vconfL, const char* cparaNameL, const char* cparaBuffL, const long cparaBuffLenL,
@@ -206,11 +206,11 @@ bool ARController::startRunningStereo(const char* vconfL, const char* cparaNameL
 {
     ARLOGi("Starting... (stereo)\n");
 
-	// Check for initialisation before starting video
-	if (state != BASE_INITIALISED) {
+    // Check for initialisation before starting video
+    if (state != BASE_INITIALISED) {
         ARLOGe("Start running called but base not initialised.\n");
-		return false;
-	}
+        return false;
+    }
 
     // Load stereo parameters.
     if (transL2RName) {
@@ -225,20 +225,20 @@ bool ARController::startRunningStereo(const char* vconfL, const char* cparaNameL
         }
     } else {
         ARLOGe("transL2R not specified.\n");
-		return false;
+        return false;
     }
     //arUtilMatInv(m_transL2R, transR2L);
     arParamDispExt(m_transL2R);
 
-	m_videoSource0 = new ARVideoSource;
-	m_videoSource1 = new ARVideoSource;
-	if (!m_videoSource0 || !m_videoSource1) {
+    m_videoSource0 = new ARVideoSource;
+    m_videoSource1 = new ARVideoSource;
+    if (!m_videoSource0 || !m_videoSource1) {
         ARLOGe("No video sources.\n");
-		return false;
-	}
+        return false;
+    }
 
-	m_videoSource0->configure(vconfL, false, cparaNameL, cparaBuffL, cparaBuffLenL);
-	m_videoSource1->configure(vconfR, false, cparaNameR, cparaBuffR, cparaBuffLenR);
+    m_videoSource0->configure(vconfL, false, cparaNameL, cparaBuffL, cparaBuffLenL);
+    m_videoSource1->configure(vconfR, false, cparaNameR, cparaBuffR, cparaBuffLenR);
 
     if (!m_videoSource0->open()) {
         if (m_videoSource0->getError() == ARX_ERROR_DEVICE_UNAVAILABLE) {
@@ -268,11 +268,11 @@ bool ARController::startRunningStereo(const char* vconfL, const char* cparaNameL
     }
 
     m_videoSourceIsStereo = true;
-	state = WAITING_FOR_VIDEO;
+    state = WAITING_FOR_VIDEO;
     stateWaitingMessageLogged = false;
 
     ARLOGd("ARController::startRunningStereo(): done.\n");
-	return true;
+    return true;
 }
 
 bool ARController::capture()
@@ -313,7 +313,7 @@ bool ARController::update()
 {
     ARLOGd("ARX::ARController::update().\n");
     
-	if (state != DETECTION_RUNNING) {
+    if (state != DETECTION_RUNNING) {
         if (state != WAITING_FOR_VIDEO) {
             // State is NOTHING_INITIALISED or BASE_INITIALISED.
             ARLOGe("Update called but not yet started.\n");
@@ -340,7 +340,7 @@ bool ARController::update()
 
             state = DETECTION_RUNNING;
         }
-	}
+    }
 
     // Checkout frame(s).
     AR2VideoBufferT *image0, *image1 = NULL;
@@ -402,7 +402,7 @@ done:
     return ret;
 }
 
-bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
+bool ARController::updateWithImage(ARUint8 *image, bool lowRes, bool doDatums)
 {
     //ARPRINT("ARX::ARController::updateWithImage() videoWidth = %d , pixelFormat = %d.\n", (int)m_videoSource0->getVideoWidth(), (int)m_videoSource0->getPixelFormat());
 
@@ -427,7 +427,7 @@ bool ARController::updateWithImage(ARUint8 *image, bool lowRes)
             else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
             if (!ret) goto done;
         }
-        m_squareTracker->update(image0, image1, m_trackables, lowRes);
+        m_squareTracker->update(image0, image1, m_trackables, lowRes, doDatums);
     }
 #if HAVE_NFT
     if (doNFTMarkerDetection) {
@@ -460,11 +460,11 @@ done:
 
 bool ARController::stopRunning()
 {
-	ARLOGd("ARX::ARController::stopRunning()\n");
-	if (state != DETECTION_RUNNING && state != WAITING_FOR_VIDEO) {
+    ARLOGd("ARX::ARController::stopRunning()\n");
+    if (state != DETECTION_RUNNING && state != WAITING_FOR_VIDEO) {
         ARLOGe("Stop running called but not running.\n");
-		return false;
-	}
+        return false;
+    }
     
     m_squareTracker->stop();
 #if HAVE_NFT
@@ -489,10 +489,10 @@ bool ARController::stopRunning()
         m_videoSource1 = NULL;
     }
 
-	state = BASE_INITIALISED;
+    state = BASE_INITIALISED;
 
     ARLOGd("ARX::ARController::stopRunning(): done.\n");
-	return true;
+    return true;
 }
 
 bool ARController::shutdown()
@@ -531,7 +531,7 @@ bool ARController::shutdown()
     } while (state != NOTHING_INITIALISED);
 
     ARLOGi("artoolkitX finished.\n");
-	return true;
+    return true;
 }
 
 // ----------------------------------------------------------------------------------------------------
@@ -650,13 +650,13 @@ bool ARController::projectionMatrix(const int videoSourceIndex, const ARdouble p
 
 bool ARController::isInited()
 {
-	// Check we are in a valid state to add a trackable (i.e. base initialisation has occurred)
-	return (state != NOTHING_INITIALISED);
+    // Check we are in a valid state to add a trackable (i.e. base initialisation has occurred)
+    return (state != NOTHING_INITIALISED);
 }
 
 bool ARController::isRunning()
 {
-	return state == DETECTION_RUNNING;
+    return state == DETECTION_RUNNING;
 }
 
 bool ARController::videoParameters(const int videoSourceIndex, int *width, int *height, AR_PIXEL_FORMAT *pixelFormat)
@@ -679,10 +679,10 @@ bool ARController::videoParameters(const int videoSourceIndex, int *width, int *
 
 int ARController::addTrackable(const std::string& cfgs, int setUID)
 {
-	if (!isInited()) {
-		ARLOGe("Error: Cannot add trackable. artoolkitX not initialised\n");
-		return -1;
-	}
+    if (!isInited()) {
+        ARLOGe("Error: Cannot add trackable. artoolkitX not initialised\n");
+        return -1;
+    }
     
     std::istringstream iss(cfgs);
     std::string token;
@@ -723,15 +723,15 @@ int ARController::addTrackable(const std::string& cfgs, int setUID)
 bool ARController::addTrackable(ARTrackable* trackable)
 {
     //ARLOGd("ARController::addTrackable(): called\n");
-	if (!isInited()) {
+    if (!isInited()) {
         ARLOGe("Error: Cannot add trackable. artoolkitX not initialised.\n");
-		return false;
-	}
+        return false;
+    }
 
-	if (!trackable) {
+    if (!trackable) {
         ARLOGe("ARController::addTrackable(): NULL trackable.\n");
-		return false;
-	}
+        return false;
+    }
 
     m_trackables.push_back(trackable);
 
@@ -755,8 +755,8 @@ bool ARController::addTrackable(ARTrackable* trackable)
         doSquareMarkerDetection = true;
     }
 
-	//ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
-	return true;
+    //ARLOGi("Added trackable (UID=%d), total trackables loaded: %d.\n", trackable->UID, countTrackables());
+    return true;
 }
 
 bool ARController::removeTrackable(int UID)
@@ -766,19 +766,19 @@ bool ARController::removeTrackable(int UID)
         ARLOGe("ARController::removeTrackable(): could not find trackable (UID=%d).\n");
         return (false);
     }
-	return removeTrackable(trackable);
+    return removeTrackable(trackable);
 }
 
 // private
 bool ARController::removeTrackable(ARTrackable* trackable)
 {
     ARLOGd("ARController::removeTrackable(): called\n");
-	if (!trackable) {
+    if (!trackable) {
         ARLOGe("ARController::removeTrackable(): NULL trackable.\n");
-		return false;
-	}
+        return false;
+    }
 
-	int UID = trackable->UID;
+    int UID = trackable->UID;
     std::vector<ARTrackable *>::iterator position = std::find(m_trackables.begin(), m_trackables.end(), trackable);
     bool found = (position != m_trackables.end());
     if (!found) {
@@ -825,7 +825,7 @@ bool ARController::removeTrackable(ARTrackable* trackable)
 
 int ARController::removeAllTrackables()
 {
-	unsigned int count = countTrackables();
+    unsigned int count = countTrackables();
     
     for (std::vector<ARTrackable *>::iterator it = m_trackables.begin(); it != m_trackables.end(); ++it) {
         m_squareTracker->deleteTrackable(&(*it));
@@ -844,14 +844,14 @@ int ARController::removeAllTrackables()
 #if HAVE_2D
     doTwoDMarkerDetection = false;
 #endif
-	ARLOGi("Removed all %d trackables.\n", count);
+    ARLOGi("Removed all %d trackables.\n", count);
 
-	return count;
+    return count;
 }
 
 unsigned int ARController::countTrackables() const
 {
-	return ((unsigned int)m_trackables.size());
+    return ((unsigned int)m_trackables.size());
 }
 
 unsigned int ARController::countTrackables(ARTrackable::TrackableType trackableType) const
@@ -899,11 +899,11 @@ ARTrackable* ARController::findTrackable(int UID)
 {
 
     std::vector<ARTrackable *>::const_iterator it = m_trackables.begin();
-	while (it != m_trackables.end()) {
-		if ((*it)->UID == UID) return (*it);
+    while (it != m_trackables.end()) {
+        if ((*it)->UID == UID) return (*it);
         ++it;
-	}
-	return NULL;
+    }
+    return NULL;
 }
 
 // ----------------------------------------------------------------------------------------------------

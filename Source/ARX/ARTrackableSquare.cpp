@@ -80,84 +80,84 @@ bool ARTrackableSquare::unload()
 
 bool ARTrackableSquare::initWithPatternFile(const char* path, ARdouble width, ARPattHandle *arPattHandle)
 {
-	// Ensure the pattern string is valid
-	if (!path || !arPattHandle) return false;
+    // Ensure the pattern string is valid
+    if (!path || !arPattHandle) return false;
     
     if (m_loaded) unload();
 
-	ARLOGi("Loading single AR marker from file '%s', width %f.\n", path, width);
-	
+    ARLOGi("Loading single AR marker from file '%s', width %f.\n", path, width);
+    
     m_arPattHandle = arPattHandle;
-	patt_id = arPattLoad(m_arPattHandle, path);
-	if (patt_id < 0) {
-		ARLOGe("Error: unable to load single AR marker from file '%s'.\n", path);
+    patt_id = arPattLoad(m_arPattHandle, path);
+    if (patt_id < 0) {
+        ARLOGe("Error: unable to load single AR marker from file '%s'.\n", path);
         arPattHandle = NULL;
-		return false;
-	}
-	
+        return false;
+    }
+    
     patt_type = AR_PATTERN_TYPE_TEMPLATE;
     m_width = width;
     
-	visible = visiblePrev = false;
+    visible = visiblePrev = false;
     
     // An ARPattern to hold an image of the pattern for display to the user.
-	allocatePatterns(1);
-	patterns[0]->loadTemplate(patt_id, m_arPattHandle, (float)m_width);
+    allocatePatterns(1);
+    patterns[0]->loadTemplate(patt_id, m_arPattHandle, (float)m_width);
 
     m_loaded = true;
-	return true;
+    return true;
 }
 
 bool ARTrackableSquare::initWithPatternFromBuffer(const char* buffer, ARdouble width, ARPattHandle *arPattHandle)
 {
-	// Ensure the pattern string is valid
-	if (!buffer || !arPattHandle) return false;
+    // Ensure the pattern string is valid
+    if (!buffer || !arPattHandle) return false;
 
     if (m_loaded) unload();
 
-	ARLOGi("Loading single AR marker from buffer, width %f.\n", width);
-	
+    ARLOGi("Loading single AR marker from buffer, width %f.\n", width);
+    
     m_arPattHandle = arPattHandle;
-	patt_id = arPattLoadFromBuffer(m_arPattHandle, buffer);
-	if (patt_id < 0) {
-		ARLOGe("Error: unable to load single AR marker from buffer.\n");
-		return false;
-	}
-	
+    patt_id = arPattLoadFromBuffer(m_arPattHandle, buffer);
+    if (patt_id < 0) {
+        ARLOGe("Error: unable to load single AR marker from buffer.\n");
+        return false;
+    }
+    
     patt_type = AR_PATTERN_TYPE_TEMPLATE;
-	m_width = width;
+    m_width = width;
 
-	visible = visiblePrev = false;
-	
+    visible = visiblePrev = false;
+    
     // An ARPattern to hold an image of the pattern for display to the user.
-	allocatePatterns(1);
-	patterns[0]->loadTemplate(patt_id, arPattHandle, (float)m_width);
-	
+    allocatePatterns(1);
+    patterns[0]->loadTemplate(patt_id, arPattHandle, (float)m_width);
+    
     m_loaded = true;
-	return true;
+    return true;
 }
 
 bool ARTrackableSquare::initWithBarcode(int barcodeID, ARdouble width)
 {
-	if (barcodeID < 0) return false;
+    if (barcodeID < 0) return false;
     
     if (m_loaded) unload();
 
-	//ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
-	
-	patt_id = barcodeID;
-	
-    patt_type = AR_PATTERN_TYPE_MATRIX;
-	m_width = width;
+    //ARLOGi("Adding single AR marker with barcode %d, width %f.\n", barcodeID, width);
     
-	visible = visiblePrev = false;
-		
+    patt_id = barcodeID;
+    
+    patt_type = AR_PATTERN_TYPE_MATRIX;
+    m_width = width;
+    
+    visible = visiblePrev = false;
+        
     // An ARPattern to hold an image of the pattern for display to the user.
-	allocatePatterns(1);
-	patterns[0]->loadMatrix(patt_id, AR_MATRIX_CODE_3x3, (float)m_width); // FIXME: need to determine actual matrix code type.
+    allocatePatterns(1);
+    patterns[0]->loadMatrix(patt_id, AR_MATRIX_CODE_3x3, (float)m_width); // FIXME: need to determine actual matrix code type.
 
     m_loaded = true;
-	return true;
+    return true;
 }
 
 ARdouble ARTrackableSquare::getConfidence()
@@ -177,20 +177,20 @@ void ARTrackableSquare::setConfidenceCutoff(ARdouble value)
     }
 }
 
-bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle) {
+bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle, ARParam arParams) {
 
     //ARLOGd("ARTrackableSquare::updateWithDetectedMarkers(...)\n");
     
-	if (patt_id < 0) return false;	// Can't update if no pattern loaded
+    if (patt_id < 0) return false;    // Can't update if no pattern loaded
 
     visiblePrev = visible;
     visible = false;
     m_cf = 0.0f;
 
-	if (markerInfo) {
+    if (markerInfo) {
 
         int k = -1;
-        if (patt_type == AR_PATTERN_TYPE_TEMPLATE) { 
+        if (patt_type == AR_PATTERN_TYPE_TEMPLATE) {
             // Iterate over all detected markers.
             for (int j = 0; j < markerNum; j++ ) {
                 if (patt_id == markerInfo[j].idPatt) {
@@ -220,17 +220,18 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
             }
         }
         
-		// Consider marker visible if a match was found.
+        // Consider marker visible if a match was found.
         if (k != -1) {
             ARdouble err;
             // If the model is visible, update its transformation matrix
-			if (visiblePrev && useContPoseEstimation) {
-				// If the marker was visible last time, use "cont" version of arGetTransMatSquare
-				err = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
-			} else {
-				// If the marker wasn't visible last time, use normal version of arGetTransMatSquare
-				err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
-			}
+            if (visiblePrev && useContPoseEstimation) {
+                // If the marker was visible last time, use "cont" version of arGetTransMatSquare
+                err = arGetTransMatSquareCont(ar3DHandle, &(markerInfo[k]), trans, m_width, trans);
+            } else {
+                // If the marker wasn't visible last time, use normal version of arGetTransMatSquare
+                err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
+                //err = arGetTransMatSquareOpenCV(arParams, &(markerInfo[k]), m_width, trans);
+            }
             if (err < 10.0f) {
                 visible = true;
                 m_cf = markerInfo[k].cf;
@@ -238,20 +239,79 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
         }
     }
 
-	return (ARTrackable::update()); // Parent class will finish update.
+    return (ARTrackable::update()); // Parent class will finish update.
+}
+
+ARdouble ARTrackableSquare::arGetTransMatSquareOpenCV(ARParam arParams, ARMarkerInfo* markerInfo, ARdouble width, ARdouble conv[3][4]) {
+        ARdouble* datumCoords2D;
+        ARdouble* datumCoords;
+
+        std::vector<cv::Point3f> objectPoints;
+        int            dir;
+        if (markerInfo->idMatrix < 0)
+            dir = markerInfo->dirPatt;
+        else if (markerInfo->idPatt < 0)
+            dir = markerInfo->dirMatrix;
+        else
+            dir = markerInfo->dir;
+
+        imagePoints.clear();
+        imagePoints.push_back(cv::Point2f(markerInfo->vertex[(4 - dir) % 4][0], markerInfo->vertex[(4 - dir) % 4][1]));
+        imagePoints.push_back(cv::Point2f(markerInfo->vertex[(5 - dir) % 4][0], markerInfo->vertex[(5 - dir) % 4][1]));
+        imagePoints.push_back(cv::Point2f(markerInfo->vertex[(6 - dir) % 4][0], markerInfo->vertex[(6 - dir) % 4][1]));
+        imagePoints.push_back(cv::Point2f(markerInfo->vertex[(7 - dir) % 4][0], markerInfo->vertex[(7 - dir) % 4][1]));
+
+        objectPoints.push_back(cv::Point3f(-width / 2.0, width / 2.0, 0));
+        objectPoints.push_back(cv::Point3f(width / 2.0, width / 2.0, 0));
+        objectPoints.push_back(cv::Point3f(width / 2.0, -width / 2.0, 0));
+        objectPoints.push_back(cv::Point3f(-width / 2.0, -width / 2.0, 0));
+
+        cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
+        cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
+        cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
+            }
+        }
+
+        double s = (double)(arParams.dist_factor[16]);
+        cameraMatrix.at<double>(0, 0) *= s;
+        cameraMatrix.at<double>(0, 1) *= s;
+        cameraMatrix.at<double>(1, 0) *= s;
+        cameraMatrix.at<double>(1, 1) *= s;
+
+        cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
+        for (int i = 0; i < 8; i++) {
+            distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
+        }
+        cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+        cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
+        Rodrigues(rvec, rotationMatrix);
+
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 3; i++) {
+                conv[j][i] = (float)rotationMatrix.at<double>(j, i);
+            }
+            conv[j][3] = (float)tvec.at<double>(j);
+        }
+
+        std::vector<cv::Point2f> reprojectPoints;
+        cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
+        return cv::norm(reprojectPoints, imagePoints);
 }
 
 bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]) {
     
     ARLOGd("ARTrackableSquare::updateWithDetectedMarkersStereo(...)\n");
     
-	if (patt_id < 0) return false;	// Can't update if no pattern loaded
+    if (patt_id < 0) return false;    // Can't update if no pattern loaded
     
     visiblePrev = visible;
     visible = false;
     m_cf = 0.0f;
     
-	if (markerInfoL && markerInfoR) {
+    if (markerInfoL && markerInfoR) {
         
         int kL = -1, kR = -1;
         if (patt_type == AR_PATTERN_TYPE_TEMPLATE) {
@@ -326,7 +386,10 @@ bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfo
             err = arGetTransMatSquareStereo(handle, (kL == -1 ? NULL : &markerInfoL[kL]), (kR == -1 ?  NULL : &markerInfoR[kR]), m_width, trans);
             if (err < 10.0) {
                 visible = true;
-                m_cf = MAX(markerInfoL[kL].cf, markerInfoR[kR].cf);
+                ARdouble left  = kL == -1 ? -1 : markerInfoL[kL].cf;
+                ARdouble right = kR == -1 ? -1 : markerInfoR[kR].cf;
+
+                m_cf = MAX(left, right);
             }
             
             //if (kL == -1)      ARLOGd("[%2d] right:      err = %f\n", patt_id, err);
@@ -335,6 +398,152 @@ bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfo
         }
     }
     
-	return (ARTrackable::update(transL2R)); // Parent class will finish update.
+    return (ARTrackable::update(transL2R)); // Parent class will finish update.
+}
+
+bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard) {
+
+    ARdouble* datumCoords2D;
+    ARdouble* datumCoords;
+    
+    ARLOGe("ARTrackableSquare::updateWithDetectedDatums called.");
+
+    cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
+    
+    ARLOGe("Mat created.");
+
+    std::vector<cv::Point2f> datumCentres;
+    ARdouble errMax;
+    if (largeBoard) {
+        datumCoords2D = new ARdouble[16];
+        datumCoords = new ARdouble[24];
+        datumCentres.push_back(cv::Point2f(-128.5, 85));
+        datumCentres.push_back(cv::Point2f(-128.5, -85));
+        datumCentres.push_back(cv::Point2f(128.5, 85));
+        datumCentres.push_back(cv::Point2f(128.5, -85));
+        errMax = 20.0;
+    }
+    else {
+        datumCoords2D = new ARdouble[16];
+        datumCoords = new ARdouble[24];
+        datumCentres.push_back(cv::Point2f(-55, 30));
+        datumCentres.push_back(cv::Point2f(-55, -30));
+        datumCentres.push_back(cv::Point2f(55, 30));
+        datumCentres.push_back(cv::Point2f(55, -30));
+        errMax = 15.0;
+    }
+
+    ARdouble ox, oy;
+    std::vector<cv::Point2f> corners;
+    std::vector<cv::Point3f> objectPoints;
+    for (int i = 0; i < (int)datumCentres.size(); i++) {
+        cv::Point2f pt = datumCentres.at(i);
+        if (GetCenterPointForDatum(pt.x, pt.y, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy)) {
+            corners.push_back(cv::Point2f(ox, oy));
+            objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+            datumCoords[i * 3] = pt.x;
+            datumCoords[i * 3 + 1] = pt.y;
+            datumCoords[i * 3 + 2] = 0;
+        }
+    }
+    
+    ARLOGe("GetCenterPointForDatum called.");
+
+    imagePoints.clear();
+    if (corners.size() == 4) {
+
+        datumCentres.push_back(cv::Point2f(-40, 40));
+        datumCentres.push_back(cv::Point2f(-40, -40));
+        datumCentres.push_back(cv::Point2f(40, -40));
+        datumCentres.push_back(cv::Point2f(40, 40));
+        for (int i = 4; i < (int)datumCentres.size(); i++) {
+            cv::Point2f pt = datumCentres.at(i);
+            ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
+            corners.push_back(cv::Point2f(ox, oy));
+            objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+            datumCoords[i * 3] = pt.x;
+            datumCoords[i * 3 + 1] = pt.y;
+            datumCoords[i * 3 + 2] = 0;
+        }
+
+        std::vector<cv::Point2f> cornersCopy;
+        for (int i = 0; i < corners.size(); i++) {
+            cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
+        }
+        ARLOGe("About to call cornerSubPix.");
+
+        cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
+
+        ARLOGe("cornerSubPix called.");
+
+        for (int i = 0; i < (int)corners.size(); i++) {
+            ARdouble ix, iy;
+            ARdouble ox, oy;
+            double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
+            if (d < 4) {
+                ix = corners.at(i).x;
+                iy = corners.at(i).y;
+            }
+            else {
+                ix = cornersCopy.at(i).x;
+                iy = cornersCopy.at(i).y;
+            }
+            imagePoints.push_back(cv::Point2f(ix, iy));
+            arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
+            datumCoords2D[i * 2] = ox;
+            datumCoords2D[i * 2 + 1] = oy;
+        }
+        
+        ARLOGe("About to call arGetTransMatDatum.");
+
+        ARdouble err;
+        err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+        if (err > 10.0f) visible = false;
+
+        //cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
+        //cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
+        //cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
+        //for (int i = 0; i < 3; i++) {
+        //    for (int j = 0; j < 3; j++) {
+        //        cameraMatrix.at<double>(i, j) = (double)(arParams.mat[i][j]);
+        //    }
+        //}
+
+        //double s = (double)(arParams.dist_factor[16]);
+        //cameraMatrix.at<double>(0, 0) *= s;
+        //cameraMatrix.at<double>(0, 1) *= s;
+        //cameraMatrix.at<double>(1, 0) *= s;
+        //cameraMatrix.at<double>(1, 1) *= s;
+
+        //cv::Mat distortionCoeffs = cv::Mat(8, 1, CV_64FC1);
+        //for (int i = 0; i < 8; i++) {
+        //    distortionCoeffs.at<double>(i) = (double)(arParams.dist_factor[i]);
+        //}
+        //cv::solvePnP(objectPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+        //cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
+        //Rodrigues(rvec, rotationMatrix);
+
+        //for (int j = 0; j < 3; j++) {
+        //    for (int i = 0; i < 3; i++) {
+        //        trans[j][i] = (float)rotationMatrix.at<double>(j, i);
+        //    }
+        //    trans[j][3] = (float)tvec.at<double>(j);
+        //}
+
+        //std::vector<cv::Point2f> reprojectPoints;
+        //cv::projectPoints(objectPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
+        //err = cv::norm(reprojectPoints, imagePoints);
+        //if (err > errMax) visible = false;
+
+    }
+    else {
+        visible = false;
+    }
+
+    delete[] datumCoords2D;
+    delete[] datumCoords;
+
+    if (visible) return (ARTrackable::update()); // Parent class will finish update.
+    return false;
 }
 
