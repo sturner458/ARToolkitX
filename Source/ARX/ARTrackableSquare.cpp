@@ -406,12 +406,8 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
     ARdouble* datumCoords2D;
     ARdouble* datumCoords;
     
-    ARLOGe("ARTrackableSquare::updateWithDetectedDatums called.");
-
     cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
     
-    ARLOGe("Mat created.");
-
     std::vector<cv::Point2f> datumCentres;
     ARdouble errMax;
     if (largeBoard) {
@@ -446,8 +442,6 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
             datumCoords[i * 3 + 2] = 0;
         }
     }
-    
-    ARLOGe("GetCenterPointForDatum called.");
 
     imagePoints.clear();
     if (corners.size() == 4) {
@@ -470,11 +464,8 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
         for (int i = 0; i < corners.size(); i++) {
             cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
         }
-        ARLOGe("About to call cornerSubPix.");
 
         cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
-
-        ARLOGe("cornerSubPix called.");
 
         for (int i = 0; i < (int)corners.size(); i++) {
             ARdouble ix, iy;
@@ -493,8 +484,6 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
             datumCoords2D[i * 2] = ox;
             datumCoords2D[i * 2 + 1] = oy;
         }
-        
-        ARLOGe("About to call arGetTransMatDatum.");
 
         ARdouble err;
         err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);

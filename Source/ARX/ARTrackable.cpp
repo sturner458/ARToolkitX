@@ -320,8 +320,6 @@ int ARTrackable::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARd
 
 ARdouble ARTrackable::arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
 {
-    ARLOGe("ARTrackable::arGetTransMatDatum called.");
-
     ICP2DCoordT* screenCoord = new ICP2DCoordT[numDatums];
     ICP3DCoordT* worldCoord = new ICP3DCoordT[numDatums];
     ICPDataT       data;

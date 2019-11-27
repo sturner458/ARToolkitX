@@ -278,36 +278,14 @@ void arwCleanupARToolKit()
 // -------------------------------------------------------------------------------------------------
 
 
-bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes)
+bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, double p[16], bool lowRes)
 {
     if (!lowRes) {
         if (!gARTK) return false;
-        
-#ifdef ARDOUBLE_IS_FLOAT
         return gARTK->projectionMatrix(0, nearPlane, farPlane, p);
-#else
-        ARdouble p0[16];
-        
-        if (!gARTK->projectionMatrix(0, nearPlane, farPlane, p0)) {
-            return false;
-        }
-        for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
-        return true;
-#endif
     } else {
         if (!gARTKLowRes) return false;
-        
-#ifdef ARDOUBLE_IS_FLOAT
         return gARTKLowRes->projectionMatrix(0, nearPlane, farPlane, p);
-#else
-        ARdouble p0[16];
-        
-        if (!gARTKLowRes->projectionMatrix(0, nearPlane, farPlane, p0)) {
-            return false;
-        }
-        for (int i = 0; i < 16; i++) p[i] = (float)p0[i];
-        return true;
-#endif
     }
 }
 
@@ -781,7 +759,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes)
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners, bool lowRes)
 {
     ARController *gARTK2 = NULL;
     
@@ -794,15 +772,23 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix
     ARTrackable *trackable;
     
     if (!gARTK2) return false;
-	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
+    if (!(trackable = gARTK2->findTrackable(trackableUID))) {
         ARLOGe("arwQueryTrackableVisibilityAndTransformation(): Couldn't locate trackable with UID %d.\n", trackableUID);
         return false;
     }
-    for (int i = 0; i < 16; i++) matrix[i] = (float)trackable->transformationMatrix[i];
+    for (int i = 0; i < 16; i++) matrix[i] = (double)trackable->transformationMatrix[i];
+    if (trackable->visible && (trackable->type == ARTrackable::SINGLE || trackable->type == ARTrackable::MULTI || trackable->type == ARTrackable::MULTI_AUTO)) {
+        *numCorners = (int)trackable->imagePoints.size();
+        if (*numCorners > 16) *numCorners = 16;
+        for (int i = 0; i < *numCorners; i++) {
+            corners[i * 2] = trackable->imagePoints.at(i).x;
+            corners[i * 2 + 1] = trackable->imagePoints.at(i).y;
+        }
+    }
     return trackable->visible;
 }
 
-bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float *matrix) {
+bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double *matrix) {
     ARTrackableMultiSquareAuto *t = reinterpret_cast<ARTrackableMultiSquareAuto *>(gARTK->findTrackable(gMapUID));
     if (t) {
         ARMultiMarkerInfoT *map = t->copyMultiConfig();
@@ -811,7 +797,7 @@ bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float 
                 if (map->marker[n].patt_id == trackableUID) {
                     for (int i = 0; i < 3; i++) {
                         for (int j = 0; j < 4; j++) {
-                            matrix[i + j * 4] = (float)map->marker[n].trans[i][j];
+                            matrix[i + j * 4] = (double)map->marker[n].trans[i][j];
                             matrix[3 + j * 4] = 0;
                         }
                     }

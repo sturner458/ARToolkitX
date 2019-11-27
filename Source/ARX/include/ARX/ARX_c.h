@@ -174,7 +174,7 @@ extern "C" {
      * @param p         Float array to populate with OpenGL compatible projection matrix.
      * @return          true if successful, false if an error occurred
      */
-    ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, float p[16], bool lowRes);
+    ARX_EXTERN bool arwGetProjectionMatrix(const float nearPlane, const float farPlane, double p[16], bool lowRes);
     
     /**
      * Populates the given float arrays with the projection matrices computed from camera parameters for each of the stereo video sources.
@@ -526,7 +526,7 @@ extern "C" {
      * @param matrix    A float array to populate with an OpenGL-compatible transformation matrix.
      * @return            true if the specified trackable is visible, false if not, or an error occurred.
      */
-    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, float matrix[16], bool lowRes);
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes);
     
     ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float *matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);
