@@ -233,8 +233,18 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
 				//err = arGetTransMatSquareOpenCV(arParams, &(markerInfo[k]), m_width, trans);
 			}
             if (err < 10.0f) {
-                visible = true;
-                m_cf = markerInfo[k].cf;
+				cv::Vec3d v1 = cv::Vec3d(-trans[0][3], -trans[1][3], -trans[2][3]);
+				cv::Vec3d vz = cv::Vec3d(trans[0][2], trans[1][2], trans[2][2]);
+				double d = sqrt(trans[0][3] * trans[0][3] + trans[1][3] * trans[1][3] + trans[2][3] * trans[2][3]);
+				if (abs(d) > 0.00001) v1 = v1 * (1.0 / d);
+				double a = abs(acos(v1.dot(vz))) * 180.0 / 3.14159;
+				if (d < 2000 && (a < 50 || (d < 1500 && a < 75))) {
+					visible = true;
+					m_cf = markerInfo[k].cf;
+				}
+				else {
+					visible = false;
+				}
             }
         }
     }
