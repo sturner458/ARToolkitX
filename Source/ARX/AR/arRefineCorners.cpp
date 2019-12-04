@@ -82,7 +82,7 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
             }
 #endif
 			double d = sqrt((vertex[i][0] - corners[i].x) * (vertex[i][0] - corners[i].x) + (vertex[i][1] - corners[i].y) * (vertex[i][1] - corners[i].y));
-			if (d < 4) {
+			if (d < 3.0) {
 				vertex[i][0] = (ARdouble)corners[i].x;
 				vertex[i][1] = (ARdouble)corners[i].y;
 			}

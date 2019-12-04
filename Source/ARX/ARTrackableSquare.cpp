@@ -469,7 +469,7 @@ bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buff
 			ARdouble ix, iy;
 			ARdouble ox, oy;
 			double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
-			if (d < 4) {
+			if (d < 3.0) {
 				ix = corners.at(i).x;
 				iy = corners.at(i).y;
 			}

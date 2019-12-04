@@ -258,7 +258,7 @@ int main(int argc, char *argv[])
                             vertices[i][1] = target->vertex[(i + 2)%4][1];
                         }
                         if (arPattGetImage2(AR_IMAGE_PROC_FRAME_IMAGE, AR_TEMPLATE_MATCHING_COLOR, gPattSize, gPattSize*AR_PATT_SAMPLE_FACTOR1,
-                                            image->buff, vs->getVideoWidth(), vs->getVideoHeight(), vs->getPixelFormat(), &(vs->getCameraParameters()->paramLTf),
+                                            image->buff, vs->getVideoWidth(), vs->getVideoHeight(), vs->getPixelFormat(), &(vs->getCameraParameters()->param),
                                             vertices, arGetPattRatio(gARHandle), gPatternImage) == 0) {
                             gDrawPattern = true;
                         } else {

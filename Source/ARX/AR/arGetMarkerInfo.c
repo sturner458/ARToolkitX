@@ -49,22 +49,23 @@
 #include <ARX/AR/ar.h>
 
 int arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat, ARMarkerInfo2 *markerInfo2, int marker2_num,
-                     ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode, ARParamLTf *arParamLTf, ARdouble pattRatio,
+                     ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode, ARParam *arParam, ARdouble pattRatio,
                      ARMarkerInfo *markerInfo, int *marker_num,
                      const AR_MATRIX_CODE_TYPE matrixCodeType )
 {
     int            i, j, result;
 #ifndef ARDOUBLE_IS_FLOAT
-    float pos0, pos1;
+    ARdouble pos0, pos1;
 #endif
 
     for( i = j = 0; i < marker2_num; i++ ) {
         markerInfo[j].area   = markerInfo2[i].area;
 #ifdef ARDOUBLE_IS_FLOAT
-        if (arParamObserv2IdealLTf(arParamLTf, markerInfo2[i].pos[0], markerInfo2[i].pos[1],
-                                   &(markerInfo[j].pos[0]), &(markerInfo[j].pos[1]) ) < 0) continue;
+        //if (arParamObserv2IdealLTf(arParam. arParamLTf, markerInfo2[i].pos[0], markerInfo2[i].pos[1],
+        //                           &(markerInfo[j].pos[0]), &(markerInfo[j].pos[1]) ) < 0) continue;
 #else
-        if (arParamObserv2IdealLTf(arParamLTf, (float)markerInfo2[i].pos[0], (float)markerInfo2[i].pos[1], &pos0, &pos1) < 0) continue;
+		//if (arParamObserv2IdealLTf(arParamLTf, (float)markerInfo2[i].pos[0], (float)markerInfo2[i].pos[1], &pos0, &pos1) < 0) continue;
+		if (arParamObserv2Ideal(arParam->mat, markerInfo2[i].pos[0], markerInfo2[i].pos[1], &pos0, &pos1, arParam->dist_function_version) < 0) continue;
         markerInfo[j].pos[0] = (ARdouble)pos0;
         markerInfo[j].pos[1] = (ARdouble)pos1;
 #endif
@@ -72,10 +73,10 @@ int arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat, ARMa
         //                     &(markerInfo[j].pos[0]), &(markerInfo[j].pos[1]), dist_function_version );
 
         if( arGetLine(markerInfo2[i].x_coord, markerInfo2[i].y_coord, markerInfo2[i].coord_num,
-                      markerInfo2[i].vertex, arParamLTf,
+                      markerInfo2[i].vertex, arParam,
                       markerInfo[j].line, markerInfo[j].vertex) < 0 ) continue;
 
-        result = arPattGetIDGlobal( pattHandle, imageProcMode, pattDetectMode, image, xsize, ysize, pixelFormat, arParamLTf, markerInfo[j].vertex, pattRatio, 
+        result = arPattGetIDGlobal( pattHandle, imageProcMode, pattDetectMode, image, xsize, ysize, pixelFormat, arParam, markerInfo[j].vertex, pattRatio, 
                      &markerInfo[j].idPatt, &markerInfo[j].dirPatt, &markerInfo[j].cfPatt,
                      &markerInfo[j].idMatrix, &markerInfo[j].dirMatrix, &markerInfo[j].cfMatrix,
                       matrixCodeType, &markerInfo[j].errorCorrected, &markerInfo[j].globalID );

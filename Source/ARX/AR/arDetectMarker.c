@@ -92,7 +92,7 @@ cnt = 0;
             for (i = 0; i < 3; i++) {
                 if (arLabeling(frame->buffLuma, arHandle->xsize, arHandle->ysize, arHandle->arDebug, arHandle->arLabelingMode, thresholds[i], arHandle->arImageProcMode, &(arHandle->labelInfo), NULL) < 0) return -1;
                 if (arDetectMarker2(arHandle->xsize, arHandle->ysize, &(arHandle->labelInfo), arHandle->arImageProcMode, arHandle->areaMax, arHandle->areaMin, arHandle->squareFitThresh, arHandle->markerInfo2, &(arHandle->marker2_num)) < 0) return -1;
-                if (arGetMarkerInfo(frame->buff, arHandle->xsize, arHandle->ysize, arHandle->arPixelFormat, arHandle->markerInfo2, arHandle->marker2_num, arHandle->pattHandle, arHandle->arImageProcMode, arHandle->arPatternDetectionMode, &(arHandle->arParamLT->paramLTf), arHandle->pattRatio, arHandle->markerInfo, &(arHandle->marker_num), arHandle->matrixCodeType) < 0) return -1;
+                if (arGetMarkerInfo(frame->buff, arHandle->xsize, arHandle->ysize, arHandle->arPixelFormat, arHandle->markerInfo2, arHandle->marker2_num, arHandle->pattHandle, arHandle->arImageProcMode, arHandle->arPatternDetectionMode, &(arHandle->arParamLT->param), arHandle->pattRatio, arHandle->markerInfo, &(arHandle->marker_num), arHandle->matrixCodeType) < 0) return -1;
                 marker_nums[i] = 0;
                 for (j = 0; j < arHandle->marker_num; j++) if (arHandle->markerInfo[j].idPatt != -1 || arHandle->markerInfo[j].idMatrix != -1) marker_nums[i]++;
             }
@@ -178,29 +178,37 @@ cnt = 0;
         if( arGetMarkerInfo(frame->buff, arHandle->xsize, arHandle->ysize, arHandle->arPixelFormat,
                             arHandle->markerInfo2, arHandle->marker2_num,
                             arHandle->pattHandle, arHandle->arImageProcMode,
-                            arHandle->arPatternDetectionMode, &(arHandle->arParamLT->paramLTf), arHandle->pattRatio,
+                            arHandle->arPatternDetectionMode, &(arHandle->arParamLT->param), arHandle->pattRatio,
                             arHandle->markerInfo, &(arHandle->marker_num),
                             arHandle->matrixCodeType ) < 0 ) {
             return -1;
         }
     } // !detectionIsDone
     
-    if (arHandle->arCornerRefinementMode == AR_CORNER_REFINEMENT_ENABLE) {
-        // Refine marker co-ordinates.
-        ARfloat obVertex[4][2];
-        for (int i = 0; i < 4; i++) {
-            float arXIn = (float)arHandle->markerInfo->vertex[i][0];
-            float arYIn = (float)arHandle->markerInfo->vertex[i][1];
-            arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, arXIn, arYIn, &obVertex[i][0], &obVertex[i][1]);
-        }
-        arRefineCorners((float (*)[2])obVertex, frame->buffLuma, arHandle->xsize, arHandle->ysize);
-        for (int i = 0; i < 4; i++) {
-            float newX, newY;
-            arParamObserv2IdealLTf(&arHandle->arParamLT->paramLTf, obVertex[i][0], obVertex[i][1], &newX, &newY);
-            arHandle->markerInfo->vertex[i][0] = (ARdouble)newX;
-            arHandle->markerInfo->vertex[i][1] = (ARdouble)newY;
-        }
-        //free(obVertex);
+    if (arHandle->arCornerRefinementMode == AR_CORNER_REFINEMENT_ENABLE) { // Refine marker co-ordinates.
+		for (int j = 0; j < arHandle->marker_num; j++) {
+			ARfloat obVertex[4][2];
+			for (int i = 0; i < 4; i++) {
+				ARdouble arXIn = (float)arHandle->markerInfo[j].vertex[i][0];
+				ARdouble arYIn = (float)arHandle->markerInfo[j].vertex[i][1];
+				ARdouble arXout, arYout;
+				arParamIdeal2Observ(&arHandle->arParamLT->param.dist_factor, arXIn, arYIn, &arXout, &arYout, arHandle->arParamLT->param.dist_function_version);
+				obVertex[i][0] = (float)arXout;
+				obVertex[i][1] = (float)arYout;
+				//arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, arXIn, arYIn, &arXout, &arYout);
+			}
+			arRefineCorners((float (*)[2])obVertex, frame->buffLuma, arHandle->xsize, arHandle->ysize);
+			for (int i = 0; i < 4; i++) {
+				ARdouble arXIn = obVertex[i][0];
+				ARdouble arYIn = obVertex[i][1];
+				ARdouble newX, newY;
+				//arParamObserv2IdealLTf(&arHandle->arParamLT->paramLTf, obVertex[i][0], obVertex[i][1], &newX, &newY);
+				arParamObserv2Ideal(&arHandle->arParamLT->param.dist_factor, arXIn, arYIn, &newX, &newY, arHandle->arParamLT->param.dist_function_version);
+				arHandle->markerInfo[j].vertex[i][0] = newX;
+				arHandle->markerInfo[j].vertex[i][1] = newY;
+			}
+			//free(obVertex);
+		}
     }
     
     // If history mode is not enabled, just perform a basic confidence cutoff.

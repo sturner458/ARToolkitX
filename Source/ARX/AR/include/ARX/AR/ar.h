@@ -950,13 +950,13 @@ AR_EXTERN int            arDetectMarker2( int xsize, int ysize, ARLabelInfo *lab
  */
 AR_EXTERN int            arGetMarkerInfo( ARUint8 *image, int xsize, int ysize, int pixelFormat,
                                 ARMarkerInfo2 *markerInfo2, int marker2_num,
-                                ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode, ARParamLTf *arParamLTf, ARdouble pattRatio,
+                                ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode, ARParam *arParam, ARdouble pattRatio,
                                 ARMarkerInfo *markerInfo, int *marker_num,
                                 const AR_MATRIX_CODE_TYPE matrixCodeType );
 
 AR_EXTERN int            arGetContour( AR_LABELING_LABEL_TYPE *lImage, int xsize, int ysize, int *label_ref, int label,
                              int clip[4], ARMarkerInfo2 *marker_info2 );
-AR_EXTERN int            arGetLine( int x_coord[], int y_coord[], int coord_num, int vertex[], ARParamLTf *paramLTf,
+AR_EXTERN int            arGetLine( int x_coord[], int y_coord[], int coord_num, int vertex[], ARParam *param,
                           ARdouble line[4][3], ARdouble v[4][2] );
 
 
@@ -1204,7 +1204,7 @@ AR_EXTERN int            arPattGetID2( ARPattHandle *pattHandle, int imageProcMo
     @see    arParamLTCreate
  */
 AR_EXTERN int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode,
-              ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParamLTf *arParamLTf, ARdouble vertex[4][2], ARdouble pattRatio,
+              ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParam *arParam, ARdouble vertex[4][2], ARdouble pattRatio,
               int *codePatt, int *dirPatt, ARdouble *cfPatt, int *codeMatrix, int *dirMatrix, ARdouble *cfMatrix,
               const AR_MATRIX_CODE_TYPE matrixCodeType, int *errorCorrected, uint64_t *codeGlobalID_p );
 
@@ -1226,7 +1226,7 @@ AR_EXTERN int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, in
     @see    arParamLTCreate
  */
 AR_EXTERN int            arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int sample_size,
-                                ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParamLTf *arParamLTf,
+                                ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParam *arParam,
                                 ARdouble vertex[4][2], ARdouble pattRatio, ARUint8 *ext_patt );
 
 /*!

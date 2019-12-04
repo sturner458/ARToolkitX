@@ -63,7 +63,7 @@
 #  define FABS(x) fabs(x)
 #endif
 
-int arGetLine(int x_coord[], int y_coord[], int coord_num, int vertex[], ARParamLTf *paramLTf,
+int arGetLine(int x_coord[], int y_coord[], int coord_num, int vertex[], ARParam *param,
               ARdouble line[4][3], ARdouble v[4][2])
 {
     ARMat    *input, *evec;
@@ -83,11 +83,11 @@ int arGetLine(int x_coord[], int y_coord[], int coord_num, int vertex[], ARParam
         input  = arMatrixAlloc( n, 2 );
         for( j = 0; j < n; j++ ) {
 #ifdef ARDOUBLE_IS_FLOAT
-            if (arParamObserv2IdealLTf( paramLTf, (float)x_coord[st+j], (float)y_coord[st+j],
-                                       &(input->m[j*2+0]), &(input->m[j*2+1]) ) < 0) goto bail;
+            //if (arParamObserv2IdealLTf( paramLTf, (float)x_coord[st+j], (float)y_coord[st+j],
+            //                          &(input->m[j*2+0]), &(input->m[j*2+1]) ) < 0) goto bail;
 #else
-            float m0, m1;
-            if (arParamObserv2IdealLTf( paramLTf, (float)x_coord[st+j], (float)y_coord[st+j], &m0, &m1 ) < 0) goto bail;
+            ARdouble m0, m1;
+            if (arParamObserv2Ideal( param->dist_factor, (float)x_coord[st+j], (float)y_coord[st+j], &m0, &m1 , param->dist_function_version) < 0) goto bail;
             input->m[j*2+0] = (ARdouble)m0;
             input->m[j*2+1] = (ARdouble)m1;
 #endif

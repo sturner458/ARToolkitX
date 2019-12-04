@@ -72,7 +72,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 {
     ARdouble              *pos2d, *pos3d;
     ARdouble              trans1[3][4], trans2[3][4];
-    ARdouble              err, err2;
+    ARdouble              err, err2, maxErr;
     int                   max, maxArea;
     int                   vnum;
     int                   dir;
@@ -112,6 +112,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 
     //ARLOGd("-- Pass2--\n");
     vnum = 0;
+	maxErr = 1;
     for( i = 0; i < config->marker_num; i++ ) {
         if( (j=config->marker[i].visible) < 0 ) continue;
 
@@ -129,9 +130,10 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         
         // Use the largest (in terms of 2D coordinates) marker's pose estimate as the
         // input for the initial estimate for the pose estimator. 
-        if( vnum == 0 || maxArea < marker_info[j].area ) {
+        if( vnum == 0 || maxArea < marker_info[j].area || (marker_info[j].area > maxArea / 2 && marker_info[j].area / err > maxArea / maxErr)) {
             maxArea = marker_info[j].area;
-            max = i; 
+            max = i;
+			maxErr = err;
             for( j = 0; j < 3; j++ ) { 
                 for( k = 0; k < 4; k++ ) trans1[j][k] = trans2[j][k];
             }

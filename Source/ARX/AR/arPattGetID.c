@@ -171,18 +171,18 @@ int arPattGetID( ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode
 }
 
 int arPattGetID2( ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode,
-                 ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParamLTf *paramLTf, ARdouble vertex[4][2], ARdouble pattRatio,
+                 ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParam *param, ARdouble vertex[4][2], ARdouble pattRatio,
                  int *codePatt, int *dirPatt, ARdouble *cfPatt, int *codeMatrix, int *dirMatrix, ARdouble *cfMatrix,
                  const AR_MATRIX_CODE_TYPE matrixCodeType )
 {
-    return (arPattGetIDGlobal(pattHandle, imageProcMode, pattDetectMode, image, xsize, ysize, pixelFormat, paramLTf, vertex, pattRatio,
+    return (arPattGetIDGlobal(pattHandle, imageProcMode, pattDetectMode, image, xsize, ysize, pixelFormat, param, vertex, pattRatio,
                               codePatt, dirPatt, cfPatt, codeMatrix, dirMatrix, cfMatrix,
                               matrixCodeType, NULL, NULL));
 }
 #endif // !AR_DISABLE_NON_CORE_FNS
 
 int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDetectMode,
-                      ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParamLTf *paramLTf, ARdouble vertex[4][2], ARdouble pattRatio,
+                      ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParam *param, ARdouble vertex[4][2], ARdouble pattRatio,
                       int *codePatt, int *dirPatt, ARdouble *cfPatt, int *codeMatrix, int *dirMatrix, ARdouble *cfMatrix,
                       const AR_MATRIX_CODE_TYPE matrixCodeType, int *errorCorrected, uint64_t *codeGlobalID_p )
 {
@@ -196,7 +196,7 @@ int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDete
        || pattDetectMode == AR_TEMPLATE_MATCHING_MONO_AND_MATRIX ) {
         if (matrixCodeType == AR_MATRIX_CODE_GLOBAL_ID) {
             if (arPattGetImage2(imageProcMode, AR_MATRIX_CODE_DETECTION, AR_GLOBAL_ID_OUTER_SIZE, AR_GLOBAL_ID_OUTER_SIZE * AR_PATT_SAMPLE_FACTOR2,
-                                image, xsize, ysize, pixelFormat, paramLTf, vertex, (((ARdouble)AR_GLOBAL_ID_OUTER_SIZE)/((ARdouble)(AR_GLOBAL_ID_OUTER_SIZE + 2))), ext_patt) < 0) {
+                                image, xsize, ysize, pixelFormat, param, vertex, (((ARdouble)AR_GLOBAL_ID_OUTER_SIZE)/((ARdouble)(AR_GLOBAL_ID_OUTER_SIZE + 2))), ext_patt) < 0) {
                 errorCodeMtx = -6;
                 *codeMatrix = -1;
             } else {
@@ -215,7 +215,7 @@ int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDete
             }
         } else {
             if (arPattGetImage2(imageProcMode, AR_MATRIX_CODE_DETECTION, matrixCodeType & AR_MATRIX_CODE_TYPE_SIZE_MASK, (matrixCodeType & AR_MATRIX_CODE_TYPE_SIZE_MASK) * AR_PATT_SAMPLE_FACTOR2,
-                                image, xsize, ysize, pixelFormat, paramLTf, vertex, pattRatio, ext_patt) < 0) {
+                                image, xsize, ysize, pixelFormat, param, vertex, pattRatio, ext_patt) < 0) {
                 errorCodeMtx = -6;
                 *codeMatrix = -1;
             } else {
@@ -243,7 +243,7 @@ int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDete
         } else {
             if (pattDetectMode == AR_TEMPLATE_MATCHING_COLOR || pattDetectMode == AR_TEMPLATE_MATCHING_COLOR_AND_MATRIX) {
                 if (arPattGetImage2(imageProcMode, AR_TEMPLATE_MATCHING_COLOR, pattHandle->pattSize, pattHandle->pattSize*AR_PATT_SAMPLE_FACTOR1,
-                                    image, xsize, ysize, pixelFormat, paramLTf, vertex, pattRatio, ext_patt) < 0) {
+                                    image, xsize, ysize, pixelFormat, param, vertex, pattRatio, ext_patt) < 0) {
                     errorCodePatt = -6;
                     *codePatt = -1;
                 } else {
@@ -258,7 +258,7 @@ int arPattGetIDGlobal( ARPattHandle *pattHandle, int imageProcMode, int pattDete
                 }
             } else {
                 if (arPattGetImage2(imageProcMode, AR_TEMPLATE_MATCHING_MONO, pattHandle->pattSize, pattHandle->pattSize*AR_PATT_SAMPLE_FACTOR1,
-                                    image, xsize, ysize, pixelFormat, paramLTf, vertex, pattRatio, ext_patt) < 0) {
+                                    image, xsize, ysize, pixelFormat, param, vertex, pattRatio, ext_patt) < 0) {
                     errorCodePatt = -6;
                     *codePatt = -1;
                 } else {
@@ -839,7 +839,7 @@ bail:
 #endif // !AR_DISABLE_NON_CORE_FNS
 
 int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int sample_size,
-                     ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParamLTf *paramLTf,
+                     ARUint8 *image, int xsize, int ysize, AR_PIXEL_FORMAT pixelFormat, ARParam *param,
                      ARdouble vertex[4][2], ARdouble pattRatio, ARUint8 *ext_patt)
 {
     ARUint32 *ext_patt2;
@@ -847,7 +847,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
     ARdouble  local[4][2];
     ARdouble  para[3][3];
     ARdouble  d, xw, yw;
-    float     xc2, yc2;
+	ARdouble     xc2, yc2;
     ARdouble  pattRatio1, pattRatio2;
     int       xc, yc;
     int       xdiv, ydiv;
@@ -918,7 +918,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+                    arParamIdeal2Observ( param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version );
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -945,7 +945,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+                    arParamIdeal2Observ( param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version );
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -972,7 +972,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+                    arParamIdeal2Observ( param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version );
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -999,7 +999,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1026,7 +1026,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1054,7 +1054,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1081,7 +1081,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1108,7 +1108,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1142,7 +1142,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1176,7 +1176,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1203,7 +1203,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1230,7 +1230,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1271,7 +1271,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1299,7 +1299,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1327,7 +1327,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1355,7 +1355,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1380,7 +1380,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1405,7 +1405,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1430,7 +1430,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1458,7 +1458,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
@@ -1486,7 +1486,7 @@ int arPattGetImage2( int imageProcMode, int pattDetectMode, int patt_size, int s
                     if( d == 0 ) goto bail;
                     xc2 = (float)((para[0][0]*xw + para[0][1]*yw + para[0][2])/d);
                     yc2 = (float)((para[1][0]*xw + para[1][1]*yw + para[1][2])/d);
-                    arParamIdeal2ObservLTf( paramLTf, xc2, yc2, &xc2, &yc2 );
+					arParamIdeal2Observ(param->dist_factor, xc2, yc2, &xc2, &yc2, param->dist_function_version);
                     //arParamIdeal2Observ( dist_factor, xc2, yc2, &xc2, &yc2, dist_function_version );
                     if( imageProcMode == AR_IMAGE_PROC_FIELD_IMAGE ) {
                         xc = ((int)(xc2+1.0f)/2)*2;
