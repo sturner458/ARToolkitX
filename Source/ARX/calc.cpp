@@ -110,7 +110,8 @@ float calc(const int capturedImageNum,
     std::vector<cv::Mat> translationVectors;
     
     double rms = calibrateCamera(objectPoints, cornerSet, cv::Size(width, height), intrinsics,
-                                 distortionCoeff, rotationVectors, translationVectors, flags);
+                                 distortionCoeff, rotationVectors, translationVectors, flags,
+                                 cv::TermCriteria(cv::TermCriteria::EPS, 30, 0.0001));
 
 	//double rms = calibrateCamera(objectPoints, cornerSet, cv::Size(width, height), intrinsics,
 	//	distortionCoeff, rotationVectors, translationVectors, flags,
@@ -249,6 +250,7 @@ static void convParam(const float intr[3][4], const float dist[AR_DIST_FACTOR_NU
     }
 
     s = getSizeFactor(param->dist_factor, xsize, ysize, param->dist_function_version);
+    s = 1.0;
     param->mat[0][0] /= s;
     param->mat[0][1] /= s;
     param->mat[1][0] /= s;

@@ -495,8 +495,43 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
 				if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::MULTI && marker->m_MultiConfig->marker_num == 0) {
 					marker->initialiseWithMultiSquareTrackable((ARTrackableMultiSquare*)originTrackable);
+
+                    //Only add markers which belong to the ground floor board
+                    std::vector<arx_mapper::Marker> newmarkers;
+                    ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(originTrackable));
+                    for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                        arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                        for (int i = 0; i < target->config->marker_num; i++) {
+                            if (target->config->marker[i].patt_id == m.uid) {
+                                newmarkers.push_back(m);
+                                break;
+                            }
+                        }
+                    }
+                    markers.clear();
+                    for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                        arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                        markers.push_back(m);
+                    }
+
 				} else if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::SINGLE && marker->m_MultiConfig->marker_num == 0) {
 					marker->initialiseWithSquareTrackable((ARTrackableSquare*)originTrackable);
+
+                    //Only add markers which belong to the ground floor board
+                    std::vector<arx_mapper::Marker> newmarkers;
+                    ARTrackableSquare* target = ((ARTrackableSquare*)(originTrackable));
+                    for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                        arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                        if (target->patt_id == m.uid) {
+                            newmarkers.push_back(m);
+                            break;
+                        }
+                    }
+                    markers.clear();
+                    for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                        arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                        markers.push_back(m);
+                    }
 				}
 				success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				if (success && marker->visible && doDatums) {

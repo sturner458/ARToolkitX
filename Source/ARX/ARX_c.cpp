@@ -345,17 +345,21 @@ int arwFindChessboardCorners(float* vertices, int* corner_count, ARUint8* imageB
 	int cornerFoundAllFlag;
 	int i;
 
-
 	calibImage = cv::Mat(videoHeight, videoWidth, CV_8UC1, imageBytes);
 
 	corners.clear();
-	cornerFoundAllFlag = cv::findChessboardCorners(calibImage, gCalibrationPatternSize, corners, cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FILTER_QUADS);
+    //cornerFoundAllFlag = cv::findChessboardCorners(calibImage, gCalibrationPatternSize, corners, cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_FILTER_QUADS);
+    cornerFoundAllFlag = cv::findChessboardCorners(calibImage, gCalibrationPatternSize, corners, cv::CALIB_CB_FAST_CHECK | cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE);
 
 	*corner_count = (int)corners.size();
 
 	if (cornerFoundAllFlag) ARLOGe("Found %d corners\n", (int)corners.size());
 
 	if (*corner_count != gCalibrationPatternSize.width * gCalibrationPatternSize.height) cornerFoundAllFlag = 0;
+
+    if (cornerFoundAllFlag > 0) { // Refine the corner positions.
+        cornerSubPix(calibImage, corners, cv::Size(11, 11), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
+    }
 
 	for (i = 0; i < *corner_count; i++) {
 		vertices[i * 2] = corners[i].x;
@@ -367,14 +371,7 @@ int arwFindChessboardCorners(float* vertices, int* corner_count, ARUint8* imageB
 
 int arwCaptureChessboardCorners(int n)
 {
-	if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
-
-	ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
-
-	// Refine the corner positions.
-	cornerSubPix(calibImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
-
-	ARLOGe("Capturing %d corners\n", (int)corners.size());
+	if (n == -1 && ((int)foundCorners.size() >= maxCornersFound)) return 0;
 
 	// Save the corners.
 	if (n == -1 || n >= foundCorners.size()) {
@@ -399,7 +396,7 @@ float arwCalibChessboardCorners(char* file_name, float* results)
 	ARLOGe("Pattern Size=%d,%d\n", gCalibrationPatternSize.width, gCalibrationPatternSize.height);
 	ARLOGe("Pattern Spacing=%f\n", cornerSpacing);
 
-	projectionError = calc((int)foundCorners.size(), Calibration::CalibrationPatternType::CHESSBOARD, gCalibrationPatternSize, cornerSpacing, foundCorners, videoWidth, videoHeight, AR_DIST_FUNCTION_VERSION_DEFAULT, &param_out, results);
+    projectionError = calc((int)foundCorners.size(), Calibration::CalibrationPatternType::CHESSBOARD, gCalibrationPatternSize, cornerSpacing, foundCorners, videoWidth, videoHeight, AR_DIST_FUNCTION_VERSION_DEFAULT, &param_out, results);
 
 	ARLOGe("About to save calibration file...\n");
 

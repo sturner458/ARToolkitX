@@ -141,15 +141,17 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 			y1 = y1 / d;
 			z1 = z1 / d;
 		}
-		double a = abs(acos(x1 * x2 + y1 * y2 + z1 * z2)) * 180.0 / 3.14159;
-		if (!(d < 2000 && (a < 50 || (d < 1500 && a < 75)))) {
+		double a = fabs(acos(x1 * x2 + y1 * y2 + z1 * z2)) * 180.0 / 3.14159;
+        if (!(d < 2000 && (a < 45 || ((d < 1500 || err < 0.5) && a < 68)))) {
+        //if (!(d < 2000 && (a < 45 || (d < 1500 && a < 68)))) {
 			config->marker[i].visible = -1;
 			continue;
 		}
 
         // Use the largest (in terms of 2D coordinates) marker's pose estimate as the
         // input for the initial estimate for the pose estimator. 
-        if( vnum == 0 || maxArea < marker_info[j].area || (marker_info[j].area > maxArea / 2 && marker_info[j].area / err > maxArea / maxErr)) {
+		//if (vnum == 0 || maxArea < marker_info[j].area || (marker_info[j].area > maxArea / 2 && marker_info[j].area / err > maxArea / maxErr)) {
+		if (vnum == 0 || maxArea < marker_info[j].area) {
             maxArea = marker_info[j].area;
             max = i;
 			maxErr = err;
@@ -197,14 +199,11 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
     }
 
 	ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
-	if (vnum < 2) {
-		maxDeviation = 20.0;
+	if (vnum <= 2) {
+		maxDeviation = 10.0;
 	}
-	else if (vnum < 3) {
-		maxDeviation = 40.0;
-	}
-	else if (vnum < 4) {
-		maxDeviation = 60.0;
+	else if (vnum <= 4) {
+		maxDeviation = 15.0;
 	}
 	else {
 		maxDeviation = 120.0;
