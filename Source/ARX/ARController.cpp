@@ -109,6 +109,10 @@ int ARController::getError()
     return temp;
 }
 
+AR3DHandle* ARController::getAR3DHandle() {
+    return m_squareTracker->getAR3DHandle();
+}
+
 // ----------------------------------------------------------------------------------------------------
 #pragma mark  artoolkitX lifecycle functions
 // ----------------------------------------------------------------------------------------------------

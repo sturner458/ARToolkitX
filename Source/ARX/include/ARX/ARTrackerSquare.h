@@ -67,6 +67,7 @@ public:
     }
 
     bool initialize() override;
+    AR3DHandle* getAR3DHandle();
 
     /**
      * Enables or disables debug mode in the tracker. When enabled, a black and white debug

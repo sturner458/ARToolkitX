@@ -136,7 +136,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 		double y2 = trans2[1][2];
 		double z2 = trans2[2][2];
 		double d = sqrt(x1 * x1 + y1 * y1 + z1 * z1);
-		if (abs(d) > 0.00001) {
+		if (fabs(d) > 0.00001) {
 			x1 = x1 / d;
 			y1 = y1 / d;
 			z1 = z1 / d;
@@ -200,7 +200,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 
 	ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
 	if (vnum <= 2) {
-		maxDeviation = 10.0;
+		maxDeviation = 5.0;
 	}
 	else if (vnum <= 4) {
 		maxDeviation = 15.0;

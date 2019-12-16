@@ -80,6 +80,10 @@ bool ARTrackerSquare::initialize()
     return true;
 }
 
+AR3DHandle* ARTrackerSquare::getAR3DHandle() {
+    return m_ar3DHandle;
+}
+
 bool ARTrackerSquare::isRunning()
 {
     return ((bool)m_arHandle0 && (!(bool)m_ar3DStereoHandle || (bool)m_arHandle1));

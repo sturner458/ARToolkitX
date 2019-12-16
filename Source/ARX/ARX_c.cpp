@@ -688,7 +688,7 @@ int arwResetMapperTrackable(int gMapUID, const char* cfg) {
 	return gARTK->addTrackable(cfg);
 }
 
-void arwAddMappedMarkers(int gMapUID, int nMarkers, float* thisTrans, float* markerTrans, int* uids) {
+void arwAddMappedMarkers(int gMapUID, int nMarkers, double* markerTrans, int* uids, double* corners) {
 	std::vector<arx_mapper::Marker> markers;
 	for (int n = 0; n < nMarkers; n++) {
 		arx_mapper::Marker marker;
@@ -702,7 +702,8 @@ void arwAddMappedMarkers(int gMapUID, int nMarkers, float* thisTrans, float* mar
 	}
 	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
 	if (t) {
-		t->addStoredMarkers(thisTrans, markers);
+        bool success = t->updateWithDetectedMarkers2(markers, corners, gARTK->getAR3DHandle());
+        if (success && t->visible) success = t->updateMapperWithMarkers(markers);
 	}
 }
 
