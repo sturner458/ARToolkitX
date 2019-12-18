@@ -474,6 +474,11 @@ extern "C" {
     // ----------------------------------------------------------------------------------------------------
 #pragma mark  Trackable management
     // ----------------------------------------------------------------------------------------------------
+
+ARX_EXTERN void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
+
+ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
+
     /**
      * Adds a trackable as specified in the given configuration string. The format of the string can be
      * one of:
@@ -564,7 +569,7 @@ extern "C" {
      * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
      * @return            true if successful, false if an error occurred
      */
-    ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, float matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int *barcodeID);
+    ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], double *width, double *height, int *imageSizeX, int *imageSizeY, int *barcodeID);
     
     /**
      * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the

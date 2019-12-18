@@ -50,7 +50,7 @@
 ARTrackableMultiSquare::ARTrackableMultiSquare(int setUID) : ARTrackable(MULTI, setUID),
     m_loaded(false),
     config(NULL),
-    robustFlag(true)
+    robustFlag(false)
 {
 }
 

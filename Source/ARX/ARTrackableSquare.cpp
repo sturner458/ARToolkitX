@@ -232,6 +232,21 @@ bool ARTrackableSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int 
                 err = arGetTransMatSquare(ar3DHandle, &(markerInfo[k]), m_width, trans);
                 //err = arGetTransMatSquareOpenCV(arParams, &(markerInfo[k]), m_width, trans);
             }
+            
+            imagePoints.clear();
+            int dir;
+            if (markerInfo[k].idMatrix < 0)
+                dir = markerInfo[k].dirPatt;
+            else if (markerInfo[k].idPatt < 0)
+                dir = markerInfo[k].dirMatrix;
+            else
+                dir = markerInfo[k].dir;
+
+            imagePoints.push_back(cv::Point2f(markerInfo[k].vertex[(4 - dir) % 4][0], markerInfo[k].vertex[(4 - dir) % 4][1]));
+            imagePoints.push_back(cv::Point2f(markerInfo[k].vertex[(5 - dir) % 4][0], markerInfo[k].vertex[(5 - dir) % 4][1]));
+            imagePoints.push_back(cv::Point2f(markerInfo[k].vertex[(6 - dir) % 4][0], markerInfo[k].vertex[(6 - dir) % 4][1]));
+            imagePoints.push_back(cv::Point2f(markerInfo[k].vertex[(7 - dir) % 4][0], markerInfo[k].vertex[(7 - dir) % 4][1]));
+
             if (err < 10.0f) {
                 visible = true;
                 m_cf = markerInfo[k].cf;

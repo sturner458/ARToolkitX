@@ -127,6 +127,26 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         }
         //ARLOGd(" *%d\n",i);
         
+        //Now check the angle as well
+        double x1 = -trans2[0][3];
+        double y1 = -trans2[1][3];
+        double z1 = -trans2[2][3];
+        double x2 = trans2[0][2];
+        double y2 = trans2[1][2];
+        double z2 = trans2[2][2];
+        double d = sqrt(x1 * x1 + y1 * y1 + z1 * z1);
+        if (fabs(d) > 0.00001) {
+            x1 = x1 / d;
+            y1 = y1 / d;
+            z1 = z1 / d;
+        }
+        double a = fabs(acos(x1 * x2 + y1 * y2 + z1 * z2)) * 180.0 / 3.14159;
+        if (!(d < 2000 && (a < 45 || ((d < 1500 || err < 0.5) && a < 68)))) {
+        //if (!(d < 2000 && (a < 45 || (d < 1500 && a < 68)))) {
+            config->marker[i].visible = -1;
+            continue;
+        }
+        
         // Use the largest (in terms of 2D coordinates) marker's pose estimate as the
         // input for the initial estimate for the pose estimator. 
         if( vnum == 0 || maxArea < marker_info[j].area ) {
@@ -175,6 +195,16 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         j++;
     }
     
+    ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
+    if (vnum <= 2) {
+        maxDeviation = 5.0;
+    }
+    else if (vnum <= 4) {
+        maxDeviation = 15.0;
+    }
+    else {
+        maxDeviation = 120.0;
+    }
 
     if( config->prevF == 0 ) {
         if (robustFlag) {
@@ -217,7 +247,7 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         free(pos2d);
     }
     
-    if (err < AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT) config->prevF = 1;
+    if (err < maxDeviation) config->prevF = 1;
     else {
         config->prevF = 0;
         for (i = 0; i < config->marker_num; i++) { 

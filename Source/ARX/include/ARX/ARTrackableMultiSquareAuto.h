@@ -69,7 +69,7 @@ public:
     // Tracking parameters.
     ARMultiMarkerInfoT *m_MultiConfig;
     ARdouble m_ImageBorderZone = 0.2f; ///< The proportion of the image width/height to consider as an "border" zone in which markers are not to be detected. Set to 0.0f to allow markers to appear anywhere in the image.
-    bool m_robustFlag = true; ///< Flag specifying which pose estimation approach to use
+    bool m_robustFlag = false; ///< Flag specifying which pose estimation approach to use
     ARdouble m_maxErr = 4.0f; ///< The maximum allowable pose estimate error.
 
     bool lastUpdateSuccessful = false;
