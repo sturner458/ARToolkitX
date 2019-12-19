@@ -423,7 +423,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkersOpenCV(ARMarkerInfo* m
 }
 
 #if HAVE_GTSAM
-bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, ARdouble* corners, AR3DHandle* ar3DHandle)
+bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
 {
 	visiblePrev = visible;
 
@@ -441,7 +441,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapp
 		m_MultiConfig->min_submarker = 2;
 	}
 
-	err = GetTransMatMultiSquare(markers, corners, ar3DHandle);
+	err = GetTransMatMultiSquare(markers, ar3DHandle);
 
 	// Marker is visible if a match was found.
 	if (m_MultiConfig->prevF != 0) {
@@ -455,7 +455,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapp
 	return (ARTrackable::update()); // Parent class will finish update.
 }
 
-ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, ARdouble* corners, AR3DHandle* ar3DHandle)
+ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
 {
 	ARdouble* pos2d, * pos3d;
 	ARdouble              trans1[3][4], trans2[3][4];
@@ -475,19 +475,24 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
 			k = k + 1;
 			if (marker.uid == m_MultiConfig->marker[i].patt_id) {
 				m_MultiConfig->marker[i].visible = k;
+				for (j = 0; j < 3; j++) {
+					for (int k1 = 0; k1 < 4; k1++) trans2[j][k1] = marker.trans[j][k1];
+				}
 				break;
 			}
 		}
+		if (m_MultiConfig->marker[i].visible == -1) continue;
 
 		ARdouble x1, y1, x2, y2, x3, y3, x4, y4;
-		x1 = corners[k * 8];
-		y1 = corners[k * 8 + 1];
-		x2 = corners[k * 8 + 2];
-		y2 = corners[k * 8 + 3];
-		x3 = corners[k * 8 + 4];
-		y3 = corners[k * 8 + 5];
-		x4 = corners[k * 8 + 6];
-		y4 = corners[k * 8 + 7];
+		x1 = markers.at(k).corners[0];
+		y1 = markers.at(k).corners[1];
+		x2 = markers.at(k).corners[2];
+		y2 = markers.at(k).corners[3];
+		x3 = markers.at(k).corners[4];
+		y3 = markers.at(k).corners[5];
+		x4 = markers.at(k).corners[6];
+		y4 = markers.at(k).corners[7];
+
 		ARdouble length = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)) + sqrt((x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2)) + sqrt((x4 - x3) * (x4 - x3) + (y4 - y3) * (y4 - y3)) + sqrt((x1 - x4) * (x1 - x4) + (y1 - y4) * (y1 - y4));
 
 		// Use the largest (in terms of 2D coordinates) marker's pose estimate as the
@@ -515,14 +520,14 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
 	for (i = 0; i < m_MultiConfig->marker_num; i++) {
 		if ((k = m_MultiConfig->marker[i].visible) < 0) continue;
 
-		pos2d[j * 8 + 0] = corners[k * 8];
-		pos2d[j * 8 + 1] = corners[k * 8 + 1];
-		pos2d[j * 8 + 2] = corners[k * 8 + 2];
-		pos2d[j * 8 + 3] = corners[k * 8 + 3];
-		pos2d[j * 8 + 4] = corners[k * 8 + 4];
-		pos2d[j * 8 + 5] = corners[k * 8 + 5];
-		pos2d[j * 8 + 6] = corners[k * 8 + 6];
-		pos2d[j * 8 + 7] = corners[k * 8 + 7];
+		pos2d[j * 8 + 0] = markers.at(k).corners[0];
+		pos2d[j * 8 + 1] = markers.at(k).corners[1];
+		pos2d[j * 8 + 2] = markers.at(k).corners[2];
+		pos2d[j * 8 + 3] = markers.at(k).corners[3];
+		pos2d[j * 8 + 4] = markers.at(k).corners[4];
+		pos2d[j * 8 + 5] = markers.at(k).corners[5];
+		pos2d[j * 8 + 6] = markers.at(k).corners[6];
+		pos2d[j * 8 + 7] = markers.at(k).corners[7];
 		pos3d[j * 12 + 0] = m_MultiConfig->marker[i].pos3d[0][0];
 		pos3d[j * 12 + 1] = m_MultiConfig->marker[i].pos3d[0][1];
 		pos3d[j * 12 + 2] = m_MultiConfig->marker[i].pos3d[0][2];

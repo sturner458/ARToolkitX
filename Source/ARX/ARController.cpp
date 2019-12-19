@@ -110,6 +110,11 @@ int ARController::getError()
 }
 
 AR3DHandle* ARController::getAR3DHandle() {
+
+    if (!m_squareTracker->isRunning()) {
+        bool ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat());
+    }
+
     return m_squareTracker->getAR3DHandle();
 }
 

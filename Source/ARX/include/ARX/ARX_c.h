@@ -531,7 +531,8 @@ extern "C" {
 	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners);
 
 	ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double* matrix);
-	ARX_EXTERN void arwListTrackables(int gMapUID);
+    ARX_EXTERN void arwListTrackables(int gMapUID);
+    ARX_EXTERN void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners);
     
 	/**
 	 * Returns the visibility and stereo pose of the specified trackable.
@@ -566,7 +567,7 @@ extern "C" {
 	 * @param imageSizeY Int value to set to the height of the pattern image (in pixels).
 	 * @return			true if successful, false if an error occurred
 	 */
-	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], float *width, float *height, int *imageSizeX, int *imageSizeY, int* barcodeId);
+	ARX_EXTERN bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], double *width, double *height, int *imageSizeX, int *imageSizeY, int* barcodeId);
 	
 	/**
 	 * Gets a pattern image associated with a trackable. The provided color buffer is populated with the image of the

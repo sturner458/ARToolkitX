@@ -688,8 +688,8 @@ int arwResetMapperTrackable(int gMapUID, const char* cfg) {
 	return gARTK->addTrackable(cfg);
 }
 
-void arwAddMappedMarkers(int gMapUID, int nMarkers, double* markerTrans, int* uids, double* corners) {
-	std::vector<arx_mapper::Marker> markers;
+void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners) {
+    std::vector<arx_mapper::Marker> markers;
 	for (int n = 0; n < nMarkers; n++) {
 		arx_mapper::Marker marker;
 		marker.uid = uids[n];
@@ -698,12 +698,62 @@ void arwAddMappedMarkers(int gMapUID, int nMarkers, double* markerTrans, int* ui
 				marker.trans[i][j] = (ARdouble)(markerTrans[n * 12 + i * 4 + j]);
 			}
 		}
+        for (int i = 0; i < 8; i++) {
+            marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
+        }
 		markers.push_back(marker);
 	}
+
+    ARTrackableMultiSquare* GFMarker = reinterpret_cast<ARTrackableMultiSquare*>(gARTK->findTrackable(GFMarkerID));
+
 	ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
 	if (t) {
-        bool success = t->updateWithDetectedMarkers2(markers, corners, gARTK->getAR3DHandle());
-        if (success && t->visible) success = t->updateMapperWithMarkers(markers);
+
+        if (t->m_MultiConfig->marker_num == 0) {
+            GFMarker->visible = false;
+            for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                if (m.uid == t->m_OriginMarkerUid) {
+                    GFMarker->visible = true;
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            GFMarker->SetTrans(i, j, m.trans[i][j]);
+                        }
+                    }
+                    break;
+                }
+            }
+            if (!GFMarker->visible) return;
+
+            t->initialiseWithMultiSquareTrackable(GFMarker);
+
+            //Only add markers which belong to the ground floor board
+            std::vector<arx_mapper::Marker> newmarkers;
+            for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                for (int i = 0; i < GFMarker->config->marker_num; i++) {
+                    if (GFMarker->config->marker[i].patt_id == m.uid) {
+                        newmarkers.push_back(m);
+                        break;
+                    }
+                }
+            }
+            markers.clear();
+            for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                markers.push_back(m);
+            }
+        }
+
+        bool success = t->updateWithDetectedMarkers2(markers, gARTK->getAR3DHandle());
+        if (success && t->visible) {
+            success = t->updateMapperWithMarkers(markers);
+        }
+        else {
+            // Mapper not visible
+            t->visible = false;
+        }
+
 	}
 }
 
@@ -737,7 +787,7 @@ int arwGetTrackablePatternCount(int trackableUID)
     return trackable->patternCount;
 }
 
-bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], float *width, float *height, int *imageSizeX, int* imageSizeY, int* barcodeId)
+bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix[16], double *width, double *height, int *imageSizeX, int* imageSizeY, int* barcodeId)
 {
     ARTrackable *trackable;
     ARPattern *p;
@@ -756,8 +806,8 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix
     if (matrix) {
         for (int i = 0; i < 16; i++) matrix[i] = (double)p->m_matrix[i];
     }
-    if (width) *width = (float)p->m_width;
-    if (height) *height = (float)p->m_height;
+    if (width) *width = (double)p->m_width;
+    if (height) *height = (double)p->m_height;
     if (imageSizeX) *imageSizeX = p->m_imageSizeX;
     if (imageSizeY) *imageSizeY = p->m_imageSizeY;
 	if (barcodeId) *barcodeId = p->m_patternID;
