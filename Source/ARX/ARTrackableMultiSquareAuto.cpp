@@ -551,7 +551,8 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
 		maxDeviation = 15.0;
 	}
 	else {
-		maxDeviation = 120.0;
+		//maxDeviation = 120.0;
+		maxDeviation = 500.0; //I'm finding that a bad measurement on the image before this one can cause problems.
 	}
 
 	ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, m_MultiConfig->trans);
@@ -586,6 +587,7 @@ void ARTrackableMultiSquareAuto::initialiseWithSquareTrackable(ARTrackableSquare
 
 void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableMultiSquare *trackable) {
 	ARMultiMarkerInfoT* map = trackable->config;
+	m_pm->m_mapper.pose_cnt = 0;
 	for (int i = 0; i < map->marker_num; i++) {
 		ARdouble origin[3][4];
 		for (int j = 0; j < 3; j++) {

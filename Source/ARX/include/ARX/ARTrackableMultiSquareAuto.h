@@ -88,7 +88,7 @@ public:
 	bool updateWithDetectedMarkersOpenCV(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, ARHandle* arHandle);
 	bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
 	void ARTrackableMultiSquareAuto::initialiseWithSquareTrackable(ARTrackableSquare* trackable);
-	void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableMultiSquare* trackable);
+    void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableMultiSquare* trackable);
 	bool updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers);
 
 	bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle);

@@ -907,7 +907,6 @@ ARTrackable* ARController::getTrackableAtIndex(unsigned int index)
 
 ARTrackable* ARController::findTrackable(int UID)
 {
-
     std::vector<ARTrackable *>::const_iterator it = m_trackables.begin();
 	while (it != m_trackables.end()) {
 		if ((*it)->UID == UID) return (*it);
