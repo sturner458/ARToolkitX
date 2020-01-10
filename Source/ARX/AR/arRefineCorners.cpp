@@ -40,9 +40,10 @@
 
 #if !HAVE_OPENCV
 
-void arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width, int height)
+int arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width, int height)
 {
     // Do nothing.
+    return 0;
 }
 
 #else
@@ -53,7 +54,7 @@ void arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width,
 #include <opencv2/imgproc/imgproc_c.h>
 #include <vector>
 
-void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height)
+int arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height)
 {
     bool validCorners = true;
     cv::Rect rect = cv::Rect(1, 1, width - 1, height - 1);
@@ -85,11 +86,15 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
 			if (d < 3.0) {
 				vertex[i][0] = (ARdouble)corners[i].x;
 				vertex[i][1] = (ARdouble)corners[i].y;
-			}
+            }
+            else {
+                validCorners = false;
+            }
         }
         src.release();
     }
     corners.clear();
+    return validCorners ? 0 : -1;
 }
 
 #endif // HAVE_OPENCV

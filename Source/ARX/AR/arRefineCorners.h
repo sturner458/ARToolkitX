@@ -47,7 +47,7 @@ extern "C" {
 
 // Given corner locations 'vertex' in observed coordinates, refine location.
 // buff is a luma-only buffer of dimensions width x height.
-void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height);
+int arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height);
 
 #ifdef __cplusplus
 }
