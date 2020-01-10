@@ -203,7 +203,8 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         maxDeviation = 15.0;
     }
     else {
-        maxDeviation = 120.0;
+        // maxDeviation = 120.0;
+        maxDeviation = 500.0; // To account for previous measurements being bad
     }
 
     if( config->prevF == 0 ) {

@@ -140,6 +140,10 @@ ARdouble ARTrackable::GetTrans(int i, int j) {
     return trans[i][j];
 }
 
+void ARTrackable::SetTrans(int i, int j, ARdouble value) {
+    trans[i][j] = value;
+}
+
 bool ARTrackable::update(const ARdouble transL2R[3][4])
 {
     // Subclasses will have already determined visibility and set/cleared 'visible' and 'visiblePrev',

@@ -82,13 +82,6 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
     
     ARLOGd("ARTrackableMultiSquareAuto::updateWithDetectedMarkers(...)\n");
     
-    visiblePrev = visible;
-    visible = false;;
-    lastUpdateSuccessful = false;
-#if HAVE_GTSAM
-    lastMarkers.clear();
-#endif
-    
     // Need at least one detected marker.
     if (markerInfo && markerNum > 0) {
         
@@ -142,10 +135,6 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
                     //ARLOGi("Got multimarker pose with err=%0.3f\n", multiErr);
                     //arUtilPrintTransMat(m_MultiConfig->trans);
                     memcpy(trans, m_MultiConfig->trans, sizeof(trans));
-                    visible = true;
-                    memcpy(lastTrans, m_MultiConfig->trans, sizeof(lastTrans));
-                    lastUpdateSuccessful = true;
-                    numSuccessfulUpdates = numSuccessfulUpdates + 1;
 
 #if !HAVE_GTSAM
                     // Construct map by simple inter-marker pose estimation.
@@ -174,14 +163,12 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
                                     ARLOGi("Added marker %d to map (now %d markers in map) with pose:\n", markerInfoCopy[i].idMatrix, m_MultiConfig->marker_num);
                                     arUtilPrintTransMat(trans_m_M);
                                 }
-                                
-#if HAVE_GTSAM
+
                                 //Save for later
                                 arx_mapper::Marker marker;
                                 marker.uid = markerInfoCopy[i].idMatrix;
                                 memcpy(marker.trans, trans_m_M, sizeof(marker.trans));
                                 lastMarkers.push_back(marker);
-#endif
                             }
                         }
                     }
@@ -210,8 +197,7 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
                         int nIndex = -1;
 
                         std::vector<ARTrackable*>::iterator it;
-                        for (it = tr
-                             ackables.begin(); it != trackables.end(); ++it) {
+                        for (it = trackables.begin(); it != trackables.end(); ++it) {
                             if ((*it)->type == ARTrackable::MULTI) {
                                 for (int j = 0; j < ((ARTrackableMultiSquare*)(*it))->config->marker_num; j++) {
                                     int barcodeID = ((ARTrackableMultiSquare*)(*it))->config->marker[j].patt_id;
@@ -249,7 +235,6 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
 
                         if (isOK) {
                             newMarkers.push_back(squareMarkers.at(i));
-                            lastMarkers.push_back(squareMarkers.at(i));
                         }
                     }
 
@@ -297,9 +282,22 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
     if (markerInfo) {
 
         ARdouble err;
+        if (m_MultiConfig->marker_num < 2) {
+            m_MultiConfig->min_submarker = 1;
+        }
+        else if (m_MultiConfig->marker_num < 3) {
+            m_MultiConfig->min_submarker = 2;
+        }
+        else if (m_MultiConfig->marker_num < 4) {
+            m_MultiConfig->min_submarker = 2;
+        }
+        else {
+            m_MultiConfig->min_submarker = 2;
+        }
 
         if (m_robustFlag) {
             err = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, m_MultiConfig);
+            ARLOGe("arGetTransMatMultiSquareRobust %f", err);
         }
         else {
             err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, m_MultiConfig);
@@ -319,33 +317,208 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
     return (ARTrackable::update()); // Parent class will finish update.
 }
 
-/*bool ARTrackableMultiSquareAuto::updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers) {
-
+#if HAVE_GTSAM
+bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
+{
     visiblePrev = visible;
-    visible = true;
-    lastUpdateSuccessful = false;
-    lastMarkers.clear();
 
-    // If map is empty, see if we've found the first marker.
-    if (m_MultiConfig->marker_num == 0) {
-        for (int i = 0; i < (int)markers.size(); i++) {
-            if (markers.at(i).uid == m_OriginMarkerUid) {
-                ARdouble origin[3][4] = { {1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0} };
-                arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
-                for (int j = 0; j < 3; j++) {
-                    for (int k = 0; k < 4; k++) {
-                        m_MultiConfig->trans[j][k] = markers.at(i).trans[j][k];
-                    }
+    ARdouble err;
+    if (m_MultiConfig->marker_num < 2) {
+        m_MultiConfig->min_submarker = 1;
+    }
+    else if (m_MultiConfig->marker_num < 3) {
+        m_MultiConfig->min_submarker = 2;
+    }
+    else if (m_MultiConfig->marker_num < 4) {
+        m_MultiConfig->min_submarker = 2;
+    }
+    else {
+        m_MultiConfig->min_submarker = 2;
+    }
+
+    err = GetTransMatMultiSquare(markers, ar3DHandle);
+
+    // Marker is visible if a match was found.
+    if (m_MultiConfig->prevF != 0) {
+        visible = true;
+
+        for (int j = 0; j < 3; j++) for (int k = 0; k < 4; k++) trans[j][k] = m_MultiConfig->trans[j][k];
+    }
+    else visible = false;
+
+
+    return (ARTrackable::update()); // Parent class will finish update.
+}
+
+ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
+{
+    ARdouble* pos2d, * pos3d;
+    ARdouble              trans1[3][4], trans2[3][4];
+    ARdouble              maxLength;
+    int                   max;
+    int                   vnum;
+    int                   dir;
+    int                   i, j, k;
+    //char  mes[12];
+
+    //ARLOGd("-- Pass2--\n");
+    vnum = 0;
+    for (i = 0; i < m_MultiConfig->marker_num; i++) {
+        m_MultiConfig->marker[i].visible = -1;
+        k = -1;
+        for (const arx_mapper::Marker& marker : markers) {
+            k = k + 1;
+            if (marker.uid == m_MultiConfig->marker[i].patt_id) {
+                m_MultiConfig->marker[i].visible = k;
+                for (j = 0; j < 3; j++) {
+                    for (int k1 = 0; k1 < 4; k1++) trans2[j][k1] = marker.trans[j][k1];
                 }
+                break;
             }
+        }
+        if (m_MultiConfig->marker[i].visible == -1) continue;
+
+        ARdouble x1, y1, x2, y2, x3, y3, x4, y4;
+        x1 = markers.at(k).corners[0];
+        y1 = markers.at(k).corners[1];
+        x2 = markers.at(k).corners[2];
+        y2 = markers.at(k).corners[3];
+        x3 = markers.at(k).corners[4];
+        y3 = markers.at(k).corners[5];
+        x4 = markers.at(k).corners[6];
+        y4 = markers.at(k).corners[7];
+
+        ARdouble length = sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)) + sqrt((x3 - x2) * (x3 - x2) + (y3 - y2) * (y3 - y2)) + sqrt((x4 - x3) * (x4 - x3) + (y4 - y3) * (y4 - y3)) + sqrt((x1 - x4) * (x1 - x4) + (y1 - y4) * (y1 - y4));
+
+        // Use the largest (in terms of 2D coordinates) marker's pose estimate as the
+        // input for the initial estimate for the pose estimator.
+        //if (vnum == 0 || maxArea < marker_info[j].area || (marker_info[j].area > maxArea / 2 && marker_info[j].area / err > maxArea / maxErr)) {
+        if (vnum == 0 || maxLength < length) {
+            maxLength = length;
+            max = i;
+            for (j = 0; j < 3; j++) {
+                for (k = 0; k < 4; k++) trans1[j][k] = trans2[j][k];
+            }
+        }
+        vnum++;
+    }
+    if (vnum == 0 || vnum < m_MultiConfig->min_submarker) {
+        m_MultiConfig->prevF = 0;
+        return -1;
+    }
+    arUtilMatMul((const ARdouble(*)[4])trans1, (const ARdouble(*)[4])m_MultiConfig->marker[max].itrans, trans2);
+
+    arMalloc(pos2d, ARdouble, vnum * 4 * 2);
+    arMalloc(pos3d, ARdouble, vnum * 4 * 3);
+
+    j = 0;
+    for (i = 0; i < m_MultiConfig->marker_num; i++) {
+        if ((k = m_MultiConfig->marker[i].visible) < 0) continue;
+
+        pos2d[j * 8 + 0] = markers.at(k).corners[0];
+        pos2d[j * 8 + 1] = markers.at(k).corners[1];
+        pos2d[j * 8 + 2] = markers.at(k).corners[2];
+        pos2d[j * 8 + 3] = markers.at(k).corners[3];
+        pos2d[j * 8 + 4] = markers.at(k).corners[4];
+        pos2d[j * 8 + 5] = markers.at(k).corners[5];
+        pos2d[j * 8 + 6] = markers.at(k).corners[6];
+        pos2d[j * 8 + 7] = markers.at(k).corners[7];
+        pos3d[j * 12 + 0] = m_MultiConfig->marker[i].pos3d[0][0];
+        pos3d[j * 12 + 1] = m_MultiConfig->marker[i].pos3d[0][1];
+        pos3d[j * 12 + 2] = m_MultiConfig->marker[i].pos3d[0][2];
+        pos3d[j * 12 + 3] = m_MultiConfig->marker[i].pos3d[1][0];
+        pos3d[j * 12 + 4] = m_MultiConfig->marker[i].pos3d[1][1];
+        pos3d[j * 12 + 5] = m_MultiConfig->marker[i].pos3d[1][2];
+        pos3d[j * 12 + 6] = m_MultiConfig->marker[i].pos3d[2][0];
+        pos3d[j * 12 + 7] = m_MultiConfig->marker[i].pos3d[2][1];
+        pos3d[j * 12 + 8] = m_MultiConfig->marker[i].pos3d[2][2];
+        pos3d[j * 12 + 9] = m_MultiConfig->marker[i].pos3d[3][0];
+        pos3d[j * 12 + 10] = m_MultiConfig->marker[i].pos3d[3][1];
+        pos3d[j * 12 + 11] = m_MultiConfig->marker[i].pos3d[3][2];
+        j++;
+    }
+
+    ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
+    if (vnum <= 2) {
+        maxDeviation = 5.0;
+    }
+    else if (vnum <= 4) {
+        maxDeviation = 15.0;
+    }
+    else {
+        //maxDeviation = 120.0;
+        maxDeviation = 500.0; //I'm finding that a bad measurement on the image before this one can cause problems.
+    }
+
+    ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, m_MultiConfig->trans);
+    free(pos3d);
+    free(pos2d);
+
+    if (err < maxDeviation) {
+        m_MultiConfig->prevF = 1;
+    }
+    else {
+        m_MultiConfig->prevF = 0;
+    }
+
+    return err;
+}
+
+#endif
+
+void ARTrackableMultiSquareAuto::initialiseWithSquareTrackable(ARTrackableSquare* trackable) {
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 4; j++) {
+            m_MultiConfig->trans[i][j] = trackable->GetTrans(i, j);
+            trans[i][j] = trackable->GetTrans(i, j);
         }
     }
 
+    ARdouble origin[3][4] = { {1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0} };
+    arMultiAddOrUpdateSubmarker(m_MultiConfig, trackable->patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
+
+    visible = true;
+}
+
+void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableMultiSquare *trackable) {
+    ARMultiMarkerInfoT* map = trackable->config;
+    m_pm->m_mapper.pose_cnt = 0;
+    for (int i = 0; i < map->marker_num; i++) {
+        ARdouble origin[3][4];
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 4; k++) {
+                origin[j][k] = map->marker[i].trans[j][k];
+            }
+        }
+
+        arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
+
+        if (map->marker[i].patt_id == m_OriginMarkerUid) {
+            ARdouble trans2[3][4];
+            ARdouble trans3[3][4];
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 4; j++) {
+                    trans2[i][j] = trackable->GetTrans(i, j);
+                }
+            }
+            arUtilMatMul(trans2, map->marker[i].trans, trans3);
+
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 4; k++) {
+                    m_MultiConfig->trans[j][k] = trans3[j][k];
+                    trans[j][k] = trans3[j][k];
+                }
+            }
+
+        }
+    }
+    visible = true;
+}
+
+bool ARTrackableMultiSquareAuto::updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers) {
+
     // If map is not empty, calculate the pose of the multimarker in camera frame, i.e. trans_M_c.
     if (m_MultiConfig->marker_num > 0) {
-
-        lastUpdateSuccessful = true;
-        numSuccessfulUpdates = numSuccessfulUpdates + 1;
 
 #if !HAVE_GTSAM
         // Construct map by simple inter-marker pose estimation.
@@ -387,15 +560,8 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
         m_pm->m_mapper.AddPose(m_MultiConfig->trans);
 
         // Now add factors for our marker observations to the graph.
-        std::vector<arx_mapper::Marker> newMarkers;
-        for (int i = 0; i < (int)markers.size(); i++) {
-            newMarkers.push_back(markers.at(i));
-        }
+        m_pm->m_mapper.AddFactors(markers);
 
-        // Now add factors for our marker observations to the graph.
-        m_pm->m_mapper.AddFactors(newMarkers);
-
-        // Do mapping.
         if (!m_pm->m_mapper.inited()) {
             // Add a landmark for the origin marker.
             // We fix this in the map at the origin and thus fix the scale for first pose and first landmark.
@@ -418,108 +584,6 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
     } // markerInfo && markerNum > 0
     return (ARTrackable::update()); // Parent class will finish update.
 }
-
-void ARTrackableMultiSquareAuto::addStoredMarkers(float thisTrans[12], std::vector<arx_mapper::Marker> markers) {
-
-    visiblePrev = visible;
-    visible = true;
-    lastUpdateSuccessful = false;
-    lastMarkers.clear();
-
-    // If map is empty, see if we've found the first marker.
-    if (m_MultiConfig->marker_num == 0) {
-        for (int i = 0; i < (int)markers.size(); i++) {
-            if (markers.at(i).uid == m_OriginMarkerUid) {
-                ARdouble origin[3][4] = { {1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0} };
-                arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
-            }
-        }
-    }
-
-    // If map is not empty, calculate the pose of the multimarker in camera frame, i.e. trans_M_c.
-    if (m_MultiConfig->marker_num > 0) {
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 4; j++) {
-                trans[i][j] = (ARdouble)thisTrans[i * 4 + j];
-                m_MultiConfig->trans[i][j] = (ARdouble)thisTrans[i * 4 + j];
-            }
-        }
-
-        lastUpdateSuccessful = true;
-        numSuccessfulUpdates = numSuccessfulUpdates + 1;
-
-#if !HAVE_GTSAM
-        // Construct map by simple inter-marker pose estimation.
-        // This approach will result in accumulation of pose errors as estimates are chained from
-        // previously estimated markers. Also, absolute pose error increases with distance from the origin.
-
-        // Get the pose of the camera in the multimarker frame, i.e. trans_c_M.
-        ARdouble trans_c_M[3][4];
-        arUtilMatInv(m_MultiConfig->trans, trans_c_M);
-
-        // Now add or update all markers (except never update the origin marker).
-        // Get pose in camera frame of individual marker, i.e. trans_m_c, compose with trans_c_M
-        // to get pose in multimarker local coordinate system, i.e. trans_m_M.
-
-        for (int i = 0; i < markers.size(); i++) {
-            if (markers.at(i).uid != m_OriginMarkerUid) {
-                ARdouble trans_m_c[3][4];
-                for (int i1 = 0; i1 < 3; i1++) {
-                    for (int j = 0; j < 4; j++) {
-                        trans_m_c[i1][j] = (ARdouble)markers.at(i).trans[i1][j];
-                    }
-                }
-
-                ARdouble trans_m_M[3][4];
-                arUtilMatMul(trans_c_M, trans_m_c, trans_m_M);
-
-                int multi_marker_count_prev = m_MultiConfig->marker_num;
-                arMultiAddOrUpdateSubmarker(m_MultiConfig, markers.at(i).uid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, trans_m_M, 0);
-                if (m_MultiConfig->marker_num > multi_marker_count_prev) {
-                    ARLOGi("Added marker %d to map (now %d markers in map) with pose:\n", markers.at(i).uid, m_MultiConfig->marker_num);
-                }
-            }
-        }
-#else
-        // Construct map using GTSAM's iSAM2 (incremental smoothing and mapping v2).
-        // This results in pose error values which are minimised over the entire map.
-
-        // Add a pose estimate to the graph.
-        m_pm->m_mapper.AddPose(m_MultiConfig->trans);
-
-        // Now add factors for our marker observations to the graph.
-        std::vector<arx_mapper::Marker> newMarkers;
-        for (int i = 0; i < (int)markers.size(); i++) {
-            newMarkers.push_back(markers.at(i));
-        }
-
-        // Now add factors for our marker observations to the graph.
-        m_pm->m_mapper.AddFactors(newMarkers);
-
-        // Do mapping.
-        if (!m_pm->m_mapper.inited()) {
-            // Add a landmark for the origin marker.
-            // We fix this in the map at the origin and thus fix the scale for first pose and first landmark.
-            m_pm->m_mapper.Initialize(m_OriginMarkerUid, m_markerWidth);
-        }
-        else {
-            // This will add new landmarks for each marker not previously seen, with the
-            // initial pose estimate calculated from the marker pose in the camera frame
-            // composed with the camera pose in the map frame.
-            m_pm->m_mapper.AddLandmarks(markers);
-            m_pm->m_mapper.Optimize();
-            // Get latest estimates from mapper and put into map.
-            m_pm->m_mapper.Update(m_MultiConfig);
-            // Prepare for next iteration.
-            m_pm->m_mapper.Clear();
-        }
-
-#endif // HAVE_GTSAM
-
-    } // markerInfo && markerNum > 0
-    ARTrackable::update();
-}*/
 
 bool ARTrackableMultiSquareAuto::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, int videoWidthL, int videoHeightL, ARMarkerInfo* markerInfoR, int markerNumR, int videoWidthR, int videoHeightR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]) {
     
@@ -546,10 +610,6 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
     ARdouble* datumCoords2D;
     ARdouble* datumCoords;
     ARdouble trans2[3][4];
-
-    for (int i = 0; i < m_MultiConfig->marker_num; i++) {
-        if (m_MultiConfig->marker[i].visible < 0) continue;
-    }
 
     cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
 
@@ -585,31 +645,83 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
                 float cy = m_MultiConfig->marker[i].trans[1][0] * pt.x + m_MultiConfig->marker[i].trans[1][1] * pt.y + m_MultiConfig->marker[i].trans[1][3];
                 float cz = m_MultiConfig->marker[i].trans[2][0] * pt.x + m_MultiConfig->marker[i].trans[2][1] * pt.y + m_MultiConfig->marker[i].trans[2][3];
                 datumCoords3D.push_back(cv::Point3f(cx, cy, cz));
-                vnum++;
             }
         }
+
+        datumCentres.clear();
+        datumCentres.push_back(cv::Point2f(-40, 40));
+        datumCentres.push_back(cv::Point2f(-40, -40));
+        datumCentres.push_back(cv::Point2f(40, -40));
+        datumCentres.push_back(cv::Point2f(40, 40));
+        for (int j = 0; j < 4; j++) {
+            cv::Point2f pt = datumCentres.at(j);
+            ModelToImageSpace(arParams, trans2, pt.x, pt.y, &ox, &oy);
+            corners.push_back(cv::Point2f(ox, oy));
+            float cx = m_MultiConfig->marker[i].trans[0][0] * pt.x + m_MultiConfig->marker[i].trans[0][1] * pt.y + m_MultiConfig->marker[i].trans[0][3];
+            float cy = m_MultiConfig->marker[i].trans[1][0] * pt.x + m_MultiConfig->marker[i].trans[1][1] * pt.y + m_MultiConfig->marker[i].trans[1][3];
+            float cz = m_MultiConfig->marker[i].trans[2][0] * pt.x + m_MultiConfig->marker[i].trans[2][1] * pt.y + m_MultiConfig->marker[i].trans[2][3];
+            datumCoords3D.push_back(cv::Point3f(cx, cy, cz));
+        }
+
+        vnum++;
     }
 
-    if (vnum >= 4) {
+    imagePoints.clear();
+    if (vnum >= m_MultiConfig->min_submarker) {
+        int nCorners = corners.size();
+        arMalloc(datumCoords2D, ARdouble, nCorners * 2);
+        arMalloc(datumCoords, ARdouble, nCorners * 3);
 
-        arMalloc(datumCoords2D, ARdouble, vnum * 4 * 2);
-        arMalloc(datumCoords, ARdouble, vnum * 4 * 3);
-
+        std::vector<cv::Point2f> cornersCopy;
+        for (int i = 0; i < nCorners; i++) {
+            cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
+        }
         cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
-        for (int i = 0; i < vnum; i = i + 1) {
-            ARdouble newX, newY;
-            arParamObserv2Ideal(arParams.dist_factor, corners[i].x, corners[i].y, &newX, &newY, arParams.dist_function_version);
-            datumCoords2D[i * 2] = newX;
-            datumCoords2D[i * 2 + 1] = newY;
+        for (int i = 0; i < nCorners; i++) {
+            ARdouble ix, iy;
+            ARdouble ox, oy;
+            double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
+            if (d < 3.0) {
+                ix = corners.at(i).x;
+                iy = corners.at(i).y;
+            }
+            else {
+                ix = cornersCopy.at(i).x;
+                iy = cornersCopy.at(i).y;
+            }
+            imagePoints.push_back(cv::Point2f(ix, iy));
+            arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
+            datumCoords2D[i * 2] = ox;
+            datumCoords2D[i * 2 + 1] = oy;
             datumCoords[i * 3] = datumCoords3D[i].x;
             datumCoords[i * 3 + 1] = datumCoords3D[i].y;
             datumCoords[i * 3 + 2] = datumCoords3D[i].z;
         }
 
         ARdouble err;
-        err = arGetTransMatDatumSquare(ar3DHandle, datumCoords2D, datumCoords, vnum, trans);
-        if (err > 15.0f) visible = false;
+        ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
+        if (vnum < 2) {
+            maxDeviation = 20.0;
+        }
+        else if (vnum < 3) {
+            maxDeviation = 40.0;
+        }
+        else if (vnum < 4) {
+            maxDeviation = 60.0;
+        }
+        else {
+            maxDeviation = 120.0;
+        }
+        ARdouble init[3][4];
+        if (vnum == 1) { //Planar
+            err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, nCorners, m_MultiConfig->trans);
+        }
+        else {
+            err = arGetTransMat(ar3DHandle, trans, (ARdouble(*)[2])datumCoords2D, (ARdouble(*)[3]) datumCoords, nCorners, m_MultiConfig->trans);
+        }
+        if (err > maxDeviation) visible = false;
 
+        for (int j = 0; j < 3; j++) for (int k = 0; k < 4; k++) trans[j][k] = m_MultiConfig->trans[j][k];
         free(datumCoords2D);
         free(datumCoords);
     }
@@ -620,126 +732,3 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
     if (visible) return (ARTrackable::update()); // Parent class will finish update.
     return false;
 }
-
-bool ARTrackableMultiSquareAuto::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy) {
-    ModelToImageSpace(arParams, trans, x, y, ox, oy);
-    int halfSquare = GetSquareForDatum(x, y, arParams, trans);
-    if (halfSquare < 8) return false;
-    if (*ox - halfSquare < 0 || *ox + halfSquare > imageWidth || *oy - halfSquare < 0 || *oy + halfSquare > imageHeight) return false;
-
-    cv::Rect rect = cv::Rect((int)*ox - halfSquare, (int)*oy - halfSquare, 2 * halfSquare, 2 * halfSquare);
-    cv::Mat region = cv::Mat(grayImage, rect);
-    cv::Mat binaryRegion = region.clone();
-    double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
-    int nonzero = cv::countNonZero(binaryRegion);
-    int square = 4 * halfSquare * halfSquare;
-    return (nonzero > square * 0.2f && nonzero < square * 0.8f);
-}
-
-void ARTrackableMultiSquareAuto::ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy) {
-    ARdouble        cx, cy, cz, hx, hy, h, sx, sy;
-
-    *ox = ix;
-    *oy = iy;
-
-    cx = trans[0][0] * ix + trans[0][1] * iy + trans[0][3];
-    cy = trans[1][0] * ix + trans[1][1] * iy + trans[1][3];
-    cz = trans[2][0] * ix + trans[2][1] * iy + trans[2][3];
-    hx = param.mat[0][0] * cx + param.mat[0][1] * cy + param.mat[0][2] * cz + param.mat[0][3];
-    hy = param.mat[1][0] * cx + param.mat[1][1] * cy + param.mat[1][2] * cz + param.mat[1][3];
-    h = param.mat[2][0] * cx + param.mat[2][1] * cy + param.mat[2][2] * cz + param.mat[2][3];
-    if (h == 0.0) return;
-    sx = hx / h;
-    sy = hy / h;
-    arParamIdeal2Observ(param.dist_factor, sx, sy, ox, oy, param.dist_function_version);
-}
-
-int ARTrackableMultiSquareAuto::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]) {
-    ARdouble ox, oy, ox1, oy1, ox2, oy2, ox3, oy3, ox4, oy4;
-    ModelToImageSpace(arParams, trans, x, y, &ox, &oy);
-    ModelToImageSpace(arParams, trans, x - 8, y - 8, &ox1, &oy1);
-    ModelToImageSpace(arParams, trans, x + 8, y - 8, &ox2, &oy2);
-    ModelToImageSpace(arParams, trans, x + 8, y + 8, &ox3, &oy3);
-    ModelToImageSpace(arParams, trans, x - 8, y + 8, &ox4, &oy4);
-    ox1 = ox1 - ox;
-    oy1 = oy1 - oy;
-    ox2 = ox2 - ox;
-    oy2 = oy2 - oy;
-    ox3 = ox3 - ox;
-    oy3 = oy3 - oy;
-    ox4 = ox4 - ox;
-    oy4 = oy4 - oy;
-
-    ARdouble maxD = 100;
-
-    ARdouble nx = oy1 - oy2;
-    ARdouble ny = ox2 - ox1;
-    ARdouble d = sqrt(nx * nx + ny * ny);
-    if (d > 0) {
-        nx = nx / d;
-        ny = ny / d;
-    }
-    d = ox1 * nx + oy1 * ny;
-    if (d > 10 && d < maxD) maxD = d;
-
-    nx = oy2 - oy3;
-    ny = ox3 - ox2;
-    d = sqrt(nx * nx + ny * ny);
-    if (d > 10) {
-        nx = nx / d;
-        ny = ny / d;
-    }
-    d = ox2 * nx + oy2 * ny;
-    if (d > 10 && d < maxD) maxD = d;
-
-    nx = oy3 - oy4;
-    ny = ox4 - ox3;
-    d = sqrt(nx * nx + ny * ny);
-    if (d > 0) {
-        nx = nx / d;
-        ny = ny / d;
-    }
-    d = ox3 * nx + oy3 * ny;
-    if (d > 10 && d < maxD) maxD = d;
-
-    nx = oy4 - oy1;
-    ny = ox1 - ox4;
-    d = sqrt(nx * nx + ny * ny);
-    if (d > 0) {
-        nx = nx / d;
-        ny = ny / d;
-    }
-    d = ox4 * nx + oy4 * ny;
-    if (d > 10 && d < maxD) maxD = d;
-
-    return (int)(maxD / sqrt(2.0) + 0.499);
-}
-
-ARdouble ARTrackableMultiSquareAuto::arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
-{
-    ICP2DCoordT* screenCoord = new ICP2DCoordT[numDatums];
-    ICP3DCoordT* worldCoord = new ICP3DCoordT[numDatums];
-    ICPDataT       data;
-    ARdouble         initMatXw2Xc[3][4];
-    ARdouble         err;
-
-    for (int i = 0; i < numDatums; i++) {
-        screenCoord[i].x = datumCoords2D[i * 2];
-        screenCoord[i].y = datumCoords2D[i * 2 + 1];
-        worldCoord[i].x = datumCoords[i * 3];
-        worldCoord[i].y = datumCoords[i * 3 + 1];
-        worldCoord[i].z = datumCoords[i * 3 + 2];
-    }
-    data.screenCoord = screenCoord;
-    data.worldCoord = worldCoord;
-    data.num = numDatums;
-
-    if (icpGetInitXw2Xc_from_PlanarData(handle->icpHandle->matXc2U, data.screenCoord, data.worldCoord, data.num, initMatXw2Xc) < 0) return 100000000.0;
-    if (icpPoint(handle->icpHandle, &data, initMatXw2Xc, conv, &err) < 0) return 100000000.0;
-
-    delete[] screenCoord;
-    delete[] worldCoord;
-
-    return err;
-}
-

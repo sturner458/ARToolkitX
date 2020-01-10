@@ -169,6 +169,7 @@ public:
 	const char* getARToolKitVersion();
     
     int getError();
+    AR3DHandle* getAR3DHandle();
     
 	/** 
 	 * Start trackable management so trackables can be added and removed.

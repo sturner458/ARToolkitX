@@ -204,22 +204,47 @@ cnt = 0;
     } // !detectionIsDone
     
     if (arHandle->arCornerRefinementMode == AR_CORNER_REFINEMENT_ENABLE) {
-        //ARPRINT("Starting corner refinement.\n");
-        // Refine marker co-ordinates.
-        ARfloat obVertex[4][2];
-        for (int i = 0; i < 4; i++) {
-            float arXIn = (float)arHandle->markerInfo->vertex[i][0];
-            float arYIn = (float)arHandle->markerInfo->vertex[i][1];
-            arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, arXIn, arYIn, &obVertex[i][0], &obVertex[i][1]);
+        for (int j = 0; j < arHandle->marker_num; j++) {
+            //ARPRINT("Starting corner refinement.\n");
+            // Refine marker co-ordinates.
+            ARfloat obVertex[4][2];
+            for (int i = 0; i < 4; i++) {
+                ARdouble arXIn = (float)arHandle->markerInfo[j].vertex[i][0];
+                ARdouble arYIn = (float)arHandle->markerInfo[j].vertex[i][1];
+                ARdouble arXout, arYout;
+                arParamIdeal2Observ(&arHandle->arParamLT->param.dist_factor, arXIn, arYIn, &arXout, &arYout, arHandle->arParamLT->param.dist_function_version);
+                obVertex[i][0] = (float)arXout;
+                obVertex[i][1] = (float)arYout;
+                //arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, arXIn, arYIn, &arXout, &arYout);
+            }
+            int refine = arRefineCorners((float (*)[2])obVertex, frame->buffLuma, arHandle->xsize, arHandle->ysize);
+            if (refine == 0) {
+                for (int i = 0; i < 4; i++) {
+                    ARdouble arXIn = obVertex[i][0];
+                    ARdouble arYIn = obVertex[i][1];
+                    ARdouble newX, newY;
+                    //arParamObserv2IdealLTf(&arHandle->arParamLT->paramLTf, obVertex[i][0], obVertex[i][1], &newX, &newY);
+                    arParamObserv2Ideal(&arHandle->arParamLT->param.dist_factor, arXIn, arYIn, &newX, &newY, arHandle->arParamLT->param.dist_function_version);
+                    arHandle->markerInfo[j].vertex[i][0] = newX;
+                    arHandle->markerInfo[j].vertex[i][1] = newY;
+                }
+            } else {
+                for (int i = 0; i < 4; i++) {
+                    arHandle->markerInfo[j].vertex[i][0] = 0;
+                    arHandle->markerInfo[j].vertex[i][1] = 0;
+                }
+                arHandle->markerInfo[j].area = 0;
+                arHandle->markerInfo[j].pos[0] = 0;
+                arHandle->markerInfo[j].pos[1] = 0;
+                arHandle->markerInfo[j].cf = -1.0;
+                arHandle->markerInfo[j].cfMatrix = -1.0;
+                arHandle->markerInfo[j].cfPatt = -1.0;
+                arHandle->markerInfo[j].id = -1;
+                arHandle->markerInfo[j].id = -1;
+                arHandle->markerInfo[j].idMatrix = -1;
+            }
+            //free(obVertex);
         }
-        arRefineCorners((float (*)[2])obVertex, frame->buffLuma, arHandle->xsize, arHandle->ysize);
-        for (int i = 0; i < 4; i++) {
-            float newX, newY;
-            arParamObserv2IdealLTf(&arHandle->arParamLT->paramLTf, obVertex[i][0], obVertex[i][1], &newX, &newY);
-            arHandle->markerInfo->vertex[i][0] = (ARdouble)newX;
-            arHandle->markerInfo->vertex[i][1] = (ARdouble)newY;
-        }
-        //free(obVertex);
     }
     
     // If history mode is not enabled, just perform a basic confidence cutoff.

@@ -43,6 +43,7 @@ namespace arx_mapper {
     struct Marker {
         int uid;
         ARdouble trans[3][4]; // Marker pose in camera coordinates.
+        ARdouble corners[8];
     };
 
     class Mapper {

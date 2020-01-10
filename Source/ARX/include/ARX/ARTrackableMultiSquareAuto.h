@@ -38,6 +38,7 @@
 #define ARTRACKABLEMAP_H
 
 #include <ARX/ARTrackable.h>
+#include <ARX/ARTrackableSquare.h>
 #include <ARX/AR/arMulti.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #if HAVE_GTSAM
@@ -50,7 +51,6 @@
 class ARTrackableMultiSquareAuto : public ARTrackable {
 
 private:
-    int m_OriginMarkerUid; // The UID of the barcode marker which defines the origin of the world coordinate system.
     ARdouble m_markerWidth;
 
     // A holder for a struct which holds member variables which we don't want to appear to the header.
@@ -65,19 +65,13 @@ public:
     ~ARTrackableMultiSquareAuto();
     
     bool initWithOriginMarkerUID(int originMarkerUID, ARdouble markerWidth);
+    int m_OriginMarkerUid; // The UID of the barcode marker which defines the origin of the world coordinate system.
     
     // Tracking parameters.
     ARMultiMarkerInfoT *m_MultiConfig;
     ARdouble m_ImageBorderZone = 0.2f; ///< The proportion of the image width/height to consider as an "border" zone in which markers are not to be detected. Set to 0.0f to allow markers to appear anywhere in the image.
     bool m_robustFlag = false; ///< Flag specifying which pose estimation approach to use
     ARdouble m_maxErr = 4.0f; ///< The maximum allowable pose estimate error.
-
-    bool lastUpdateSuccessful = false;
-    ARdouble lastTrans[3][4];
-#if HAVE_GTSAM
-    std::vector<arx_mapper::Marker> lastMarkers;
-#endif
-    int numSuccessfulUpdates = 0;
 
     /**
      * Updates the marker with new tracking info.
@@ -86,19 +80,18 @@ public:
      * @param markerNum            Number of items in the array
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
-    bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
-    bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
-    //bool updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers);
-    //void addStoredMarkers(float thisTrans[12], std::vector<arx_mapper::Marker> markers);
+     bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
+     bool updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
+     ARdouble GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
+     bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
+     void initialiseWithSquareTrackable(ARTrackableSquare* trackable);
+     void initialiseWithMultiSquareTrackable(ARTrackableMultiSquare* trackable);
+     bool updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers);
 
-    bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle);
-    bool GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy);
-    void ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy);
-    int GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]);
-    ARdouble arGetTransMatDatumSquare(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4]);
+     bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle);
 
-    bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, int videoWidthL, int videoHeightL, ARMarkerInfo* markerInfoR, int markerNumR, int videoWidthR, int videoHeightR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
-    
+     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, int videoWidthL, int videoHeightL, ARMarkerInfo* markerInfoR, int markerNumR, int videoWidthR, int videoHeightR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
+     
     /**
      * Make a copy of the multi config.
      * Caller must call arMultiFreeConfig() on the returned value when done.

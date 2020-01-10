@@ -81,6 +81,10 @@ bool ARTrackerSquare::initialize()
     return true;
 }
 
+AR3DHandle* ARTrackerSquare::getAR3DHandle() {
+    return m_ar3DHandle;
+}
+
 bool ARTrackerSquare::isRunning()
 {
     return ((bool)m_arHandle0 && (!(bool)m_ar3DStereoHandle || (bool)m_arHandle1));
@@ -417,108 +421,153 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     // Update square markers.
     bool success = true;
     if (!buff1) {
-        //Find the mapper
-        int m_OriginUid = -1;
-        ARTrackable* originTrackable = 0;
-#if HAVE_GTSAM
-        for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
-            if ((*it)->type == ARTrackable::MULTI_AUTO) {
-                ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
-                m_OriginUid = marker->m_OriginMarkerUid;
-                break;
+        if (lowRes) {
+            for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+                if ((*it)->type == ARTrackable::SINGLE) {
+                    success &= ((ARTrackableSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
+                } else if ((*it)->type == ARTrackable::MULTI) {
+                    success &= ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                }
             }
-        }
+        } else {
+            //Find the mapper
+            int m_OriginUid = -1;
+            ARTrackable* originTrackable = 0;
+    #if HAVE_GTSAM
+            for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+                if ((*it)->type == ARTrackable::MULTI_AUTO) {
+                    ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
+                    m_OriginUid = marker->m_OriginMarkerUid;
+                    break;
+                }
+            }
 
-        // Do all the square and multi-markers before the multi_auto one
-        std::vector<arx_mapper::Marker> markers;
-#endif
-        
-        for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
-            if ((*it)->type == ARTrackable::SINGLE) {
-                ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
-                bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
-                success &= success2;
-                if (success2 && doDatums) {
-                    if (target->visible && target->UID < 102) {
-                        bool largeBoard = false;
-                        if (target->UID < 2) largeBoard = true;
-                        success2 = target->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard);
-                        success &= success2;
-                        if (!target->visible) {
+            // Do all the square and multi-markers before the multi_auto one
+            std::vector<arx_mapper::Marker> markers;
+    #endif
+            
+            for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+                if ((*it)->type == ARTrackable::SINGLE) {
+                    ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
+                    bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
+                    success &= success2;
+                    if (success2 && doDatums) {
+                        if (target->visible && target->UID < 102) {
+                            bool largeBoard = false;
+                            if (target->UID < 2) largeBoard = true;
+                            success2 = target->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard);
+                            success &= success2;
+                            if (!target->visible) {
+                                for (int j = 0; j < markerNum0; j++) {
+                                    if (markerInfo0[j].idMatrix == target->patt_id) {
+                                        markerInfo0[j].idMatrix = -1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+    #if HAVE_GTSAM
+                    if (success2 && target->visible) {
+                        arx_mapper::Marker marker;
+                        marker.uid = target->patt_id;
+                        if (marker.uid == m_OriginUid) originTrackable = target;
+                        for (int i = 0; i < 3; i++) {
+                            for (int j = 0; j < 4; j++) {
+                                marker.trans[i][j] = target->GetTrans(i, j);
+                            }
+                        }
+                        markers.push_back(marker);
+                    }
+    #endif
+                    
+                } else if ((*it)->type == ARTrackable::MULTI) {
+                    ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
+                    bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                    success &= success2;
+    #if HAVE_GTSAM
+                    ARMultiMarkerInfoT* map = target->config;
+                    if (success2 && target->visible) {
+                        for (int i = 0; i < map->marker_num; i++) {
+                            arx_mapper::Marker marker;
+                            marker.uid = map->marker[i].patt_id;
+                            if (marker.uid == m_OriginUid) originTrackable = target;
+                            ARdouble trans[3][4];
+                            for (int i = 0; i < 3; i++) {
+                                for (int j = 0; j < 4; j++) {
+                                    trans[i][j] = target->GetTrans(i, j);
+                                }
+                            }
+                            arUtilMatMul(trans, map->marker[i].trans, marker.trans);
+                            markers.push_back(marker);
+                        }
+                    }
+                    else {
+                        for (int i = 0; i < map->marker_num; i++) {
                             for (int j = 0; j < markerNum0; j++) {
-                                if (markerInfo0[j].idMatrix == target->patt_id) {
+                                if (markerInfo0[j].idMatrix == map->marker[i].patt_id) {
                                     markerInfo0[j].idMatrix = -1;
                                 }
                             }
                         }
                     }
+    #endif
                 }
-#if HAVE_GTSAM
-                if (success2 && target->visible) {
-                    arx_mapper::Marker marker;
-                    marker.uid = target->patt_id;
-                    if (marker.uid == m_OriginUid) originTrackable = target;
-                    for (int i = 0; i < 3; i++) {
-                        for (int j = 0; j < 4; j++) {
-                            marker.trans[i][j] = target->GetTrans(i, j);
-                        }
-                    }
-                    markers.push_back(marker);
-                }
-#endif
-                
-            } else if ((*it)->type == ARTrackable::MULTI) {
-                ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
-                bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-                success &= success2;
-#if HAVE_GTSAM
-                ARMultiMarkerInfoT* map = target->config;
-                if (success2 && target->visible) {
-                    for (int i = 0; i < map->marker_num; i++) {
-                        arx_mapper::Marker marker;
-                        marker.uid = map->marker[i].patt_id;
-                        if (marker.uid == m_OriginUid) originTrackable = target;
-                        ARdouble trans[3][4];
-                        for (int i = 0; i < 3; i++) {
-                            for (int j = 0; j < 4; j++) {
-                                trans[i][j] = target->GetTrans(i, j);
-                            }
-                        }
-                        arUtilMatMul(trans, map->marker[i].trans, marker.trans);
-                        markers.push_back(marker);
-                    }
-                }
-                else {
-                    for (int i = 0; i < map->marker_num; i++) {
-                        for (int j = 0; j < markerNum0; j++) {
-                            if (markerInfo0[j].idMatrix == map->marker[i].patt_id) {
-                                markerInfo0[j].idMatrix = -1;
-                            }
-                        }
-                    }
-                }
-#endif
             }
-        }
 
-        // Now do the multi_auto marker
-        for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
-            if ((*it)->type == ARTrackable::MULTI_AUTO) {
-#if HAVE_GTSAM
-                ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
-                if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::MULTI && marker->m_MultiConfig->marker_num == 0) {
-                    marker->initialiseWithMultiSquareTrackable((ARTrackableMultiSquare*)originTrackable);
-                } else if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::SINGLE && marker->m_MultiConfig->marker_num == 0) {
-                    marker->initialiseWithSquareTrackable((ARTrackableSquare*)originTrackable);
+            // Now do the multi_auto marker
+            for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+                if ((*it)->type == ARTrackable::MULTI_AUTO) {
+    #if HAVE_GTSAM
+                    ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
+                    if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::MULTI && marker->m_MultiConfig->marker_num == 0) {
+                        marker->initialiseWithMultiSquareTrackable((ARTrackableMultiSquare*)originTrackable);
+
+                        //Only add markers which belong to the ground floor board
+                        std::vector<arx_mapper::Marker> newmarkers;
+                        ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(originTrackable));
+                        for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                            arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                            for (int i = 0; i < target->config->marker_num; i++) {
+                                if (target->config->marker[i].patt_id == m.uid) {
+                                    newmarkers.push_back(m);
+                                    break;
+                                }
+                            }
+                        }
+                        markers.clear();
+                        for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                            arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                            markers.push_back(m);
+                        }
+
+                    } else if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::SINGLE && marker->m_MultiConfig->marker_num == 0) {
+                        marker->initialiseWithSquareTrackable((ARTrackableSquare*)originTrackable);
+
+                        //Only add markers which belong to the ground floor board
+                        std::vector<arx_mapper::Marker> newmarkers;
+                        ARTrackableSquare* target = ((ARTrackableSquare*)(originTrackable));
+                        for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                            arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                            if (target->patt_id == m.uid) {
+                                newmarkers.push_back(m);
+                                break;
+                            }
+                        }
+                        markers.clear();
+                        for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                            arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                            markers.push_back(m);
+                        }
+                    }
+                    success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                    if (success && marker->visible && doDatums) {
+                        success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
+                    }
+                    if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
+    #endif
                 }
-                success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-                if (success && marker->visible && doDatums) {
-                    success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
-                }
-                if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
-#endif
             }
-        }
+        } // lowRes
     } else {
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {

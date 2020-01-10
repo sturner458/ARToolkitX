@@ -40,11 +40,12 @@
 
 #if !HAVE_OPENCV
 
-void arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width, int height)
+int arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width, int height)
 {
     ARPRINT("ARPRINT - arRefineCorners: No OpenCV!\n");
     ARLOGi("ARLOGi - arRefineCorners: No OpenCV!\n");
     // Do nothing.
+    return 0;
 }
 
 #else
@@ -54,7 +55,7 @@ void arRefineCorners(ARfloat vertex[4][2], const unsigned char *buff, int width,
 #include <opencv2/imgproc.hpp>
 #include <vector>
 
-void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height)
+int arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, int height)
 {
     bool validCorners = true;
     cv::Rect rect = cv::Rect(1, 1, width - 1, height - 1);
@@ -70,7 +71,8 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
         cv::Mat src = cv::Mat(height, width, CV_8UC1, (void *)buff, width);
         cv::Size winSize = cv::Size(5, 5);
         cv::Size zeroZone = cv::Size(-1, -1);
-        cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 40, 0.001);
+        //cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::MAX_ITER, 100, 0);
+        cv::TermCriteria criteria = cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0);
         
         // Calculate the refined corner locations.
         cv::cornerSubPix(src, corners, winSize, zeroZone, criteria);
@@ -82,12 +84,18 @@ void arRefineCorners(float vertex[4][2], const unsigned char *buff, int width, i
                 ARPRINT("ARPRINT - arRefineCorners: No change\n");
             }
 #endif
-            vertex[i][0] = (ARdouble)corners[i].x;
-            vertex[i][1] = (ARdouble)corners[i].y;
+            double d = sqrt((vertex[i][0] - corners[i].x) * (vertex[i][0] - corners[i].x) + (vertex[i][1] - corners[i].y) * (vertex[i][1] - corners[i].y));
+            if (d < 3.0) {
+                vertex[i][0] = (ARdouble)corners[i].x;
+                vertex[i][1] = (ARdouble)corners[i].y;
+            } else {
+                validCorners = false;
+            }
         }
         src.release();
     }
     corners.clear();
+    return validCorners ? 0 : -1;
 }
 
 #endif // HAVE_OPENCV

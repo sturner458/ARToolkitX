@@ -723,17 +723,14 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
         std::string code = "multi;data/MarkerLarge" + number + ".dat";
         int markerId = arwAddTrackable(code.c_str(), false, (i == 1) ? 0 : -1);
         myMarkerIDs[i - 1] = markerId;
+        arwSetTrackableOptionInt(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 2, false);
+        arwSetTrackableOptionInt(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 2, true);
+        arwSetTrackableOptionFloat(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
+        arwSetTrackableOptionFloat(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
         arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
         arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-        
-        arwSetTrackableOptionInt(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 2, false);
-        arwSetTrackableOptionInt(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 2, true);
-        arwSetTrackableOptionFloat(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
-        arwSetTrackableOptionFloat(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
-        arwSetTrackableOptionBool(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-        arwSetTrackableOptionBool(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-        arwSetTrackableOptionFloat(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
-        arwSetTrackableOptionFloat(myMarkerIDs[i - 1], ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
+        arwSetTrackableOptionFloat(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
+        arwSetTrackableOptionFloat(markerId, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
     }
 
     *myGFMarkerID = arwAddTrackable("multi;data/GFMarker.dat", false, -1);
@@ -1020,6 +1017,135 @@ void arwListTrackables(int gMapUID) {
                 ARLOGd("Found trackable with UID %d\n", map->marker[n].patt_id);
             }
         }
+    }
+}
+
+int arwResetMapperTrackable(int gMapUID, const char* cfg) {
+    gARTK->removeTrackable(gMapUID);
+    return gARTK->addTrackable(cfg);
+}
+
+void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners) {
+    std::vector<arx_mapper::Marker> markers;
+    for (int n = 0; n < nMarkers; n++) {
+        arx_mapper::Marker marker;
+        marker.uid = uids[n];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                marker.trans[i][j] = (ARdouble)(markerTrans[n * 12 + i * 4 + j]);
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
+        }
+        markers.push_back(marker);
+    }
+
+    //Set markers visible or invisible based on the uids given
+    for (int i = 0; i < gARTK->countTrackables(); i++) {
+        ARTrackable* it = gARTK->getTrackableAtIndex(i);
+
+        it->visible = false;
+        for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+            arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+
+            if (it->type == ARTrackable::SINGLE) {
+                ARTrackableSquare* marker = reinterpret_cast<ARTrackableSquare*>(it);
+                if (marker->patt_id == m.uid) {
+                    it->visible = true;
+                }
+            } else if (it->type == ARTrackable::MULTI) {
+                ARTrackableMultiSquare* marker = reinterpret_cast<ARTrackableMultiSquare*>(it);
+                if (marker->config->marker[0].patt_id == m.uid) {
+                    it->visible = true;
+                }
+            }
+
+            if (it->visible) {
+                for (int j = 0; j < 3; j++) {
+                    for (int k = 0; k < 4; k++) {
+                        it->SetTrans(j, k, m.trans[j][k]);
+                    }
+                }
+                it->update();
+                it->imagePoints.clear();
+                for (int j = 0; j < 8; j = j + 2) {
+                    it->imagePoints.push_back(cv::Point2f(m.corners[j], m.corners[j + 1]));
+                }
+                break;
+            }
+        }
+    }
+
+}
+
+void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners) {
+
+    std::vector<arx_mapper::Marker> markers;
+    for (int n = 0; n < nMarkers; n++) {
+        arx_mapper::Marker marker;
+        marker.uid = uids[n];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
+                marker.trans[i][j] = (ARdouble)(markerTrans[n * 12 + i * 4 + j]);
+            }
+        }
+        for (int i = 0; i < 8; i++) {
+            marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
+        }
+        markers.push_back(marker);
+    }
+
+    ARTrackableMultiSquare* GFMarker = reinterpret_cast<ARTrackableMultiSquare*>(gARTK->findTrackable(GFMarkerID));
+
+    ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
+    if (t) {
+
+        if (t->m_MultiConfig->marker_num == 0) {
+            GFMarker->visible = false;
+            for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                if (m.uid == t->m_OriginMarkerUid) {
+                    GFMarker->visible = true;
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 4; j++) {
+                            GFMarker->SetTrans(i, j, m.trans[i][j]);
+                        }
+                    }
+                    break;
+                }
+            }
+            if (!GFMarker->visible) return;
+
+            t->initialiseWithMultiSquareTrackable(GFMarker);
+
+            //Only add markers which belong to the ground floor board
+            std::vector<arx_mapper::Marker> newmarkers;
+            for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                for (int i = 0; i < GFMarker->config->marker_num; i++) {
+                    if (GFMarker->config->marker[i].patt_id == m.uid) {
+                        newmarkers.push_back(m);
+                        break;
+                    }
+                }
+            }
+            markers.clear();
+            for (std::vector<arx_mapper::Marker>::iterator mt = newmarkers.begin(); mt != newmarkers.end(); ++mt) {
+                arx_mapper::Marker m = (arx_mapper::Marker)(*mt);
+                markers.push_back(m);
+            }
+        }
+
+        bool success = t->updateWithDetectedMarkers2(markers, gARTK->getAR3DHandle());
+        if (success && t->visible) {
+            success = t->updateMapperWithMarkers(markers);
+        }
+        else {
+            // Mapper not visible
+            t->visible = false;
+        }
+
     }
 }
 
