@@ -75,6 +75,7 @@ typedef struct {
     int      patt_type;    // Type of this pattern. Either AR_MULTI_PATTERN_TYPE_TEMPLATE or AR_MULTI_PATTERN_TYPE_MATRIX.
     ARdouble width;
     ARdouble trans[3][4];  // Pose of this marker, expressed in multimarker coordinate system.
+    ARdouble cameraTrans[3][4];  // Transform (i.e. pose) of this individual marker, expressed in camera coordinate system.
     ARdouble itrans[3][4]; // Inverse of trans, i.e. pose of the multimarker, expressed in this marker's coordinate system.
     ARdouble pos3d[4][3];  // Position of each corner (in order: upper-left, upper-right, lower-right, lower right), expressed in multimarker coordinate system.
     int      visible;      // Used internally in arGetTransMatMultiSquare2/arGetTransMatMultiSquareStereo2. Set to index into ARMarkerInfo array of the matched marker, or -1 if no match.

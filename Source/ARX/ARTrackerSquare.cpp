@@ -471,13 +471,14 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 						arx_mapper::Marker marker;
 						marker.uid = map->marker[i].patt_id;
 						if (marker.uid == m_OriginUid) originTrackable = target;
-						ARdouble trans[3][4];
-						for (int i = 0; i < 3; i++) {
-							for (int j = 0; j < 4; j++) {
-								trans[i][j] = target->GetTrans(i, j);
+						//ARdouble trans[3][4];
+						for (int j = 0; j < 3; j++) {
+							for (int k = 0; k < 4; k++) {
+                                marker.trans[j][k] = map->marker[i].cameraTrans[j][k];
+                                //trans[j][k] = target->GetTrans(j, k);
 							}
 						}
-						arUtilMatMul(trans, map->marker[i].trans, marker.trans);
+						//arUtilMatMul(trans, map->marker[i].trans, marker.trans);
 						markers.push_back(marker);
 					}
 				}

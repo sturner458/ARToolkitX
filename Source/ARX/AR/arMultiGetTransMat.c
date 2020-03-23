@@ -148,6 +148,11 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
 			continue;
 		}
 
+        // Make a copy of the pose of this particular marker
+        for (j = 0; j < 3; j++) {
+            for (k = 0; k < 4; k++) config->marker[i].cameraTrans[j][k] = trans2[j][k];
+        }
+
         // Use the largest (in terms of 2D coordinates) marker's pose estimate as the
         // input for the initial estimate for the pose estimator. 
 		//if (vnum == 0 || maxArea < marker_info[j].area || (marker_info[j].area > maxArea / 2 && marker_info[j].area / err > maxArea / maxErr)) {

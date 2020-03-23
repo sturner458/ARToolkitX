@@ -214,25 +214,6 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
 							}
 						}
 
-						/*if (isOK && isMulti) { //Make sure that all barcodes in this multi-marker are visible
-							bool allBarcodesVisible = true;
-							for (int j = 0; j < ((ARTrackableMultiSquare *)(*it))->config->marker_num; j++) {
-								int barcodeID = ((ARTrackableMultiSquare *)(*it))->config->marker[j].patt_id;
-								bool barcodeVisible = false;
-								for (int k = 0; k < markers.size(); k++) {
-									if (markers.at(k).uid == barcodeID) {
-										barcodeVisible = true;
-										break;
-									}
-								}
-								if (!barcodeVisible) {
-									allBarcodesVisible = false;
-									break;
-								}
-							}
-							if (!allBarcodesVisible) isOK = false;
-						}*/
-
 						if (isOK) {
 							newMarkers.push_back(squareMarkers.at(i));
 						}
@@ -494,21 +475,23 @@ void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableM
 		arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
 
 		if (map->marker[i].patt_id == m_OriginMarkerUid) {
-			ARdouble trans2[3][4];
-			ARdouble trans3[3][4];
-			for (int i = 0; i < 3; i++) {
-				for (int j = 0; j < 4; j++) {
-					trans2[i][j] = trackable->GetTrans(i, j);
+			/*ARdouble trans2[3][4];
+			ARdouble trans3[3][4];*/
+			for (int j = 0; j < 3; j++) {
+				for (int k = 0; k < 4; k++) {
+					m_MultiConfig->trans[j][k] = map->marker[i].cameraTrans[j][k];
+					trans[j][k] = map->marker[i].cameraTrans[j][k];
+					//trans2[j][k] = trackable->GetTrans(j, k);
 				}
 			}
-			arUtilMatMul(trans2, map->marker[i].trans, trans3);
+			/*arUtilMatMul(trans2, map->marker[i].trans, trans3);
 
 			for (int j = 0; j < 3; j++) {
 				for (int k = 0; k < 4; k++) {
 					m_MultiConfig->trans[j][k] = trans3[j][k];
 					trans[j][k] = trans3[j][k];
 				}
-			}
+			}*/
 
 		}
 	}
