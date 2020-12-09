@@ -255,7 +255,7 @@ extern "C" {
     // ----------------------------------------------------------------------------------------------------
     
     ARX_EXTERN void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes);
-    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false, bool doDatums = false);
+    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false, bool doDatums = false, bool doMapper = false);
     ARX_EXTERN void arwCleanupARToolKit();
     
     
@@ -533,7 +533,7 @@ ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int
      */
     ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes);
     
-    ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, float *matrix);
+    ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double *matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);
     ARX_EXTERN int arwResetMapperTrackable(int gMapUID, const char* cfg);
     ARX_EXTERN void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners);

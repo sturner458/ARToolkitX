@@ -381,12 +381,12 @@ bail:
     return false;
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
 {
-    return update(buff, NULL, trackables, lowRes, doDatums);
+    return update(buff, NULL, trackables, lowRes, doDatums, doMapper);
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
 {
     ARMarkerInfo *markerInfo0 = NULL;
     ARMarkerInfo *markerInfo1 = NULL;
@@ -516,7 +516,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 
             // Now do the multi_auto marker
             for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
-                if ((*it)->type == ARTrackable::MULTI_AUTO) {
+                if (doMapper && (*it)->type == ARTrackable::MULTI_AUTO) {
     #if HAVE_GTSAM
                     ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
                     if (m_OriginUid > -1 && originTrackable != 0 && originTrackable->type == ARTrackable::MULTI && marker->m_MultiConfig->marker_num == 0) {

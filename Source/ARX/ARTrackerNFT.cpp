@@ -210,7 +210,7 @@ bool ARTrackerNFT::isRunning()
     return (bool)(m_kpmHandle && m_ar2Handle);
 }
 
-bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums)
+bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
 {
     ARLOGd("ARX::ARTrackerNFT::update()\n");
 
@@ -287,9 +287,9 @@ bool ARTrackerNFT::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& tra
     return true;
 }
 
-bool ARTrackerNFT::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums)
+bool ARTrackerNFT::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
 {
-    return update(buff0, trackables, lowRes, doDatums);
+    return update(buff0, trackables, lowRes, doDatums, doMapper);
 }
 
 bool ARTrackerNFT::stop()
