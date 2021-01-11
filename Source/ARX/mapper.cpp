@@ -35,7 +35,7 @@ namespace arx_mapper {
     
     Mapper::Mapper(double relinearize_thresh, int relinearize_skip) :
         inited_(false),
-        params_(ISAM2GaussNewtonParams(), relinearize_thresh, relinearize_skip),
+        params_(ISAM2GaussNewtonParams(), relinearize_thresh, relinearize_skip, true, false, gtsam::ISAM2Params::QR),
         isam2_(params_),
         //marker_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.2), Vector3::Constant(0.1)).finished())), // 20cm std on x,y,z, 0.1 rad (5.73 deg) on roll,pitch,yaw.
         //small_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.1), Vector3::Constant(0.05)).finished())) {  // 10cm std on x,y,z 0.05 rad (2.86 deg) on roll,pitch,yaw.
