@@ -1,0 +1,291 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\ar3DCreateHandle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\ar3DUtil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arCreateHandle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arDetectMarker.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arDetectMarker2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arFilterTransMat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arGetLine.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arGetMarkerInfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arGetTransMat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arGetTransMatStereo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arImageProc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabeling.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDBIC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDBRC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDBZ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDWIC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDWRC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubDWZ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEBIC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEBRC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEBZ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEWIC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEWRC.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSubEWZ.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arMultiEditConfig.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arMultiFreeConfig.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arMultiGetTransMat.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arMultiGetTransMatStereo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arMultiReadConfigFile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arPattAttach.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arPattCreateHandle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arPattGetID.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arPattLoad.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arPattSave.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arRefineCorners.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arUtil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpCalibStereo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpCore.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpHandle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpPoint.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpPointRobust.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpStereoHandle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpStereoPoint.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpStereoPointRobust.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\icpUtil.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAlloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAllocDup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAllocInv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAllocMul.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAllocTrans.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mAllocUnit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mDet.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mDisp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mDup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mFree.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mInv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mMul.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mPCA.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mSelfInv.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mTrans.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\mUnit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramChangeSize.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramClear.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramDecomp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramDisp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramDistortion.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramFile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramGetPerspective.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramGL.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\paramLT.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vAlloc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vDisp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vFree.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vHouse.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vInnerP.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\vTridiag.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\ar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\arConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\arFilterTransMat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\arImageProc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\arMulti.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\icp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\icpCalib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\icpCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\matrix.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\param.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\paramGL.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\config.h.in">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingPrivate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arLabelingSub\arLabelingSub.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\arRefineCorners.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\ARX\AR\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8CC99DD6-CA90-3735-8048-3264C2738BFE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{54BFDDAD-6E81-3654-BB53-145A063123BD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

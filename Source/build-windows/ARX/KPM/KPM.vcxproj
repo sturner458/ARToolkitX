@@ -1,0 +1,239 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{EC5E30EA-E308-3AE1-B3C7-966674755B61}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>KPM</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">KPM.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">KPM</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">KPM.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">KPM</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4068;4244;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4068;4244;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\..\AR\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/KPM/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/KPM/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/KPM/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/KPM/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\include\ARX\KPM\kpm.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\include\ARX\KPM\kpmType.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmFopen.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmPrivate.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\DoG_scale_invariant_detector.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\gaussian_scale_space_pyramid.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\gradients.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\harris-inline.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\harris.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\interpolate.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\orientation_assignment.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\pyramid-inline.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\pyramid.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\facade\visual_database_facade.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\date_time.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\error.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\exception.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\image.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\image_utils.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\logger.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\timers.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\homography_estimation\homography_solver.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\homography_estimation\robust_homography.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\binary_hierarchical_clustering.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\feature_matcher-inline.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\feature_matcher.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\feature_point.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\feature_store.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\freak.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\freak84-inline.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\hough_similarity_voting.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\keyframe.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\kmedoids.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\matcher_types.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\visual_database-inline.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\visual_database.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\visual_database_types.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\cholesky.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\cholesky_linear_solvers.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\geometry.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\hamming.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\homography.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\indexing.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\linear_algebra.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\linear_solvers.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\math_utils.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\matrix.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\polynomial.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\quaternion.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\rand.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\math\robustifiers.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\utils\feature_drawing.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\utils\partial_sort.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\utils\point.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmHandle.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmRefDataSet.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmMatching.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmResult.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmUtil.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\kpmFopen.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\DoG_scale_invariant_detector.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\gaussian_scale_space_pyramid.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\gradients.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\harris.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\orientation_assignment.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\detectors\pyramid.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\facade\visual_database_facade.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\hough_similarity_voting.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\matchers\freak.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\date_time.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\image.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\logger.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\KPM\FreakMatcher\framework\timers.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ZERO_CHECK.vcxproj">
+      <Project>{DCDFBAB4-67B3-33F1-B57C-F66914B332ED}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

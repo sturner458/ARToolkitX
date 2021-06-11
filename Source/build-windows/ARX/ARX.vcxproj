@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{7A2C5C39-584C-3A53-BC96-0C310D69E6BD}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>ARX</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ARX.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ARX</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ARX.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ARX</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.dll</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;C:\GitRepository\gtsam;C:\GitRepository\gtsam\build-windows;C:\GitRepository\gtsam\gtsam\3rdparty\Eigen;C:\GitRepository\boost_1_71_0;C:\GitRepository\opencv-4.1.2\modules\calib3d\include;C:\GitRepository\opencv-4.1.2\modules\core\include;C:\GitRepository\opencv-4.1.2\modules\features2d\include;C:\GitRepository\opencv-4.1.2\modules\flann\include;C:\GitRepository\opencv-4.1.2\modules\highgui\include;C:\GitRepository\opencv-4.1.2\modules\imgcodecs\include;C:\GitRepository\opencv-4.1.2\modules\imgproc\include;C:\GitRepository\opencv-4.1.2\modules\video\include;C:\GitRepository\opencv-4.1.2\modules\videoio\include;C:\GitRepository\opencv-4.1.2\build-windows;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\opencv-4.1.2\modules\objdetect\include;C:\GitRepository\opencv_contrib\modules\shape\include;C:\GitRepository\opencv_contrib\modules\superres\include;C:\GitRepository\opencv_contrib\modules\videostab\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4068;4244;4996;4099</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Debug";ARX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Debug\";ARX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message>Auto build dll exports</Message>
+      <Command>setlocal
+cd C:\GitRepository\ARToolKitX\Source\build-windows\ARX
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E __create_def C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/$(Configuration)/exports.def C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/Debug//objects.txt
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>AR\Debug\AR.lib;ARVideo\Debug\ARVideo.lib;ARUtil\Debug\ARUtil.lib;ARG\Debug\ARG.lib;opengl32.lib;glu32.lib;OpenGL32.lib;AR2\Debug\AR2.lib;KPM\Debug\KPM.lib;OCVT\Debug\OCVT.lib;..\..\depends\windows\lib\x64\pthreadVC2static.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/AR/Debug/AR.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARUtil/Debug/ARUtil.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARVideo/Debug/ARVideo.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARG/Debug/ARG.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/AR2/Debug/AR2.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/KPM/Debug/KPM.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/OCVT/Debug/OCVT.lib;..\..\depends\windows\lib\x64\zlibstatic.lib;opencv_calib3d412d.lib;opencv_features2d412d.lib;opencv_flann412d.lib;opencv_highgui412d.lib;opencv_videoio412d.lib;opencv_imgcodecs412d.lib;opencv_video412d.lib;opencv_imgproc412d.lib;opencv_core412d.lib;..\..\depends\windows\lib\x64\libjpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;gtsamDebug.lib;metisDebug.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\GitRepository\boost_1_71_0\build\lib;C:\GitRepository\gtsam\build-windows\lib\Debug;C:\GitRepository\opencv-4.1.2\build-windows\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/Debug/ARX.lib</ImportLibrary>
+      <ModuleDefinitionFile>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/$(Configuration)/exports.def</ModuleDefinitionFile>
+      <ProgramDataBaseFile>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/Debug/ARX.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4068;4244;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Release";ARX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Release\";ARX_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include;C:\GitRepository\ARToolKitX\Source\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\ARX\ARG\include;C:\GitRepository\ARToolKitX\Source\ARX\AR2\include;C:\GitRepository\ARToolKitX\Source\ARX\KPM\include;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <PreLinkEvent>
+      <Message>Auto build dll exports</Message>
+      <Command>setlocal
+cd C:\GitRepository\ARToolKitX\Source\build-windows\ARX
+if %errorlevel% neq 0 goto :cmEnd
+C:
+if %errorlevel% neq 0 goto :cmEnd
+"C:\Program Files\CMake\bin\cmake.exe" -E __create_def C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/$(Configuration)/exports.def C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/Release//objects.txt
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+    </PreLinkEvent>
+    <Link>
+      <AdditionalDependencies>AR\Release\AR.lib;ARVideo\Release\ARVideo.lib;ARUtil\Release\ARUtil.lib;ARG\Release\ARG.lib;opengl32.lib;glu32.lib;OpenGL32.lib;AR2\Release\AR2.lib;KPM\Release\KPM.lib;OCVT\Release\OCVT.lib;..\..\depends\windows\lib\x64\pthreadVC2static.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/AR/Release/AR.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARUtil/Release/ARUtil.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARVideo/Release/ARVideo.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARG/Release/ARG.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/AR2/Release/AR2.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/KPM/Release/KPM.lib;-WHOLEARCHIVE:C:/GitRepository/ARToolKitX/Source/build-windows/ARX/OCVT/Release/OCVT.lib;..\..\depends\windows\lib\x64\zlibstatic.lib;..\..\depends\windows\lib\x64\opencv_calib3d.lib;..\..\depends\windows\lib\x64\opencv_features2d.lib;..\..\depends\windows\lib\x64\opencv_flann.lib;..\..\depends\windows\lib\x64\opencv_highgui.lib;..\..\depends\windows\lib\x64\opencv_videoio.lib;..\..\depends\windows\lib\x64\opencv_imgcodecs.lib;..\..\depends\windows\lib\x64\opencv_video.lib;..\..\depends\windows\lib\x64\opencv_imgproc.lib;..\..\depends\windows\lib\x64\opencv_core.lib;..\..\depends\windows\lib\x64\libjpeg.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/Release/ARX.lib</ImportLibrary>
+      <ModuleDefinitionFile>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARX.dir/$(Configuration)/exports.def</ModuleDefinitionFile>
+      <ProgramDataBaseFile>C:/GitRepository/ARToolKitX/Source/build-windows/ARX/Release/ARX.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\ARX\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\config.h.in;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGL3.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGLES2.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageMessage.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\config.h.in;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGL3.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGLES2.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageMessage.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\ARX\include\ARX\calc.hpp" />
+    <ClInclude Include="..\..\ARX\include\ARX\Calibration.hpp" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARX_c.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARController.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackable.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARPattern.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackableMultiSquareAuto.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackableMultiSquare.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackableNFT.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackable2d.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackableSquare.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTracker.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackerVideo.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackerNFT.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTracker2d.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARTrackerSquare.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\Error.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\Platform.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARVideoSource.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\include\ARX\ARVideoView.h" />
+    <ClCompile Include="..\..\ARX\calc.cpp" />
+    <ClCompile Include="..\..\ARX\Calibration.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARX_c.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARController.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackable.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARPattern.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackableMultiSquareAuto.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackableMultiSquare.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackableNFT.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackable2d.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackableSquare.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTracker.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackerNFT.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTracker2d.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARTrackerSquare.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideoSource.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideoView.cpp" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\trackingSub.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\trackingSub.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\mapper.hpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\mapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ZERO_CHECK.vcxproj">
+      <Project>{DCDFBAB4-67B3-33F1-B57C-F66914B332ED}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\AR.vcxproj">
+      <Project>{595B013F-D71F-32C6-9599-332AB55AB5EC}</Project>
+      <Name>AR</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR2\AR2.vcxproj">
+      <Project>{D4EDA230-D35D-37B6-8350-0E556F74BB41}</Project>
+      <Name>AR2</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARG\ARG.vcxproj">
+      <Project>{A860797E-CB88-30D6-8910-67E505BEEA63}</Project>
+      <Name>ARG</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\ARUtil.vcxproj">
+      <Project>{E14CB821-684D-3331-BABA-684C0C7704CB}</Project>
+      <Name>ARUtil</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\ARVideo.vcxproj">
+      <Project>{7711D6EA-9491-3F15-9DD2-B0625343F417}</Project>
+      <Name>ARVideo</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\KPM.vcxproj">
+      <Project>{EC5E30EA-E308-3AE1-B3C7-966674755B61}</Project>
+      <Name>KPM</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ARX\OCVT\OCVT.vcxproj">
+      <Project>{B5FCC40D-9D85-3B82-933B-1D6D3288B30D}</Project>
+      <Name>OCVT</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

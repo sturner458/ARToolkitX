@@ -1,0 +1,223 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{E14CB821-684D-3331-BABA-684C0C7704CB}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>ARUtil</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ARUtil.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">ARUtil</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.lib</TargetExt>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ARUtil.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ARUtil</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.lib</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4068;4244;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;ARX_TARGET_PLATFORM_WINDOWS=1;DEBUG=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsCpp</CompileAs>
+      <DisableSpecificWarnings>4068;4244;4996</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <UseFullPaths>false</UseFullPaths>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;ARX_TARGET_PLATFORM_WINDOWS=1;_CRT_SECURE_NO_WARNINGS;PTW32_STATIC_LIB;ARX_EXPORTS=1;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\include;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include;C:\GitRepository\ARToolKitX\Source\depends\windows\include\stb_image;C:\GitRepository\ARToolKitX\Source\depends\windows\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Lib>
+      <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/ARUtil/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARUtil/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/GitRepository/ARToolKitX/Source/ARX/ARUtil/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-file C:/GitRepository/ARToolKitX/Source/build-windows/ARX/ARUtil/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\types.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\log.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\profile.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\thread_sub.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\system.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\android.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\time.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\file_utils.h" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\include\ARX\ARUtil\image_utils.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\log.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\profile.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\thread_sub_winrt.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\thread_sub_winrt.cpp" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\thread_sub.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\system.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\android_system_property_get.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\time.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\file_utils.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\image_utils.cpp" />
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\crypt.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\crypt.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\ioapi.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\ioapi.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\unzip.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\unzip.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\zip.h" />
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\zip.c">
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">CompileAsC</CompileAs>
+      <CompileAs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">CompileAsC</CompileAs>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\GitRepository\ARToolKitX\Source\build-windows\ZERO_CHECK.vcxproj">
+      <Project>{DCDFBAB4-67B3-33F1-B57C-F66914B332ED}</Project>
+      <Name>ZERO_CHECK</Name>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

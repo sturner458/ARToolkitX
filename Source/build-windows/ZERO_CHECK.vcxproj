@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DCDFBAB4-67B3-33F1-B57C-F66914B332ED}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.18362.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>x64</Platform>
+    <ProjectName>ZERO_CHECK</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Utility</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\0f5c2358712aae6ba003ae28dd012137\generate.stamp.rule">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/GitRepository/ARToolKitX/Source/build-windows/artoolkitX.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\ARX\AR\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\config.h.in;C:\GitRepository\ARToolKitX\Source\ARX\AR2\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARG\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Dummy\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Image\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\KPM\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\checkResolution\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\check_id\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\dispTexData\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\genMarkerSet\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\genTexData\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\image_database_2d\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\mk_patt\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeCCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeCXXCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeRCCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeSystem.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenCV.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGL3.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGLES2.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindSDL2.cmake;C:\GitRepository\ARToolKitX\Source\depends\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\src\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\src\Eden\CMakeLists.txt;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\Dummy\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\Image\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\WindowsMediaFoundation\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARG\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR2\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\OCVT\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\src\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\src\Eden\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\check_id\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\genMarkerSet\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\mk_patt\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\checkResolution\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\genTexData\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\dispTexData\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\image_database_2d\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Checking Build System</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/GitRepository/ARToolKitX/Source -BC:/GitRepository/ARToolKitX/Source/build-windows --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/GitRepository/ARToolKitX/Source/build-windows/artoolkitX.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\ARX\AR\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\AR\include\ARX\AR\config.h.in;C:\GitRepository\ARToolKitX\Source\ARX\AR2\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARG\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARUtil\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Dummy\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Image\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\KPM\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\ARX\OCVT\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\checkResolution\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\check_id\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\dispTexData\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\genMarkerSet\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\genTexData\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\image_database_2d\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\Utilities\mk_patt\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeCCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeCXXCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeRCCompiler.cmake;C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\3.14.5\CMakeSystem.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenCV.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGL3.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindOpenGLES2.cmake;C:\GitRepository\ARToolKitX\Source\cmake\FindSDL2.cmake;C:\GitRepository\ARToolKitX\Source\depends\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\src\CMakeLists.txt;C:\GitRepository\ARToolKitX\Source\depends\common\src\Eden\CMakeLists.txt;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCXXInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\CheckSymbolExists.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Compiler\MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindOpenGL.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC-CXX.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.14\Modules\Platform\WindowsPaths.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\GitRepository\ARToolKitX\Source\build-windows\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\Dummy\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\Image\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARVideo\WindowsMediaFoundation\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARUtil\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\ARG\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\AR2\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\KPM\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\ARX\OCVT\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\src\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\depends\common\src\Eden\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\check_id\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\genMarkerSet\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\mk_patt\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\checkResolution\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\genTexData\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\dispTexData\CMakeFiles\generate.stamp;C:\GitRepository\ARToolKitX\Source\build-windows\Utilities\image_database_2d\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

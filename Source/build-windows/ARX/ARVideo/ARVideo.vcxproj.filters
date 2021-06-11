@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\cparamSearch.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\nxjson.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\video.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\video2.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\videoAspectRatio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\videoLuma.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\videoRGBA.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\videoSaveImage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Dummy\videoDummy.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Image\videoImage.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\videoWindowsMediaFoundation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\LogMediaType.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include\ARX\ARVideo\video.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include\ARX\ARVideo\videoConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include\ARX\ARVideo\videoLuma.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\include\ARX\ARVideo\videoRGBA.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\cparamSearch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\nxjson.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Dummy\videoDummy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\Image\videoImage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\videoWindowsMediaFoundation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\WindowsMediaFoundation\BufferLock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\GitRepository\ARToolKitX\Source\ARX\ARVideo\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8CC99DD6-CA90-3735-8048-3264C2738BFE}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{54BFDDAD-6E81-3654-BB53-145A063123BD}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
