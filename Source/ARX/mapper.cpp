@@ -39,8 +39,6 @@ namespace arx_mapper {
         isam2_(params_),
         //marker_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.2), Vector3::Constant(0.1)).finished())), // 20cm std on x,y,z, 0.1 rad (5.73 deg) on roll,pitch,yaw.
         //small_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.1), Vector3::Constant(0.05)).finished())) {  // 10cm std on x,y,z 0.05 rad (2.86 deg) on roll,pitch,yaw.
-        //marker_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.2), Vector3::Constant(0.1)).finished())), // These next 2 seem to give the best result
-        //small_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.01), Vector3::Constant(0.025)).finished())) {
         marker_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.2), Vector3::Constant(0.1)).finished())), // 20cm std on x,y,z, 0.1 rad (5.73 deg) on roll,pitch,yaw.
         small_noise_(noiseModel::Diagonal::Sigmas((Vector(6) << Vector3::Constant(0.01), Vector3::Constant(0.025)).finished())) {  // 1cm std on x,y,z 0.025 rad (1.43 deg) on roll,pitch,yaw.
     }

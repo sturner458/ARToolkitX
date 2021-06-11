@@ -54,6 +54,8 @@
 #  include <sys/param.h>
 #endif
 
+int ARTrackable::nextUID = 0;
+
 ARTrackable::ARTrackable(TrackableType type) :
     m_ftmi(NULL),
     m_filterCutoffFrequency(AR_FILTER_TRANS_MAT_CUTOFF_FREQ_DEFAULT),
@@ -69,7 +71,7 @@ ARTrackable::ARTrackable(TrackableType type) :
     patternCount(0),
     patterns(NULL)
 {
-	static int nextUID = 0;
+	// static int nextUID = 0;
 	UID = nextUID++;
 }
 
@@ -136,6 +138,10 @@ ARdouble ARTrackable::GetTrans(int i, int j) {
 
 void ARTrackable::SetTrans(int i, int j, ARdouble value) {
     trans[i][j] = value;
+}
+
+void ARTrackable::SetNextUID(int uid) {
+	nextUID = uid;
 }
 
 bool ARTrackable::update(const ARdouble transL2R[3][4])

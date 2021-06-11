@@ -101,7 +101,9 @@ void arwSetLogLevel(const int logLevel)
 
 bool arwInitialiseAR()
 {
-    if (!gARTK) gARTK = new ARController;
+    //if (!gARTK) gARTK = new ARController;
+    ARTrackable::SetNextUID(0);
+    gARTK = new ARController;
 	return gARTK->initialiseBase();
 }
 

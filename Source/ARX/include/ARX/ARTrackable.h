@@ -83,6 +83,8 @@ public:
         MULTI_AUTO                          ///< An automatically mapped composite marker made up of multiple square matrix (2D barcode) markers.
 	};
 
+	static int nextUID;
+
 	int UID;								///< Internal unique ID (note: not the same as artoolkitX pattern ID)
 	TrackableType type;						///< Type of trackable: single, multi, ...
 	
@@ -113,6 +115,7 @@ public:
     ARdouble positionScalefactor();
     ARdouble GetTrans(int i, int j);
     void SetTrans(int i, int j, ARdouble value);
+	static void SetNextUID(int uid);
     
 	/**
 	 * Completes an update begun in the parent class, performing filtering, generating
