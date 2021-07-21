@@ -255,7 +255,7 @@ extern "C" {
     // ----------------------------------------------------------------------------------------------------
     
     ARX_EXTERN void arwInitARToolKit(const char *vconf, const char *cparaName, const char *vconfLowRes, const char *cparaNameLowRes, const int xSize, const int ySize, const int xSizeLowRes, const int ySizeLowRes);
-    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false, bool doDatums = false, bool doMapper = false);
+    ARX_EXTERN bool arwUpdateARToolKit(unsigned char *imageBytes, bool lowRes = false, bool doDatums = false, bool doMapper = false, int markerType = -1, int numberOfDatums = 0);
     ARX_EXTERN void arwCleanupARToolKit();
     
     
@@ -475,6 +475,10 @@ extern "C" {
 #pragma mark  Trackable management
     // ----------------------------------------------------------------------------------------------------
 
+ARX_EXTERN void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
+
+ARX_EXTERN void AddDatumMarkersToARToolKit_RevC7(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
+
 ARX_EXTERN void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
 
 ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
@@ -531,7 +535,7 @@ ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int
      * @param matrix    A float array to populate with an OpenGL-compatible transformation matrix.
      * @return            true if the specified trackable is visible, false if not, or an error occurred.
      */
-    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes);
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes, double datums[12], int* numDatums);
     
     ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double *matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);

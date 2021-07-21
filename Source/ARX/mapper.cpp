@@ -27,7 +27,7 @@
 #  define SCALEF 1000
 #endif
 
-namespace arx_mapper {a
+namespace arx_mapper {
     
     using namespace gtsam;
     

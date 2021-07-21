@@ -91,7 +91,8 @@ public:
     ARdouble arGetTransMatSquareOpenCV(ARParam arParams,ARMarkerInfo* markerInfo, ARdouble width, ARdouble conv[3][4]);
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
 
-    bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard);
+    bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums);
+    bool updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums);
 };
 
 

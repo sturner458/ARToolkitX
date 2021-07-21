@@ -416,7 +416,140 @@ bool ARTrackableSquare::updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfo
     return (ARTrackable::update(transL2R)); // Parent class will finish update.
 }
 
-bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard) {
+bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums)
+{
+
+    ARdouble* datumCoords2D;
+    ARdouble* datumCoords;
+
+    cv::Mat grayImage = cv::Mat(imageHeight, imageWidth, CV_8UC1, (void*)buffLuma, imageWidth);
+
+    // Known coordinates for circle centres.
+    std::vector<cv::Point2f> datumCentres;
+
+    ARdouble errMax = 15.0;
+
+    if (numberOfDatums == 4)
+    {
+        datumCentres.push_back(cv::Point2f(-55, 30));
+        datumCentres.push_back(cv::Point2f(-55, -30));
+        datumCentres.push_back(cv::Point2f(55, 30));
+        datumCentres.push_back(cv::Point2f(55, -30));
+    }
+    else if (numberOfDatums == 6)
+    {
+        datumCentres.push_back(cv::Point2f(-55, 30));
+        datumCentres.push_back(cv::Point2f(-55, -30));
+        datumCentres.push_back(cv::Point2f(-55, 0));
+        datumCentres.push_back(cv::Point2f(55, 0));
+        datumCentres.push_back(cv::Point2f(55, 30));
+        datumCentres.push_back(cv::Point2f(55, -30));
+    }
+
+    ARdouble ox, oy;
+    std::vector<cv::Point2f> corners;
+
+    // Looks like this is no longer used...
+    std::vector<cv::Point3f> objectPoints;
+
+    double datumCircleDiameter = 20.0;
+
+    for (int i = 0; i < (int)datumCentres.size(); i++)
+    {
+        cv::Point2f pt = datumCentres.at(i);
+        if (GetCenterPointForDatum2(datumCircleDiameter, pt.x, pt.y, arParams, trans, grayImage, imageWidth, imageHeight, &ox, &oy))
+        {
+            corners.push_back(cv::Point2f(ox, oy));
+            objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+        }
+    }
+
+    // Add the corners of the marker square
+    datumCentres.push_back(cv::Point2f(-40, 40));
+    datumCentres.push_back(cv::Point2f(-40, -40));
+    datumCentres.push_back(cv::Point2f(40, -40));
+    datumCentres.push_back(cv::Point2f(40, 40));
+
+    int datumsDetected = (int)objectPoints.size();
+
+    for (int i = datumsDetected; i < (int)datumCentres.size(); i++)
+    {
+        cv::Point2f pt = datumCentres.at(i);
+        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
+        corners.push_back(cv::Point2f(ox, oy));
+        objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+    }
+
+    // Populate datum coords with whatever we have in objectPoints.
+    datumCoords = new ARdouble[objectPoints.size()*3];
+    for (int i = 0; i < (int)objectPoints.size(); i++)
+    {
+        cv::Point3f pt = objectPoints.at(i);
+        datumCoords[i * 3] = pt.x;
+        datumCoords[i * 3 + 1] = pt.y;
+        datumCoords[i * 3 + 2] = 0;
+    }
+
+    std::vector<cv::Point2f> cornersCopy;
+    for (int i = 0; i < corners.size(); i++)
+    {
+        cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
+    }
+
+    datumCoords2D = new ARdouble[corners.size()*2];
+
+    cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
+    for (int i = 0; i < (int)corners.size(); i++)
+    {
+        ARdouble ix, iy;
+        ARdouble ox, oy;
+        double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
+        if (d < 3.0)
+        {
+            // refined
+            ix = corners.at(i).x;
+            iy = corners.at(i).y;
+        }
+        else
+        {
+            // non-refined
+            ix = cornersCopy.at(i).x;
+            iy = cornersCopy.at(i).y;
+        }
+
+        arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
+        datumCoords2D[i * 2] = ox;
+        datumCoords2D[i * 2 + 1] = oy;
+    }
+
+    ARdouble err;
+    err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)corners.size(), trans);
+    if (err > 10.0f) visible = false;
+
+    imageDatums.clear();
+    imagePoints.clear();
+
+    for (int i = 0; i < datumCentres.size(); i++)
+    {
+        cv::Point2f pt = datumCentres.at(i);
+        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
+        //imagePoints.push_back(cv::Point2f(ox, oy));
+        if (i < datumsDetected) {
+            imageDatums.push_back(cv::Point2f(ox, oy));
+        }
+        else {
+            imagePoints.push_back(cv::Point2f(ox, oy));
+        }
+    }
+    
+    delete[] datumCoords2D;
+    delete[] datumCoords;
+
+    if (visible) return (ARTrackable::update()); // Parent class will finish update.
+    return false;
+}
+
+bool ARTrackableSquare::updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums) {
 
     ARdouble* datumCoords2D;
     ARdouble* datumCoords;

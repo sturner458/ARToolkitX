@@ -141,7 +141,7 @@ bool ARTracker2d::isRunning()
     return m_running;
 }
 
-bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
+bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper, int markerType, int numberOfDatums)
 {
     ARLOGd("ARX::ARTracker2d::update()\n");
     // Late loading of data now that we have image width and height.
@@ -177,9 +177,9 @@ bool ARTracker2d::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trac
     return true;
 }
 
-bool ARTracker2d::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper)
+bool ARTracker2d::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool lowRes, bool doDatums, bool doMapper, int markerType, int numberOfDatums)
 {
-    return update(buff0, trackables, lowRes, doDatums, doMapper);
+    return update(buff0, trackables, lowRes, doDatums, doMapper, markerType, numberOfDatums);
 }
 
 bool ARTracker2d::stop()
