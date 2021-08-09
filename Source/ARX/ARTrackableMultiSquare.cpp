@@ -296,14 +296,14 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
     err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)(circles.size() + corners.size()), trans);
     if (err > 10.0f) visible = false;
 
-    imageDatums.clear();
     imagePoints.clear();
+    imageDatums.clear();
 
     for (int i = 0; i < cornerCentres.size(); i++)
     {
         cv::Point2f pt = cornerCentres.at(i);
         ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        imageDatums.push_back(cv::Point2f(ox, oy));
+        imagePoints.push_back(cv::Point2f(ox, oy));
     }
     
     for (int i = 0; i < circlePoints.size(); i++)
