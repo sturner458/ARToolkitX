@@ -463,6 +463,8 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
             objectPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
         }
     }
+    
+    //ARLOGd("Found %i datums", (int)corners.size());
 
     // Add the corners of the marker square
     datumCentres.push_back(cv::Point2f(-40, 40));

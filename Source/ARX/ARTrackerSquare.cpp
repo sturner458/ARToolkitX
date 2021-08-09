@@ -457,7 +457,11 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         if (target->visible && target->UID < 100) {
                             bool largeBoard = false;
                             //if (target->UID < 2) largeBoard = true;
+                            //ARLOGd("Attempting to use datum circles. For RevC7_ %i \n", numberOfDatums);
+                            //ARLOGd("Target UID= %i .\n", target->UID );
                             success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
+                            
+                            //ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
                             success &= success2;
                             if (!target->visible) {
                                 for (int j = 0; j < markerNum0; j++) {
@@ -494,7 +498,15 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         if (target->visible && target->UID < 100)
                         {
                             bool largeBoard = false;
+                            //ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
+                            //ARLOGd("Target UID= %i .\n", target->UID );
+                            
+                            const char * hiresLowres = lowRes ? "LowRes": "HiRes";
+                            ARLOGd("%s \n", hiresLowres);
+                            ARPRINT("%s \n", hiresLowres);
+                            
                             success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
+                            ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
                             success &= success2;
                             if (!target->visible){
                                 for (int i = 0; i < map->marker_num; i++){
