@@ -666,7 +666,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
         vnum++;
     }
 
-    imagePoints.clear();
+    qrMarkerCornerPointsInPixels.clear();
     if (vnum >= m_MultiConfig->min_submarker) {
         int nCorners = corners.size();
         arMalloc(datumCoords2D, ARdouble, nCorners * 2);
@@ -689,7 +689,7 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
                 ix = cornersCopy.at(i).x;
                 iy = cornersCopy.at(i).y;
             }
-            imagePoints.push_back(cv::Point2f(ix, iy));
+            qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ix, iy));
             arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
             datumCoords2D[i * 2] = ox;
             datumCoords2D[i * 2 + 1] = oy;

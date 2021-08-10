@@ -122,7 +122,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
 
     visiblePrev = visible;
 
-    imagePoints.clear();
+    qrMarkerCornerPointsInPixels.clear();
     if (markerInfo) {
     
         ARdouble err;
@@ -150,10 +150,10 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
                         else
                             dir = markerInfo[j].dir;
 
-                        imagePoints.push_back(cv::Point2f(markerInfo[j].vertex[(4 - dir) % 4][0], markerInfo[j].vertex[(4 - dir) % 4][1]));
-                        imagePoints.push_back(cv::Point2f(markerInfo[j].vertex[(5 - dir) % 4][0], markerInfo[j].vertex[(5 - dir) % 4][1]));
-                        imagePoints.push_back(cv::Point2f(markerInfo[j].vertex[(6 - dir) % 4][0], markerInfo[j].vertex[(6 - dir) % 4][1]));
-                        imagePoints.push_back(cv::Point2f(markerInfo[j].vertex[(7 - dir) % 4][0], markerInfo[j].vertex[(7 - dir) % 4][1]));
+                        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(markerInfo[j].vertex[(4 - dir) % 4][0], markerInfo[j].vertex[(4 - dir) % 4][1]));
+                        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(markerInfo[j].vertex[(5 - dir) % 4][0], markerInfo[j].vertex[(5 - dir) % 4][1]));
+                        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(markerInfo[j].vertex[(6 - dir) % 4][0], markerInfo[j].vertex[(6 - dir) % 4][1]));
+                        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(markerInfo[j].vertex[(7 - dir) % 4][0], markerInfo[j].vertex[(7 - dir) % 4][1]));
                     }
                 }
             }
@@ -296,21 +296,21 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
     err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)(circles.size() + corners.size()), trans);
     if (err > 10.0f) visible = false;
 
-    imagePoints.clear();
-    imageDatums.clear();
+    qrMarkerCornerPointsInPixels.clear();
+    datumCircleCentrePointsInPixels.clear();
 
     for (int i = 0; i < cornerCentres.size(); i++)
     {
         cv::Point2f pt = cornerCentres.at(i);
         ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        imagePoints.push_back(cv::Point2f(ox, oy));
+        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
     }
     
     for (int i = 0; i < circlePoints.size(); i++)
     {
         cv::Point3f pt = circlePoints.at(i);
         ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        imageDatums.push_back(cv::Point2f(ox, oy));
+        datumCircleCentrePointsInPixels.push_back(cv::Point2f(ox, oy));
     }
 
     delete[] datumCoords2D;
@@ -327,7 +327,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkersOpenCV(ARMarkerInfo* marke
     visiblePrev = visible;
     visible = false;
 
-    imagePoints.clear();
+    qrMarkerCornerPointsInPixels.clear();
     if (markerInfo) {
 
         ARdouble err;
@@ -361,20 +361,20 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkersOpenCV(ARMarkerInfo* marke
                         dir = markerInfo[j].dir;
 
                     arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, markerInfo[j].vertex[(4 - dir) % 4][0], markerInfo[j].vertex[(4 - dir) % 4][1], &ox, &oy);
-                    imagePoints.push_back(cv::Point2f(ox, oy));
+                    qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
                     arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, markerInfo[j].vertex[(5 - dir) % 4][0], markerInfo[j].vertex[(5 - dir) % 4][1], &ox, &oy);
-                    imagePoints.push_back(cv::Point2f(ox, oy));
+                    qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
                     arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, markerInfo[j].vertex[(6 - dir) % 4][0], markerInfo[j].vertex[(6 - dir) % 4][1], &ox, &oy);
-                    imagePoints.push_back(cv::Point2f(ox, oy));
+                    qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
                     arParamIdeal2ObservLTf(&arHandle->arParamLT->paramLTf, markerInfo[j].vertex[(7 - dir) % 4][0], markerInfo[j].vertex[(7 - dir) % 4][1], &ox, &oy);
-                    imagePoints.push_back(cv::Point2f(ox, oy));
+                    qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
 
                     break;
                 }
             }
         }
 
-        if (imagePoints.size() == cornerPoints.size()) {
+        if (qrMarkerCornerPointsInPixels.size() == cornerPoints.size()) {
             cv::Mat rvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output rotation vector
             cv::Mat tvec = cv::Mat::zeros(3, 1, CV_64FC1);          // output translation vector
             cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64FC1);
@@ -394,7 +394,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkersOpenCV(ARMarkerInfo* marke
             for (int i = 0; i < 8; i++) {
                 distortionCoeffs.at<double>(i) = (double)(arHandle->arParamLT->param.dist_factor[i]);
             }
-            cv::solvePnP(cornerPoints, imagePoints, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
+            cv::solvePnP(cornerPoints, qrMarkerCornerPointsInPixels, cameraMatrix, distortionCoeffs, rvec, tvec, false, cv::SOLVEPNP_IPPE);
             cv::Mat rotationMatrix = cv::Mat(3, 3, CV_64FC1);
             Rodrigues(rvec, rotationMatrix);
 
@@ -407,11 +407,11 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkersOpenCV(ARMarkerInfo* marke
 
             std::vector<cv::Point2f> reprojectPoints;
             cv::projectPoints(cornerPoints, rvec, tvec, cameraMatrix, distortionCoeffs, reprojectPoints);
-            err = cv::norm(reprojectPoints, imagePoints);
+            err = cv::norm(reprojectPoints, qrMarkerCornerPointsInPixels);
 
-            imagePoints.clear();
+            qrMarkerCornerPointsInPixels.clear();
             for (int i = 0; i < reprojectPoints.size(); i++) {
-                imagePoints.push_back(cv::Point2f(reprojectPoints.at(i).x, reprojectPoints.at(i).y));
+                qrMarkerCornerPointsInPixels.push_back(cv::Point2f(reprojectPoints.at(i).x, reprojectPoints.at(i).y));
             }
 
             if (err < 10.0f) visible = true;

@@ -94,8 +94,8 @@ public:
     ARdouble transformationMatrix[16];        ///< Transformation suitable for use in OpenGL
     ARdouble transformationMatrixR[16];        ///< Transformation suitable for use in OpenGL
 
-    std::vector<cv::Point2f> imagePoints;
-    std::vector<cv::Point2f> imageDatums;
+    std::vector<cv::Point2f> qrMarkerCornerPointsInPixels;
+    std::vector<cv::Point2f> datumCircleCentrePointsInPixels;
 
     int patternCount;                        ///< If this trackable has a surface appearance, the number of patterns that it has (1 for single).
     ARPattern** patterns;                    ///< Array of pointers to patterns

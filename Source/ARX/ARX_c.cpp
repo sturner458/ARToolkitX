@@ -1188,17 +1188,17 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matri
     }
     for (int i = 0; i < 16; i++) matrix[i] = (double)trackable->transformationMatrix[i];
     if (trackable->visible && (trackable->type == ARTrackable::SINGLE || trackable->type == ARTrackable::MULTI || trackable->type == ARTrackable::MULTI_AUTO)) {
-        *numCorners = (int)trackable->imagePoints.size();
+        *numCorners = (int)trackable->qrMarkerCornerPointsInPixels.size();
         if (*numCorners > 16) *numCorners = 16;
         for (int i = 0; i < *numCorners; i++) {
-            corners[i * 2] = trackable->imagePoints.at(i).x;
-            corners[i * 2 + 1] = trackable->imagePoints.at(i).y;
+            corners[i * 2] = trackable->qrMarkerCornerPointsInPixels.at(i).x;
+            corners[i * 2 + 1] = trackable->qrMarkerCornerPointsInPixels.at(i).y;
         }
-        *numDatums = (int)trackable->imageDatums.size();
+        *numDatums = (int)trackable->datumCircleCentrePointsInPixels.size();
         if (*numDatums > 12) *numDatums = 12;
         for (int i = 0; i < *numDatums; i++) {
-            datums[i * 2] = trackable->imageDatums.at(i).x;
-            datums[i * 2 + 1] = trackable->imageDatums.at(i).y;
+            datums[i * 2] = trackable->datumCircleCentrePointsInPixels.at(i).x;
+            datums[i * 2 + 1] = trackable->datumCircleCentrePointsInPixels.at(i).y;
         }
     }
     return trackable->visible;
@@ -1285,9 +1285,9 @@ void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, do
                     }
                 }
                 it->update();
-                it->imagePoints.clear();
+                it->qrMarkerCornerPointsInPixels.clear();
                 for (int j = 0; j < 8; j = j + 2) {
-                    it->imagePoints.push_back(cv::Point2f(m.corners[j], m.corners[j + 1]));
+                    it->qrMarkerCornerPointsInPixels.push_back(cv::Point2f(m.corners[j], m.corners[j + 1]));
                 }
                 break;
             }
