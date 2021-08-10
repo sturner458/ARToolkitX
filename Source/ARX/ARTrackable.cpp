@@ -239,14 +239,17 @@ bool ARTrackable::GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x
     if (rect.x < 0 || rect.x + rect.width > imageWidth || rect.y < 0 || rect.y + rect.height > imageHeight) return false;
 
     cv::Mat region = cv::Mat(grayImage, rect);
-    cv::Mat binaryRegion = region.clone();
-    double otsuThreshold = cv::threshold(region, binaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
+    cv::Mat scaledRegion = cv::Mat();
+    cv::resize(region, scaledRegion, cv::Size(), 10.0, 10.0, cv::InterpolationFlags::INTER_CUBIC);
+    cv::Mat scaledBinaryRegion = scaledRegion.clone();
+    
+    cv::threshold(scaledRegion, scaledBinaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
 
     std::vector<cv::Point2d> centerPoints;
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
 
-    cv::findContours(binaryRegion, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+    cv::findContours(scaledBinaryRegion, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
     if (contours.size() > 0)
     {
@@ -256,11 +259,11 @@ bool ARTrackable::GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x
             if (contour.size() > 4)
             {
                 auto rotRect = cv::fitEllipse(contour);
-                auto area = rotRect.size.width * rotRect.size.height;
-                auto width = rotRect.size.width > rotRect.size.height ? rotRect.size.width : rotRect.size.height;
-                auto height = rotRect.size.width > rotRect.size.height ? rotRect.size.height : rotRect.size.width;
+//                auto area = rotRect.size.width * rotRect.size.height;
+//                auto width = rotRect.size.width > rotRect.size.height ? rotRect.size.width : rotRect.size.height;
+//                auto height = rotRect.size.width > rotRect.size.height ? rotRect.size.height : rotRect.size.width;
                 
-                centerPoints.push_back(cv::Point2d(rotRect.center.x + rect.x, rotRect.center.y + rect.y));
+                centerPoints.push_back(cv::Point2d((rotRect.center.x / 10.0) + rect.x, (rotRect.center.y /10.0) + rect.y));
             }
         }
     }
