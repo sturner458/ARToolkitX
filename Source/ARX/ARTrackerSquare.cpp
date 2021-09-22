@@ -498,8 +498,8 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         if (target->visible && target->UID < 100)
                         {
                             bool largeBoard = false;
-                            //ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
-                            //ARLOGd("Target UID= %i .\n", target->UID );
+                            ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
+                            ARLOGd("Target UID= %i .\n", target->UID );
                             
                             const char * hiresLowres = lowRes ? "LowRes": "HiRes";
                             ARLOGd("%s \n", hiresLowres);

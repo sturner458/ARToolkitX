@@ -237,33 +237,44 @@ bool ARTrackable::GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x
     cv::Rect rect = GetRectForDatum(datumCircleDiameter, x, y, arParams, trans);
     if (rect.width < 5 || rect.height < 5) return false;
     if (rect.x < 0 || rect.x + rect.width > imageWidth || rect.y < 0 || rect.y + rect.height > imageHeight) return false;
-
+    
     cv::Mat region = cv::Mat(grayImage, rect);
     cv::Mat scaledRegion = cv::Mat();
+
     cv::resize(region, scaledRegion, cv::Size(), 10.0, 10.0, cv::InterpolationFlags::INTER_CUBIC);
+    
+    //cv::Mat bluredRegion = cv::Mat();
+    //cv::GaussianBlur(scaledRegion, bluredRegion, cv::Size(0,0), 0);
+    
     cv::Mat scaledBinaryRegion = scaledRegion.clone();
     
-    cv::threshold(scaledRegion, scaledBinaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
-
+    //cv::threshold(scaledRegion, scaledBinaryRegion, 0.0, 255.0, cv::THRESH_BINARY+cv::THRESH_OTSU);
+    cv::threshold(scaledRegion, scaledBinaryRegion, 127.0, 255.0, cv::THRESH_BINARY);
+    //cv::threshold(bluredRegion, scaledBinaryRegion, 0.0, 255.0, cv::THRESH_BINARY+cv::THRESH_OTSU);
+    
     std::vector<cv::Point2d> centerPoints;
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierarchy;
 
     cv::findContours(scaledBinaryRegion, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
-
-    if (contours.size() > 0)
+    //ARLOGi("Found %i contours\n", (int)contours.size());
+    if (contours.size() > 0 && contours.size() < 10)
     {
+        auto rectArea = rect.height * rect.width;
         for (int i = 0; i < contours.size(); i++)
         {
             std::vector<cv::Point> contour = contours[i];
             if (contour.size() > 4)
             {
+                //ARLOGi("Contour %i has more than 4 points \n", i);
+                //ARLOGi("Contour size: %i \n", contour.size());
                 auto rotRect = cv::fitEllipse(contour);
-//                auto area = rotRect.size.width * rotRect.size.height;
+                auto rotRectArea = rotRect.size.width * rotRect.size.height;
 //                auto width = rotRect.size.width > rotRect.size.height ? rotRect.size.width : rotRect.size.height;
 //                auto height = rotRect.size.width > rotRect.size.height ? rotRect.size.height : rotRect.size.width;
-                
-                centerPoints.push_back(cv::Point2d((rotRect.center.x / 10.0) + rect.x, (rotRect.center.y /10.0) + rect.y));
+                if(rotRectArea * 2.0 >= rectArea) {
+                    centerPoints.push_back(cv::Point2d((rotRect.center.x / 10.0) + rect.x, (rotRect.center.y /10.0) + rect.y));
+                }
             }
         }
     }
@@ -273,16 +284,22 @@ bool ARTrackable::GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x
         cv::Point2d idealPoint(*ox, *oy);
         // Find center that is closest to the original point.
         cv::Point2d closestPt(-100000.0, -100000.0);
+        
+        double tolerance = (rect.height + rect.width) * 0.5 * 0.05;
+        
         for (int i = 0; i < centerPoints.size(); i++)
         {
-            if (DistanceBetweenTwoPoints(centerPoints[i], idealPoint) < DistanceBetweenTwoPoints(closestPt, idealPoint))
+            double dist = DistanceBetweenTwoPoints(centerPoints[i], idealPoint);
+            //ARLOGi("Distance between point %i and ideal is: %f. Tolerance is %f. Rect Height: %i Width: %i X0: %i Y0: %i \n", i, dist, tolerance, rect.height, rect.width, rect.x, rect.y);
+            if ( dist < DistanceBetweenTwoPoints(closestPt, idealPoint))
             {
                 closestPt = centerPoints[i];
             }
         }
         // Ensure this point is within specified tolerance.
         // We assume it's within half the average size of the rect.
-        if (DistanceBetweenTwoPoints(closestPt, idealPoint) < (rect.height + rect.width) * 0.5 * 0.5)
+        
+        if (DistanceBetweenTwoPoints(closestPt, idealPoint) <= tolerance)
         {
             *ox = closestPt.x;
             *oy = closestPt.y;
