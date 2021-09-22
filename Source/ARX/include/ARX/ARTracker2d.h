@@ -73,8 +73,8 @@ public:
     bool start(ARParamLT *paramLT, AR_PIXEL_FORMAT pixelFormat) override;
     bool start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, ARParamLT *paramLT1, AR_PIXEL_FORMAT pixelFormat1, const ARdouble transL2R[3][4]) override;
     bool isRunning() override;
-    bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums = false) override;
-    bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums = false) override;
+    bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums = false, int markerType = -1, int numberOfDatums = 0) override;
+    bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums = false, int markerType = -1, int numberOfDatums = 0) override;
     bool stop() override;
     void terminate() override;
     

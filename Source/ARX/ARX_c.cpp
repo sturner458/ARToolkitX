@@ -211,11 +211,11 @@ void arwInitARToolKit(const char* vconf, const char* cparaName)
 	return;
 }
 
-bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums)
+bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums, int markerType, int numberOfDatums)
 {
 	//ARLOGe("UpdateARToolKit called.\n");
 	if (!gARTK) return false;
-	return gARTK->updateWithImage(imageBytes, doDatums);
+	return gARTK->updateWithImage(imageBytes, doDatums, markerType, numberOfDatums);
 }
 
 void arwCleanupARToolKit()
@@ -631,7 +631,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners)
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners, double datums[12], int* numDatums)
 {
     ARTrackable *trackable;
     
@@ -648,6 +648,12 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matri
 			corners[i * 2] = trackable->imagePoints.at(i).x;
 			corners[i * 2 + 1] = trackable->imagePoints.at(i).y;
 		}
+        *numDatums = trackable->imageDatums.size();
+        if (*numDatums > 12) *numDatums = 12;
+        for (int i = 0; i < *numDatums; i++) {
+            datums[i * 2] = trackable->imageDatums.at(i).x;
+            datums[i * 2 + 1] = trackable->imageDatums.at(i).y;
+        }
 	}
     return trackable->visible;
 }

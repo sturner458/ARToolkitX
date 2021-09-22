@@ -228,6 +228,71 @@ void ARTrackable::setFilterCutoffFrequency(ARdouble freq)
     if (m_ftmi) arFilterTransMatSetParams(m_ftmi, m_filterSampleRate, m_filterCutoffFrequency);
 }
 
+bool ARTrackable::GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy)
+{
+	// Convert world coords to image coords for a given point.
+	ModelToImageSpace(arParams, trans, x, y, ox, oy);
+
+	// Find the rectangular area of where to search for datum circle.
+	cv::Rect rect = GetRectForDatum(datumCircleDiameter, x, y, arParams, trans);
+	if (rect.width < 5 || rect.height < 5) return false;
+	if (rect.x < 0 || rect.x + rect.width > imageWidth || rect.y < 0 || rect.y + rect.height > imageHeight) return false;
+
+	cv::Mat region = cv::Mat(grayImage, rect);
+	cv::Mat scaledRegion = cv::Mat();
+	cv::resize(region, scaledRegion, cv::Size(), 10.0, 10.0, cv::InterpolationFlags::INTER_CUBIC);
+	cv::Mat scaledBinaryRegion = scaledRegion.clone();
+
+	double otsuThreshold = cv::threshold(scaledRegion, scaledBinaryRegion, 0.0, 255.0, cv::THRESH_OTSU);
+
+	std::vector<cv::Point2d> centerPoints;
+	std::vector<std::vector<cv::Point>> contours;
+	std::vector<cv::Vec4i> hierarchy;
+
+	cv::findContours(scaledBinaryRegion, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
+
+	if (contours.size() > 0)
+	{
+		for (int i = 0; i < contours.size(); i++)
+		{
+			std::vector<cv::Point> contour = contours[i];
+			if (contour.size() > 4)
+			{
+				auto rotRect = cv::fitEllipse(contour);
+				auto area = rotRect.size.width * rotRect.size.height;
+				auto width = rotRect.size.width > rotRect.size.height ? rotRect.size.width : rotRect.size.height;
+				auto height = rotRect.size.width > rotRect.size.height ? rotRect.size.height : rotRect.size.width;
+				
+				centerPoints.push_back(cv::Point2d((rotRect.center.x / 10.0) + rect.x, (rotRect.center.y /10.0) + rect.y));
+			}
+		}
+	}
+
+	if (centerPoints.size() > 0)
+	{
+		cv::Point2d idealPoint(*ox, *oy);
+		// Find center that is closest to the original point.
+		cv::Point2d closestPt(-100000.0, -100000.0);
+		for (int i = 0; i < centerPoints.size(); i++)
+		{
+			if (DistanceBetweenTwoPoints(centerPoints[i], idealPoint) < DistanceBetweenTwoPoints(closestPt, idealPoint))
+			{
+				closestPt = centerPoints[i];
+			}
+		}
+		// Ensure this point is within specified tolerance.
+		// We assume it's within half the average size of the rect.
+		if (DistanceBetweenTwoPoints(closestPt, idealPoint) < (rect.height + rect.width) * 0.5 * 0.5)
+		{
+			*ox = closestPt.x;
+			*oy = closestPt.y;
+			//ARLOGi("Found datum point at x:%f y:%f!\n", *ox, *oy);
+			return true;
+		}
+	}
+	return false;
+}
+
 bool ARTrackable::GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy) {
 	ModelToImageSpace(arParams, trans, x, y, ox, oy);
 	int halfSquare = GetSquareForDatum(x, y, arParams, trans);
@@ -259,6 +324,42 @@ void ARTrackable::ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdoubl
 	sx = hx / h;
 	sy = hy / h;
 	arParamIdeal2Observ(param.dist_factor, sx, sy, ox, oy, param.dist_function_version);
+}
+
+cv::Rect ARTrackable::GetRectForDatum(double datumCircleDiameter, ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4])
+{
+	double rectHalfWidth = (datumCircleDiameter / 2) + 2.5;
+
+	ARdouble ox, oy, ox1, oy1, ox2, oy2, ox3, oy3, ox4, oy4;
+	ModelToImageSpace(arParams, trans, x, y, &ox, &oy);
+	ModelToImageSpace(arParams, trans, x - rectHalfWidth, y - rectHalfWidth, &ox1, &oy1);
+	ModelToImageSpace(arParams, trans, x + rectHalfWidth, y - rectHalfWidth, &ox2, &oy2);
+	ModelToImageSpace(arParams, trans, x + rectHalfWidth, y + rectHalfWidth, &ox3, &oy3);
+	ModelToImageSpace(arParams, trans, x - rectHalfWidth, y + rectHalfWidth, &ox4, &oy4);
+
+	// Find the min and max values of rect.
+	ARdouble minX = ox1;
+	if (ox2 < minX) minX = ox2;
+	if (ox3 < minX) minX = ox3;
+	if (ox4 < minX) minX = ox4;
+
+	ARdouble maxX = ox1;
+	if (ox2 > maxX) maxX = ox2;
+	if (ox3 > maxX) maxX = ox3;
+	if (ox4 > maxX) maxX = ox4;
+
+	ARdouble minY = oy1;
+	if (oy2 < minY) minY = oy2;
+	if (oy3 < minY) minY = oy3;
+	if (oy4 < minY) minY = oy4;
+
+	ARdouble maxY = oy1;
+	if (oy2 > maxY) maxY = oy2;
+	if (oy3 > maxY) maxY = oy3;
+	if (oy4 > maxY) maxY = oy4;
+
+	return cv::Rect(cv::Point2i((int)minX, (int)minY), cv::Point2i((int)maxX, (int)maxY));
+	
 }
 
 int ARTrackable::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]) {
@@ -322,6 +423,98 @@ int ARTrackable::GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARd
 	return (int)(maxD / sqrt(2.0) + 0.499);
 }
 
+double ARTrackable::AverageDistanceToEllipse(std::vector<cv::Point> contour, cv::RotatedRect rect)
+{
+	int n = contour.size();
+	double dist = 0.0;
+
+	for (int i = 0; i < n; i++)
+	{
+		dist = dist + DistanceToEllipse(cv::Point2d((double)contour[i].x, (double)contour[i].y), rect);
+	}
+
+	return dist / n;
+}
+
+double ARTrackable::FurthestDistanceToEllipse(std::vector<cv::Point> contour, cv::RotatedRect rect)
+{
+	int n = contour.size();
+	double dist = 0.0;
+
+	for (int i = 0; i < n; i++)
+	{
+		double d = DistanceToEllipse(cv::Point2d((double)contour[i].x, (double)contour[i].y), rect);
+		if (d > dist) dist = d;
+	}
+	return dist;
+}
+
+double ARTrackable::DistanceToEllipse(cv::Point2d pt, cv::RotatedRect rect)
+{
+	// Translate the point, so that rect centre is at zero.
+	auto c = (cv::Point2d)rect.center;
+	pt = pt - c;
+	// Rotate the point by the rect angle.
+	cv::Point3d pt3d(pt.x, pt.y, 1);
+	auto rot2d = cv::getRotationMatrix2D(cv::Point2d(0, 0), -rect.angle, 1);
+	cv::Mat rPtMat = (rot2d * cv::Mat(pt3d)).t();
+	pt = cv::Point2d(rPtMat.at<double>(0,0), rPtMat.at<double>(0,1));
+	// Compute the nearest point to ellipse.
+	cv::Point2d pt2(NearestPointOnEllipse(pt, rect.size.width / 2.0, rect.size.height / 2.0));	
+	// Calculate distance between the points.
+	return DistanceBetweenTwoPoints(pt, pt2);
+}
+
+double ARTrackable::DistanceBetweenTwoPoints(cv::Point2d pt1, cv::Point2d pt2)
+{
+	return std::sqrt(std::pow((pt1.x - pt2.x), 2) + std::pow((pt1.y - pt2.y), 2));
+}
+
+cv::Point2d ARTrackable::NearestPointOnEllipse(cv::Point2d point, double semiMajor, double semiMinor)
+{
+	double px = std::abs(point.x);
+	double py = std::abs(point.y);
+
+	double a = semiMajor;
+	double b = semiMinor;
+
+	double tx = 0.70710678118;
+	double ty = 0.70710678118;
+
+	double x, y, ex, ey, rx, ry, qx, qy, r, q, t = 0;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		x = a * tx;
+		y = b * ty;
+
+		ex = (a * a - b * b) * (tx * tx * tx) / a;
+		ey = (b * b - a * a) * (ty * ty * ty) / b;
+
+		rx = x - ex;
+		ry = y - ey;
+
+		qx = px - ex;
+		qy = py - ey;
+
+		r = std::sqrt(rx * rx + ry * ry);
+		q = std::sqrt(qy * qy + qx * qx);
+
+		tx = std::min(1.0, std::max(0.0, (qx * r / q + ex) / a));
+		ty = std::min(1.0, std::max(0.0, (qy * r / q + ey) / b));
+
+		t = std::sqrt(tx * tx + ty * ty);
+
+		tx /= t;
+		ty /= t;
+	}
+
+	return cv::Point2d(
+		x = (float)(a * (point.x < 0 ? -tx : tx)),
+		y = (float)(b * (point.y < 0 ? -ty : ty))
+	);
+}
+
 ARdouble ARTrackable::arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4])
 {
 	const int numCoords = 2 * numDatums;
@@ -350,5 +543,3 @@ ARdouble ARTrackable::arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoor
 
 	return err;
 }
-
-

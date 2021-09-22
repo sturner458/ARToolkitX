@@ -97,6 +97,7 @@ public:
 	ARdouble transformationMatrixR[16];		///< Transformation suitable for use in OpenGL
 
 	std::vector<cv::Point2f> imagePoints;
+	std::vector<cv::Point2f> imageDatums;
 
 	int patternCount;						///< If this trackable has a surface appearance, the number of patterns that it has (1 for single).
 	ARPattern** patterns;					///< Array of pointers to patterns
@@ -141,11 +142,19 @@ public:
     void setFilterCutoffFrequency(ARdouble freq);
 
 	bool GetCenterPointForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy);
+	bool GetCenterPointForDatum2(double datumCircleDiameter, ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4], cv::Mat grayImage, int imageWidth, int imageHeight, ARdouble* ox, ARdouble* oy);
 	void ModelToImageSpace(ARParam param, ARdouble trans[3][4], ARdouble ix, ARdouble iy, ARdouble* ox, ARdouble* oy);
 	int GetSquareForDatum(ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]);
+	cv::Rect GetRectForDatum(double datumCircleDiameter, ARdouble x, ARdouble y, ARParam arParams, ARdouble trans[3][4]);
+	double AverageDistanceToEllipse(std::vector<cv::Point> contour, cv::RotatedRect rect);
+	double FurthestDistanceToEllipse(std::vector<cv::Point> contour, cv::RotatedRect rect);
 	ARdouble arGetTransMatDatum(AR3DHandle* handle, ARdouble* datumCoords2D, ARdouble* datumCoords, const int numDatums, ARdouble conv[3][4]);
-
+	double DistanceToEllipse(cv::Point2d pt, cv::RotatedRect rect);
+	cv::Point2d NearestPointOnEllipse(cv::Point2d point, double semiMajor, double semiMinor);
+	double DistanceBetweenTwoPoints(cv::Point2d pt1, cv::Point2d pt2);
 };
 
 
 #endif // !ARTRACKABLE_H
+
+

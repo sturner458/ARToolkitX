@@ -383,12 +383,12 @@ bail:
     return false;
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums, int markerType, int numberOfDatums)
 {
-    return update(buff, NULL, trackables, doDatums);
+    return update(buff, NULL, trackables, doDatums, markerType, numberOfDatums);
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums, int markerType, int numberOfDatums)
 {
     ARMarkerInfo *markerInfo0 = NULL;
     ARMarkerInfo *markerInfo1 = NULL;
@@ -435,11 +435,12 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
 				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
                 success &= success2;
-				if (success2 && doDatums) {
-					if (target->visible && target->UID < 102) {
+                // Note: markerType == 1 means it's RevC7 (5x5 single square). 
+                // We do not want to compute datums for large boards.
+				if (success2 && doDatums && markerType == 1) {
+					if (target->visible && target->UID < 100) {
 						bool largeBoard = false;
-						if (target->UID < 2) largeBoard = true;
-						success2 = target->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard);
+						success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
 						success &= success2;
 						if (!target->visible) {
 							for (int j = 0; j < markerNum0; j++) {
@@ -466,6 +467,26 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARMultiMarkerInfoT* map = target->config;
 				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				success &= success2;
+
+                if (success2 && doDatums && markerType == 0)
+                {
+                    if (target->visible && target->UID < 100)
+                    {
+                        bool largeBoard = false;
+                        success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
+                        success &= success2;
+                        if (!target->visible){
+                            for (int i = 0; i < map->marker_num; i++){
+                                for (int j = 0; j < markerNum0; j++){
+                                    if (markerInfo0[j].idMatrix == map->marker[i].patt_id){
+                                        markerInfo0[j].idMatrix = -1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
 				if (success2 && target->visible) {
 					for (int i = 0; i < map->marker_num; i++) {
 						arx_mapper::Marker marker;
@@ -545,6 +566,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
 			}
 		}
+    // Stereo Mode. Currently not in use in Stannah Survey.
     } else {
         for (std::vector<ARTrackable *>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
             if ((*it)->type == ARTrackable::SINGLE) {

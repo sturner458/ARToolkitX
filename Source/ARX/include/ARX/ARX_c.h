@@ -168,7 +168,7 @@ extern "C" {
 	// ----------------------------------------------------------------------------------------------------
 
 	ARX_EXTERN void arwInitARToolKit(const char* vconf, const char* cparaName);
-	ARX_EXTERN bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums = false);
+	ARX_EXTERN bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums = false, int markerType = -1, int numberOfDatums = 0);
 	ARX_EXTERN void arwCleanupARToolKit();
 
 	// ----------------------------------------------------------------------------------------------------
@@ -528,7 +528,7 @@ extern "C" {
 	 * @param matrix	A float array to populate with an OpenGL-compatible transformation matrix.
 	 * @return			true if the specified trackable is visible, false if not, or an error occurred.
 	 */
-	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners);
+	ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, double datums[12], int* numDatums);
 
 	ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double* matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);
