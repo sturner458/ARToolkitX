@@ -204,7 +204,7 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
 			circlePoints.push_back(cv::Point3f(pt.x, pt.y, 0));
 		}
 	}
-	//ARLOGd("Found %i datums", (int)corners.size());
+	ARLOGd("Found %i datums", (int)circles.size());
 	// Known coordinates for circle centres.
 	std::vector<cv::Point2f> cornerCentres;    
 	// Add the corners of the marker square 1
@@ -297,7 +297,7 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
 	{
 		cv::Point2f pt = cornerCentres.at(i);
 		ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-		imageDatums.push_back(cv::Point2f(ox, oy));
+		imagePoints.push_back(cv::Point2f(ox, oy));
 	}
 
 	for (int i = 0; i < circlePoints.size(); i++)
