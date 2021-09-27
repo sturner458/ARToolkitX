@@ -209,7 +209,7 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         }
     }
     
-    ARLOGd("Found %i datums", (int)circles.size());
+    //ARLOGd("Found %i datums", (int)circles.size());
     
     // Known coordinates for circle centres.
     std::vector<cv::Point2f> cornerCentres;    // Add the corners of the marker square 1

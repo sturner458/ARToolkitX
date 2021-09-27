@@ -393,7 +393,13 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     int markerNum0 = 0;
     int markerNum1 = 0;
 
-    //ARLOGd("ARX::ARTrackerSquare::update()\n");
+    if(!lowRes) {
+        ARLOGd("ARX::ARTrackerSquare::update() highRes\n");
+    } else {
+        ARLOGd("ARX::ARTrackerSquare::update() lowRes\n");
+    }
+    
+    
 
     if (!m_arHandle0 || (buff1 && !m_arHandle1)) return false;
 
@@ -404,10 +410,10 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     markerInfo0 = arGetMarker(m_arHandle0);
     markerNum0 = arGetMarkerNum(m_arHandle0);
     
-    //ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
-    //for (int i = 0; i < markerNum0; i++) {
-    //    ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
-    //}
+//    ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
+//    for (int i = 0; i < markerNum0; i++) {
+//        ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
+//    }
     
     if (buff1) {
         if (arDetectMarker(m_arHandle1, buff1, lowRes ? 1 : 0) < 0) {
@@ -498,12 +504,12 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         if (target->visible && target->UID < 100)
                         {
                             bool largeBoard = false;
-                            ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
-                            ARLOGd("Target UID= %i .\n", target->UID );
+                            //ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
+                            //ARLOGd("Target UID= %i .\n", target->UID );
                             
-                            const char * hiresLowres = lowRes ? "LowRes": "HiRes";
-                            ARLOGd("%s \n", hiresLowres);
-                            ARPRINT("%s \n", hiresLowres);
+                            //const char * hiresLowres = lowRes ? "LowRes": "HiRes";
+                            //ARLOGd("%s \n", hiresLowres);
+                            //ARPRINT("%s \n", hiresLowres);
                             
                             success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
                             ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
@@ -594,9 +600,9 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                         }
                     }
                     success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-                    if (success && marker->visible && doDatums) {
-                        success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
-                    }
+//                    if (success && marker->visible && doDatums) {
+//                        success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
+//                    }
                     if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
     #endif
                 }

@@ -248,6 +248,8 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
         free(pos2d);
     }
     
+    ARLOGe("arGetTransMatMultiSquareRobust %f, %f", err, maxDeviation);
+    
     if (err < maxDeviation) config->prevF = 1;
     else {
         config->prevF = 0;
