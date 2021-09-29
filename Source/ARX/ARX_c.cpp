@@ -975,8 +975,8 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
     arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
     arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
     *myDoorFrameRightMarkerID = arwAddTrackable("single_barcode;252;80;", false, -1);
-    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    arwSetTrackableOptionBool(*myDoorFrameRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myDoorFrameRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
     *myDoorHingeLeftMarkerID = arwAddTrackable("single_barcode;253;80;", false, -1);
     arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
     arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
@@ -1648,7 +1648,7 @@ void arwSetTrackableOptionFloat(int trackableUID, int option, float value, bool 
     
     if (!gARTK2) return;
 	if (!(trackable = gARTK2->findTrackable(trackableUID))) {
-        ARLOGe("arwSetTrackableOptionFloat(): Couldn't locate trackable with UID %d.\n", trackableUID);
+        ARLOGe("arwSetTrackableOptionFloat(): Couldn't locate trackable with UID %d, lowRes %s.\n", trackableUID, lowRes ? "true" : "false");
         return;
     }
 
