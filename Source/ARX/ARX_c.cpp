@@ -686,6 +686,104 @@ float arwGetTrackerOptionFloat(int option, bool lowRes)
 #pragma mark  Trackable management
 // ---------------------------------------------------------------------------------------------
 
+void AddDatumMarkersToARToolKit_RevC7(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID)
+{
+
+    //!!!IMPORTANT NOTE:
+    //In arConfig.h:
+    //#define   AR_LABELING_32_BIT                  1     // 0 = 16 bits per label, 1 = 32 bits per label.
+    //#  define AR_LABELING_WORK_SIZE      1024*32*64
+
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE, AR_MATRIX_CODE_DETECTION, false);
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE, AR_MATRIX_CODE_DETECTION, true);
+
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE, AR_MATRIX_CODE_5x5_BCH_22_12_5, false);
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE, AR_MATRIX_CODE_5x5_BCH_22_12_5, true);
+
+    //ARToolKitFunctions.Instance.arwSetMarkerExtractionMode(AR_USE_TRACKING_HISTORY_V2); //This doesn't work in ARToolKitX
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD, (int)(threshold * 255.0 / 100.0), false);
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD, (int)(threshold * 255.0 / 100.0), true);
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE, thresholdMode, false);
+    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE, thresholdMode, true);
+    
+    arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, true, false);
+    arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, false, true);
+
+    for (int i = 0; i < 100; i++) {
+        std::string code = "single_barcode;" + std::to_string(i) + ";80";
+        int markerId = arwAddTrackable(code.c_str(), false, (i == 0) ? 0 : -1);
+        myMarkerIDs[i] = markerId;
+        arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+        arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    }
+    
+    *myGFMarkerID = arwAddTrackable("multi;data/GFMarkerRevC7.dat", false, -1);
+    arwSetTrackableOptionInt(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, false);
+    arwSetTrackableOptionInt(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, true);
+    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
+    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
+    arwSetTrackableOptionBool(*myGFMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myGFMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
+    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
+
+    *myStepMarkerID = arwAddTrackable("multi;data/StepMarkerRevC7.dat", false, -1);
+    arwSetTrackableOptionInt(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, false);
+    arwSetTrackableOptionInt(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, true);
+    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
+    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
+    arwSetTrackableOptionBool(*myStepMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myStepMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
+    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
+    
+    *myLeftBulkheadMarkerID = arwAddTrackable("single_barcode;102;80;", false, -1);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myRightBulkheadMarkerID = arwAddTrackable("single_barcode;103;80;", false, -1);
+    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+
+    *myDoorHingeRightMarkerID = arwAddTrackable("single_barcode;104;80;", false, -1);
+    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myDoorFrameRightMarkerID = arwAddTrackable("single_barcode;105;80;", false, -1);
+    arwSetTrackableOptionBool(*myDoorFrameRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myDoorHingeLeftMarkerID = arwAddTrackable("single_barcode;106;80;", false, -1);
+    arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myDoorFrameLeftMarkerID = arwAddTrackable("single_barcode;107;80;", false, -1);
+    arwSetTrackableOptionBool(*myDoorFrameLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myDoorFrameLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+
+    *myObstruct1MarkerID = arwAddTrackable("single_barcode;108;80;", false, -1);
+    arwSetTrackableOptionBool(*myObstruct1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myObstruct1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myObstruct2MarkerID = arwAddTrackable("single_barcode;109;80;", false, -1);
+    arwSetTrackableOptionBool(*myObstruct2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myObstruct2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myObstruct3MarkerID = arwAddTrackable("single_barcode;110;80;", false, -1);
+    arwSetTrackableOptionBool(*myObstruct3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myObstruct3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myObstruct4MarkerID = arwAddTrackable("single_barcode;111;80;", false, -1);
+    arwSetTrackableOptionBool(*myObstruct4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myObstruct4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    
+    *myWall1MarkerID = arwAddTrackable("single_barcode;112;80;", false, -1);
+    arwSetTrackableOptionBool(*myWall1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myWall1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myWall2MarkerID = arwAddTrackable("single_barcode;113;80;", false, -1);
+    arwSetTrackableOptionBool(*myWall2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myWall2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myWall3MarkerID = arwAddTrackable("single_barcode;114;80;", false, -1);
+    arwSetTrackableOptionBool(*myWall3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myWall3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myWall4MarkerID = arwAddTrackable("single_barcode;115;80;", false, -1);
+    arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+}
+
 void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID) {
     
     //!!!IMPORTANT NOTE:
@@ -799,105 +897,6 @@ void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myG
     arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
 }
 
-void AddDatumMarkersToARToolKit_RevC7(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID)
-{
-
-    //!!!IMPORTANT NOTE:
-    //In arConfig.h:
-    //#define   AR_LABELING_32_BIT                  1     // 0 = 16 bits per label, 1 = 32 bits per label.
-    //#  define AR_LABELING_WORK_SIZE      1024*32*64
-
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE, AR_MATRIX_CODE_DETECTION, false);
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_PATTERN_DETECTION_MODE, AR_MATRIX_CODE_DETECTION, true);
-
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE, AR_MATRIX_CODE_5x5_BCH_22_12_5, false);
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_MATRIX_CODE_TYPE, AR_MATRIX_CODE_5x5_BCH_22_12_5, true);
-
-    //ARToolKitFunctions.Instance.arwSetMarkerExtractionMode(AR_USE_TRACKING_HISTORY_V2); //This doesn't work in ARToolKitX
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD, (int)(threshold * 255.0 / 100.0), false);
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD, (int)(threshold * 255.0 / 100.0), true);
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE, thresholdMode, false);
-    arwSetTrackerOptionInt(ARW_TRACKER_OPTION_SQUARE_THRESHOLD_MODE, thresholdMode, true);
-    
-    arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, true, false);
-    arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, false, true);
-
-    for (int i = 0; i < 100; i++) {
-        std::string code = "single_barcode;" + std::to_string(i) + ";80";
-        int markerId = arwAddTrackable(code.c_str(), false, (i == 0) ? 0 : -1);
-        myMarkerIDs[i] = markerId;
-        arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-        arwSetTrackableOptionBool(markerId, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    }
-    
-    *myGFMarkerID = arwAddTrackable("multi;data/GFMarkerRevC7.dat", false, -1);
-    arwSetTrackableOptionInt(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, false);
-    arwSetTrackableOptionInt(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, true);
-    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
-    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
-    arwSetTrackableOptionBool(*myGFMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myGFMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
-    arwSetTrackableOptionFloat(*myGFMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
-
-    *myStepMarkerID = arwAddTrackable("multi;data/StepMarkerRevC7.dat", false, -1);
-    arwSetTrackableOptionInt(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, false);
-    arwSetTrackableOptionInt(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_SUBMARKERS, 4, true);
-    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, false);
-    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_CONF_MATRIX, 1.0f, true);
-    arwSetTrackableOptionBool(*myStepMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myStepMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
-    arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
-    
-    *myLeftBulkheadMarkerID = arwAddTrackable("single_barcode;102;80;", false, -1);
-    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myRightBulkheadMarkerID = arwAddTrackable("single_barcode;103;80;", false, -1);
-    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-
-    *myDoorHingeRightMarkerID = arwAddTrackable("single_barcode;104;80;", false, -1);
-    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myDoorFrameRightMarkerID = arwAddTrackable("single_barcode;105;80;", false, -1);
-    arwSetTrackableOptionBool(*myDoorFrameRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myDoorHingeLeftMarkerID = arwAddTrackable("single_barcode;106;80;", false, -1);
-    arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myDoorHingeLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myDoorFrameLeftMarkerID = arwAddTrackable("single_barcode;107;80;", false, -1);
-    arwSetTrackableOptionBool(*myDoorFrameLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myDoorFrameLeftMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-
-    *myObstruct1MarkerID = arwAddTrackable("single_barcode;108;80;", false, -1);
-    arwSetTrackableOptionBool(*myObstruct1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myObstruct1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myObstruct2MarkerID = arwAddTrackable("single_barcode;109;80;", false, -1);
-    arwSetTrackableOptionBool(*myObstruct2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myObstruct2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myObstruct3MarkerID = arwAddTrackable("single_barcode;110;80;", false, -1);
-    arwSetTrackableOptionBool(*myObstruct3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myObstruct3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myObstruct4MarkerID = arwAddTrackable("single_barcode;111;80;", false, -1);
-    arwSetTrackableOptionBool(*myObstruct4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myObstruct4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    
-    *myWall1MarkerID = arwAddTrackable("single_barcode;112;80;", false, -1);
-    arwSetTrackableOptionBool(*myWall1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myWall1MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myWall2MarkerID = arwAddTrackable("single_barcode;113;80;", false, -1);
-    arwSetTrackableOptionBool(*myWall2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myWall2MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myWall3MarkerID = arwAddTrackable("single_barcode;114;80;", false, -1);
-    arwSetTrackableOptionBool(*myWall3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myWall3MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myWall4MarkerID = arwAddTrackable("single_barcode;115;80;", false, -1);
-    arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-}
-
-
 void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID) {
     
     //!!!IMPORTANT NOTE:
@@ -919,6 +918,8 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
     
     arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, true, false);
     arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, false, true);
+    
+    //int l = 1;
 
     for (int i = 1; i <= 100; i++) {
         std::string number;

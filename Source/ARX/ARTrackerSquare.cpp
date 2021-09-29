@@ -393,7 +393,13 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     int markerNum0 = 0;
     int markerNum1 = 0;
 
-    //ARLOGd("ARX::ARTrackerSquare::update()\n");
+    if(!lowRes) {
+        ARLOGd("ARX::ARTrackerSquare::update() highRes\n");
+    } else {
+        ARLOGd("-");
+    }
+    
+    
 
     if (!m_arHandle0 || (buff1 && !m_arHandle1)) return false;
 
@@ -404,10 +410,10 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     markerInfo0 = arGetMarker(m_arHandle0);
     markerNum0 = arGetMarkerNum(m_arHandle0);
     
-    //ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
-    //for (int i = 0; i < markerNum0; i++) {
-    //    ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
-    //}
+//    ARPRINT("ARX::ARTrackerSquare::update() num markers = %d.\n", markerNum0);
+//    for (int i = 0; i < markerNum0; i++) {
+//        ARPRINT("Marker found : %d %d.\n", (int)markerInfo0->globalID, markerInfo0->idMatrix);
+//    }
     
     if (buff1) {
         if (arDetectMarker(m_arHandle1, buff1, lowRes ? 1 : 0) < 0) {
@@ -426,7 +432,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                 if ((*it)->type == ARTrackable::SINGLE) {
                     success &= ((ARTrackableSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
                 } else if ((*it)->type == ARTrackable::MULTI) {
-                    success &= ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                    success &= ((ARTrackableMultiSquare *)(*it))->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, 1);
                 }
             }
         } else {
@@ -488,7 +494,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                     
                 } else if ((*it)->type == ARTrackable::MULTI) {
                     ARTrackableMultiSquare* target = ((ARTrackableMultiSquare*)(*it));
-                    bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
+                    bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, 1);
                     success &= success2;
     #if HAVE_GTSAM
                     ARMultiMarkerInfoT* map = target->config;                    
@@ -501,12 +507,12 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                             //ARLOGd("Attempting to use datum circles. For RevC1_ %i \n", numberOfDatums);
                             //ARLOGd("Target UID= %i .\n", target->UID );
                             
-                            const char * hiresLowres = lowRes ? "LowRes": "HiRes";
-                            ARLOGd("%s \n", hiresLowres);
-                            ARPRINT("%s \n", hiresLowres);
+                            //const char * hiresLowres = lowRes ? "LowRes": "HiRes";
+                            //ARLOGd("%s \n", hiresLowres);
+                            //ARPRINT("%s \n", hiresLowres);
                             
                             success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
-                            ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
+                            //ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
                             success &= success2;
                             if (!target->visible){
                                 for (int i = 0; i < map->marker_num; i++){
@@ -547,9 +553,12 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
     #endif
                 }
             }
-
+            
+            //ARLOGd("ARTrackerSquare::update:L:558 DOMAPPER:%d\n", doMapper);
+            
             // Now do the multi_auto marker
             for (std::vector<ARTrackable*>::iterator it = trackables.begin(); it != trackables.end(); ++it) {
+                
                 if (doMapper && (*it)->type == ARTrackable::MULTI_AUTO) {
     #if HAVE_GTSAM
                     ARTrackableMultiSquareAuto* marker = (ARTrackableMultiSquareAuto*)(*it);
@@ -593,10 +602,11 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                             markers.push_back(m);
                         }
                     }
-                    success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-                    if (success && marker->visible && doDatums) {
-                        success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
-                    }
+                    
+                    success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, 0);
+//                    if (success && marker->visible && doDatums) {
+//                        success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
+//                    }
                     if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
     #endif
                 }
