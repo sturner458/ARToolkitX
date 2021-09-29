@@ -918,6 +918,8 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
     
     arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, true, false);
     arwSetTrackerOptionBool(ARW_TRACKER_OPTION_2D_CORNER_REFINEMENT, false, true);
+    
+    //int l = 1;
 
     for (int i = 1; i <= 100; i++) {
         std::string number;

@@ -53,22 +53,22 @@
 #include <ARX/AR/arMulti.h>
 
 static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
-                                         ARMultiMarkerInfoT *config, int robustFlag);
+                                         ARMultiMarkerInfoT *config, int robustFlag, int lowRes);
 
 ARdouble  arGetTransMatMultiSquare(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
-                                 ARMultiMarkerInfoT *config)
+                                 ARMultiMarkerInfoT *config, int lowRes)
 {
-    return arGetTransMatMultiSquare2(handle, marker_info, marker_num, config, 0);
+    return arGetTransMatMultiSquare2(handle, marker_info, marker_num, config, 0, lowRes);
 }
 
 ARdouble  arGetTransMatMultiSquareRobust(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
                                        ARMultiMarkerInfoT *config)
 {
-    return arGetTransMatMultiSquare2(handle, marker_info, marker_num, config, 1);
+    return arGetTransMatMultiSquare2(handle, marker_info, marker_num, config, 1, 1);
 }
 
 static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
-                                         ARMultiMarkerInfoT *config, int robustFlag)
+                                         ARMultiMarkerInfoT *config, int robustFlag, int lowRes)
 {
     ARdouble              *pos2d, *pos3d;
     ARdouble              trans1[3][4], trans2[3][4];
@@ -240,15 +240,18 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
             err2 = arGetTransMat(handle, trans2, (ARdouble (*)[2])pos2d, (ARdouble (*)[3])pos3d, vnum*4, trans1);
             err = arGetTransMat(handle, config->trans, (ARdouble (*)[2])pos2d, (ARdouble (*)[3])pos3d, vnum*4, config->trans);
             if (err2 < err) {
-                for (j = 0; j < 3; j++) for (i = 0; i < 4; i++) config->trans[j][i] = trans1[j][i];
+                for (j = 0; j < 3; j++)
+                    for (i = 0; i < 4; i++)
+                        config->trans[j][i] = trans1[j][i];
                 err = err2;
+                if(!lowRes){
+                    ARLOGd("error %f, %f\n", err, maxDeviation);
+                }
             }
         }
         free(pos3d);
         free(pos2d);
     }
-    
-    ARLOGe("arGetTransMatMultiSquareRobust %f, %f", err, maxDeviation);
     
     if (err < maxDeviation) config->prevF = 1;
     else {
@@ -258,6 +261,8 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
             if (marker_info[k].cutoffPhase == AR_MARKER_INFO_CUTOFF_PHASE_NONE) marker_info[k].cutoffPhase = AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI;
         }
     }
-
+    if(!lowRes){
+        ARLOGd("arGetTransMatMultiSquare2: [config->prevF: %d]\n", config->prevF);
+    }
     return err;
 }

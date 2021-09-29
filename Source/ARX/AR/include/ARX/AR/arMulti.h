@@ -124,7 +124,7 @@ AR_EXTERN int arMultiRemoveSubmarker(ARMultiMarkerInfoT *marker_info, int patt_i
 AR_EXTERN int arMultiFreeConfig( ARMultiMarkerInfoT *config );
 
 AR_EXTERN ARdouble  arGetTransMatMultiSquare(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
-                                 ARMultiMarkerInfoT *config);
+                                 ARMultiMarkerInfoT *config, int lowRes);
 
 AR_EXTERN ARdouble  arGetTransMatMultiSquareRobust(AR3DHandle *handle, ARMarkerInfo *marker_info, int marker_num,
                                        ARMultiMarkerInfoT *config);

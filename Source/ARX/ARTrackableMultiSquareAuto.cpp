@@ -129,7 +129,7 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
                 
                 ARdouble multiErr;
                 if (m_robustFlag) multiErr = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfoCopy, markerNum, m_MultiConfig);
-                else multiErr = arGetTransMatMultiSquare(ar3DHandle, markerInfoCopy, markerNum, m_MultiConfig);
+                else multiErr = arGetTransMatMultiSquare(ar3DHandle, markerInfoCopy, markerNum, m_MultiConfig, 1);
                 if (m_MultiConfig->prevF != 0) {
                     
                     //ARLOGi("Got multimarker pose with err=%0.3f\n", multiErr);
@@ -275,12 +275,11 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
     return (ARTrackable::update()); // Parent class will finish update.
 }
 
-bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle)
+bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, int lowRes)
 {
     visiblePrev = visible;
 
     if (markerInfo) {
-
         ARdouble err;
         if (m_MultiConfig->marker_num < 2) {
             m_MultiConfig->min_submarker = 1;
@@ -294,26 +293,26 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
         else {
             m_MultiConfig->min_submarker = 2;
         }
-
         if (m_robustFlag) {
             err = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, m_MultiConfig);
             ARLOGe("arGetTransMatMultiSquareRobust %f", err);
         }
         else {
-            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, m_MultiConfig);
+            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, m_MultiConfig, 0);
         }
-
         // Marker is visible if a match was found.
         if (m_MultiConfig->prevF != 0) {
             visible = true;
 
-            for (int j = 0; j < 3; j++) for (int k = 0; k < 4; k++) trans[j][k] = m_MultiConfig->trans[j][k];
+            for (int j = 0; j < 3; j++)
+                for (int k = 0; k < 4; k++)
+                    trans[j][k] = m_MultiConfig->trans[j][k];
         }
         else visible = false;
 
     }
     else visible = false;
-
+    ARLOGd("updateWithDetectedMarkers: [visible: %d]\n", visible);
     return (ARTrackable::update()); // Parent class will finish update.
 }
 

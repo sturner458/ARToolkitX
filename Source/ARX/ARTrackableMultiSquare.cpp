@@ -116,7 +116,7 @@ bool ARTrackableMultiSquare::unload()
     return true;
 }
 
-bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle)
+bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle, int lowRes)
 {
     if (!m_loaded || !config) return false;            // Can't update without multimarker config
 
@@ -130,7 +130,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
         if (robustFlag) {
             err = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, config);
         } else {
-            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config);
+            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config, 1);
         }
         
         // Marker is visible if a match was found.
