@@ -56,7 +56,7 @@ struct ARTrackableMapPrivateMembers {
 
 ARTrackableMultiSquareAuto::ARTrackableMultiSquareAuto(int setUID) : ARTrackable(MULTI_AUTO, setUID),
     m_OriginMarkerUid(0),
-    m_markerWidth(80.0f),
+    m_markerWidth(65.0f),
     m_MultiConfig(NULL),
     m_pm(new struct ARTrackableMapPrivateMembers)
 {
@@ -73,6 +73,7 @@ ARTrackableMultiSquareAuto::~ARTrackableMultiSquareAuto()
 
 bool ARTrackableMultiSquareAuto::initWithOriginMarkerUID(int originMarkerUID, ARdouble markerWidth)
 {
+    ARLOGd("Initialising Multisquare Marker width = %f\n", markerWidth);
     m_OriginMarkerUid = originMarkerUID;
     m_markerWidth = markerWidth;
     return true;
@@ -334,8 +335,9 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapp
     else {
         m_MultiConfig->min_submarker = 2;
     }
-
+    ARLOGd("updateWithDetectedMarkers2 m_MultiConfig->prevF = %d \n", m_MultiConfig->prevF);
     err = GetTransMatMultiSquare(markers, ar3DHandle);
+    ARLOGd("updateWithDetectedMarkers2 m_MultiConfig->prevF = %d \n", m_MultiConfig->prevF);
 
     // Marker is visible if a match was found.
     if (m_MultiConfig->prevF != 0) {
@@ -359,7 +361,6 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
     int                   dir;
     int                   i, j, k;
     //char  mes[12];
-
     //ARLOGd("-- Pass2--\n");
     vnum = 0;
     for (i = 0; i < m_MultiConfig->marker_num; i++) {
@@ -434,10 +435,14 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         pos3d[j * 12 + 9] = m_MultiConfig->marker[i].pos3d[3][0];
         pos3d[j * 12 + 10] = m_MultiConfig->marker[i].pos3d[3][1];
         pos3d[j * 12 + 11] = m_MultiConfig->marker[i].pos3d[3][2];
+        ARLOGd("{Marker Num: %d}:\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n", i, pos3d[j * 12 + 0], pos3d[j * 12 + 1], pos3d[j * 12 + 2], pos3d[j * 12 + 3], pos3d[j * 12 + 4], pos3d[j * 12 + 5], pos3d[j * 12 + 6], pos3d[j * 12 + 7], pos3d[j * 12 + 8], pos3d[j * 12 + 9], pos3d[j * 12 + 10], pos3d[j * 12 + 11]);
         j++;
     }
-
+    
+    ARLOGd("");
+    
     ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
+
     if (vnum <= 2) {
         maxDeviation = 5.0;
     }
@@ -448,12 +453,20 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         //maxDeviation = 120.0;
         maxDeviation = 500.0; //I'm finding that a bad measurement on the image before this one can cause problems.
     }
-
+    ARLOGd("trans2\n");
+    for (j = 0; j < 3; j++) {
+        ARLOGd("%f %f %f %f\n", trans2[j][0], trans2[j][1], trans2[j][2], trans2[j][3]);
+    }
+    ARLOGd("m_MultiConfig->trans\n");
+    for (j = 0; j < 3; j++) {
+        ARLOGd("%f %f %f %f\n", m_MultiConfig->trans[j][0], m_MultiConfig->trans[j][1], m_MultiConfig->trans[j][2], m_MultiConfig->trans[j][3]);
+    }
+    
     ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, m_MultiConfig->trans);
     free(pos3d);
     free(pos2d);
-
-    if (err < maxDeviation) {
+    ARLOGd("ARTrackableMultiSquareAuto::GetTransMatMultiSquare called: err: %f, maxDeviation: %f \n", err, maxDeviation);
+    if (err < 35000) {
         m_MultiConfig->prevF = 1;
     }
     else {
@@ -489,7 +502,7 @@ void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableM
                 origin[j][k] = map->marker[i].trans[j][k];
             }
         }
-
+        ARLOGd("initialiseWithMultiSquareTrackable, m_markerWidth = %d\n", m_markerWidth);
         arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
 
         if (map->marker[i].patt_id == m_OriginMarkerUid) {

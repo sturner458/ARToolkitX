@@ -170,7 +170,9 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
     j = 0; 
     for( i = 0; i < config->marker_num; i++ ) { 
         if( (k=config->marker[i].visible) < 0 ) continue;
-        
+        if(!lowRes){
+            ARLOGd("Marker %d width: %f", i, config->marker[i].width);
+        }
         dir = marker_info[k].dir;
         pos2d[j*8+0] = marker_info[k].vertex[(4-dir)%4][0];
         pos2d[j*8+1] = marker_info[k].vertex[(4-dir)%4][1];
@@ -244,9 +246,6 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
                     for (i = 0; i < 4; i++)
                         config->trans[j][i] = trans1[j][i];
                 err = err2;
-                if(!lowRes){
-                    ARLOGd("error %f, %f\n", err, maxDeviation);
-                }
             }
         }
         free(pos3d);
@@ -260,9 +259,6 @@ static ARdouble  arGetTransMatMultiSquare2(AR3DHandle *handle, ARMarkerInfo *mar
             if ((k = config->marker[i].visible) < 0) continue;
             if (marker_info[k].cutoffPhase == AR_MARKER_INFO_CUTOFF_PHASE_NONE) marker_info[k].cutoffPhase = AR_MARKER_INFO_CUTOFF_PHASE_POSE_ERROR_MULTI;
         }
-    }
-    if(!lowRes){
-        ARLOGd("arGetTransMatMultiSquare2: [config->prevF: %d]\n", config->prevF);
     }
     return err;
 }

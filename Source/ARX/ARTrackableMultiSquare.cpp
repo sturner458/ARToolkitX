@@ -118,8 +118,13 @@ bool ARTrackableMultiSquare::unload()
 
 bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle *ar3DHandle, int lowRes)
 {
+
+    
     if (!m_loaded || !config) return false;            // Can't update without multimarker config
 
+    
+    
+    
     visiblePrev = visible;
 
     qrMarkerCornerPointsInPixels.clear();
@@ -130,7 +135,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
         if (robustFlag) {
             err = arGetTransMatMultiSquareRobust(ar3DHandle, markerInfo, markerNum, config);
         } else {
-            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config, 1);
+            err = arGetTransMatMultiSquare(ar3DHandle, markerInfo, markerNum, config, lowRes);
         }
         
         // Marker is visible if a match was found.

@@ -1298,7 +1298,7 @@ void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, do
 }
 
 void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners) {
-
+    //ARLOGd("arwAddMappedMarkers: nMarkers: %d\n", nMarkers);
     std::vector<arx_mapper::Marker> markers;
     for (int n = 0; n < nMarkers; n++) {
         arx_mapper::Marker marker;
@@ -1318,7 +1318,7 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
 
     ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
     if (t) {
-
+        ARLOGd("Number of markers in auto marker: %d\n", t->m_MultiConfig->marker_num);
         if (t->m_MultiConfig->marker_num == 0) {
             GFMarker->visible = false;
             for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
@@ -1334,9 +1334,9 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
                 }
             }
             if (!GFMarker->visible) return;
-
+            ARLOGd("GFMarker visible\n");
             t->initialiseWithMultiSquareTrackable(GFMarker);
-
+            ARLOGd("initialiseWithMultiSquareTrackable completed. t->visible: %d\n", t->visible);
             //Only add markers which belong to the ground floor board
             std::vector<arx_mapper::Marker> newmarkers;
             for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
@@ -1354,8 +1354,9 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
                 markers.push_back(m);
             }
         }
-
+        ARLOGd("updateWithDetectedMarkers2 called. t->m_MultiConfig->prevF: %d\n", t->m_MultiConfig->prevF);
         bool success = t->updateWithDetectedMarkers2(markers, gARTK->getAR3DHandle());
+        ARLOGd("updateWithDetectedMarkers2 completed. success: %d, t->visible: %d, t->m_MultiConfig->prevF: %d \n", success, t->visible, t->m_MultiConfig->prevF);
         if (success && t->visible) {
             success = t->updateMapperWithMarkers(markers);
         }

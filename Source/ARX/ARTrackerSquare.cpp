@@ -397,9 +397,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
         ARLOGd("ARX::ARTrackerSquare::update() highRes\n");
     } else {
         ARLOGd("-");
-    }
-    
-    
+    } 
 
     if (!m_arHandle0 || (buff1 && !m_arHandle1)) return false;
 
