@@ -476,9 +476,9 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
 
 	// Add the corners of the marker square
 	datumCentres.push_back(cv::Point2f(-40, 40));
-	datumCentres.push_back(cv::Point2f(-40, -40));
-	datumCentres.push_back(cv::Point2f(40, -40));
 	datumCentres.push_back(cv::Point2f(40, 40));
+	datumCentres.push_back(cv::Point2f(40, -40));
+	datumCentres.push_back(cv::Point2f(-40, -40));	
 
 	int datumsDetected = objectPoints.size();
 
@@ -537,7 +537,7 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
 	if (err > 10.0f) visible = false;
 
 	imageDatums.clear();
-	imagePoints.clear();
+	//imagePoints.clear();
 
 	for (int i = 0; i < datumCentres.size(); i++)
 	{
@@ -547,9 +547,9 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
 		if (i < datumsDetected) {
 			imageDatums.push_back(cv::Point2f(ox, oy));
 		}
-		else {
-			imagePoints.push_back(cv::Point2f(ox, oy));
-		}
+		//else {
+		//	imagePoints.push_back(cv::Point2f(ox, oy));
+		//}
 	}	
 	
 	delete[] datumCoords2D;
