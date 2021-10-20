@@ -214,20 +214,22 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         }
     }
     
-    //ARLOGd("Found %i datums", (int)circles.size());
+    ARLOGd("Found %i datums\n", (int)circles.size());
     
     // Known coordinates for circle centres.
     std::vector<cv::Point2f> cornerCentres;    // Add the corners of the marker square 1
     
+    
     cornerCentres.push_back(cv::Point2f(-32.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(-32.5, -32.5));
-    cornerCentres.push_back(cv::Point2f(32.5, -32.5));
     cornerCentres.push_back(cv::Point2f(32.5, 32.5));
+    cornerCentres.push_back(cv::Point2f(32.5, -32.5));
+    cornerCentres.push_back(cv::Point2f(-32.5, -32.5));
+    
     // Add the corners of the marker square 2
     cornerCentres.push_back(cv::Point2f(-102.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(-102.5, -32.5));
-    cornerCentres.push_back(cv::Point2f(-37.5, -32.5));
     cornerCentres.push_back(cv::Point2f(-37.5, 32.5));
+    cornerCentres.push_back(cv::Point2f(-37.5, -32.5));
+    cornerCentres.push_back(cv::Point2f(-102.5, -32.5));
     
     std::vector<cv::Point2f> corners;
     std::vector<cv::Point3f> cornerPoints;
@@ -301,15 +303,15 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
     err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)(circles.size() + corners.size()), trans);
     if (err > 10.0f) visible = false;
 
-    qrMarkerCornerPointsInPixels.clear();
+//    qrMarkerCornerPointsInPixels.clear();
     datumCircleCentrePointsInPixels.clear();
 
-    for (int i = 0; i < cornerCentres.size(); i++)
-    {
-        cv::Point2f pt = cornerCentres.at(i);
-        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
-    }
+//    for (int i = 0; i < cornerCentres.size(); i++)
+//    {
+//        cv::Point2f pt = cornerCentres.at(i);
+//        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
+//        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
+//    }
     
     for (int i = 0; i < circlePoints.size(); i++)
     {
