@@ -91,7 +91,7 @@ ARMultiMarkerInfoT *arMultiCopyConfig(const ARMultiMarkerInfoT *marker_info)
 }
 
 // patt_type: Either AR_MULTI_PATTERN_TYPE_TEMPLATE or AR_MULTI_PATTERN_TYPE_MATRIX.
-int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID)
+int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID, int numCircles)
 {
     int i;
     
@@ -114,9 +114,15 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
             ARLOGe("arMultiAddOrUpdateSubmarker out of memory!!\n");
             return (-1);
         }
+        if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
+            emi->numCircles = 0;
+        } else {
+            emi->numCircles = numCircles;
+        }
+        
         marker_info->marker = emi;
         marker_info->marker_num++;
-
+        
         // As we've enlarged the array, i is now a valid index.
         memset(&marker_info->marker[i], 0, sizeof(ARMultiEachMarkerInfoT));
         marker_info->marker[i].patt_id = patt_id;
@@ -127,7 +133,13 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
         }
     }
     
+    
     arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);
+    //if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
+    //    arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans, 0);
+    //} else {
+    //    arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans, numCircles);
+    //}
     
     if (patt_type == AR_MULTI_PATTERN_TYPE_MATRIX) {
         if (marker_info->patt_type == AR_MULTI_PATTERN_DETECTION_MODE_TEMPLATE) {
@@ -178,6 +190,104 @@ void arMultiUpdateSubmarkerPose(ARMultiEachMarkerInfoT *submarker, const ARdoubl
                                + submarker->trans[2][1] * wpos3d[j][1]
                                + submarker->trans[2][3];
     }
+    
+    if (submarker->numCircles == 4)
+    {
+        submarker->circles[0][0] =    submarker->trans[0][0] * (-115)
+                                    + submarker->trans[0][1] * 25
+                                    + submarker->trans[0][3];
+        submarker->circles[0][1] =    submarker->trans[1][0] * (-115)
+                                    + submarker->trans[1][1] * 25
+                                    + submarker->trans[1][3];
+        submarker->circles[0][2] =    submarker->trans[2][0] * (-115)
+                                    + submarker->trans[2][1] * 25
+                                    + submarker->trans[2][3];
+        submarker->circles[1][0] =    submarker->trans[0][0] * (-115)
+                                    + submarker->trans[0][1] * (-25)
+                                    + submarker->trans[0][3];
+        submarker->circles[1][1] =    submarker->trans[1][0] * (-115)
+                                    + submarker->trans[1][1] * (-25)
+                                    + submarker->trans[1][3];
+        submarker->circles[1][2] =    submarker->trans[2][0] * (-115)
+                                    + submarker->trans[2][1] * (-25)
+                                    + submarker->trans[2][3];
+        submarker->circles[2][0] =    submarker->trans[0][0] * 45
+                                    + submarker->trans[0][1] * 25
+                                    + submarker->trans[0][3];
+        submarker->circles[2][1] =    submarker->trans[1][0] * 45
+                                    + submarker->trans[1][1] * 25
+                                    + submarker->trans[1][3];
+        submarker->circles[2][2] =    submarker->trans[2][0] * 45
+                                    + submarker->trans[2][1] * 25
+                                    + submarker->trans[2][3];
+        submarker->circles[3][0] =    submarker->trans[0][0] * 45
+                                    + submarker->trans[0][1] * (-25)
+                                    + submarker->trans[0][3];
+        submarker->circles[3][1] =    submarker->trans[1][0] * 45
+                                    + submarker->trans[1][1] * (-25)
+                                    + submarker->trans[1][3];
+        submarker->circles[3][2] =    submarker->trans[2][0] * 45
+                                    + submarker->trans[2][1] * (-25)
+                                    + submarker->trans[2][3];
+    }
+    else if (submarker->numCircles == 6)
+    {
+        submarker->circles[0][0] =    submarker->trans[0][0] * (-115)
+                                    + submarker->trans[0][1] * 25
+                                    + submarker->trans[0][3];
+        submarker->circles[0][1] =    submarker->trans[1][0] * (-115)
+                                    + submarker->trans[1][1] * 25
+                                    + submarker->trans[1][3];
+        submarker->circles[0][2] =    submarker->trans[2][0] * (-115)
+                                    + submarker->trans[2][1] * 25
+                                    + submarker->trans[2][3];
+        submarker->circles[1][0] =    submarker->trans[0][0] * (-115)
+                                    + submarker->trans[0][1] * (-25)
+                                    + submarker->trans[0][3];
+        submarker->circles[1][1] =    submarker->trans[1][0] * (-115)
+                                    + submarker->trans[1][1] * (-25)
+                                    + submarker->trans[1][3];
+        submarker->circles[1][2] =    submarker->trans[2][0] * (-115)
+                                    + submarker->trans[2][1] * (-25)
+                                    + submarker->trans[2][3];
+        submarker->circles[2][0] =    submarker->trans[0][0] * (-115)
+                                    + submarker->trans[0][1] * 0
+                                    + submarker->trans[0][3];
+        submarker->circles[2][1] =    submarker->trans[1][0] * (-115)
+                                    + submarker->trans[1][1] * 0
+                                    + submarker->trans[1][3];
+        submarker->circles[2][2] =    submarker->trans[2][0] * (-115)
+                                    + submarker->trans[2][1] * 0
+                                    + submarker->trans[2][3];
+        submarker->circles[3][0] =    submarker->trans[0][0] * 45
+                                    + submarker->trans[0][1] * 0
+                                    + submarker->trans[0][3];
+        submarker->circles[3][1] =    submarker->trans[1][0] * 45
+                                    + submarker->trans[1][1] * 0
+                                    + submarker->trans[1][3];
+        submarker->circles[3][2] =    submarker->trans[2][0] * 45
+                                    + submarker->trans[2][1] * 0
+                                    + submarker->trans[2][3];
+        submarker->circles[4][0] =    submarker->trans[0][0] * 45
+                                    + submarker->trans[0][1] * 25
+                                    + submarker->trans[0][3];
+        submarker->circles[4][1] =    submarker->trans[1][0] * 45
+                                    + submarker->trans[1][1] * 25
+                                    + submarker->trans[1][3];
+        submarker->circles[4][2] =    submarker->trans[2][0] * 45
+                                    + submarker->trans[2][1] * 25
+                                    + submarker->trans[2][3];
+        submarker->circles[5][0] =    submarker->trans[0][0] * 45
+                                    + submarker->trans[0][1] * (-25)
+                                    + submarker->trans[0][3];
+        submarker->circles[5][1] =    submarker->trans[1][0] * 45
+                                    + submarker->trans[1][1] * (-25)
+                                    + submarker->trans[1][3];
+        submarker->circles[5][2] =    submarker->trans[2][0] * 45
+                                    + submarker->trans[2][1] * (-25)
+                                    + submarker->trans[2][3];
+    }
+
 }
 
 int arMultiRemoveSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, uint64_t globalID)

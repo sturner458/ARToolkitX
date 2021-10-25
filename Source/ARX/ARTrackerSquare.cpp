@@ -509,7 +509,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                             //ARLOGd("%s \n", hiresLowres);
                             //ARPRINT("%s \n", hiresLowres);
                             
-                            success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
+                            success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, markerInfo0, m_ar3DHandle, largeBoard, numberOfDatums);
                             //ARLOGe("Image Width: %i Height: %i.\n", m_arHandle0->xsize, m_arHandle0->ysize );
                             success &= success2;
                             if (!target->visible){

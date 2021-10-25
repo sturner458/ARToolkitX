@@ -73,7 +73,7 @@ public:
     bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, int lowRes);
     bool updateWithDetectedMarkersOpenCV(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, ARHandle* arHandle);
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, ARMarkerInfo* markerInfoR, int markerNumR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
-    bool updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums);
+    bool updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, ARMarkerInfo* markerInfo, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums);
 };
 
 #endif // !ARMARKERMULTI_H

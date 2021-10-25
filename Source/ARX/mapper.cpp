@@ -118,7 +118,7 @@ namespace arx_mapper {
         for (const int uid : all_uids_) {
             ARdouble mTrans[3][4];
             ARTransFromPose(mTrans, results.at<Pose3>(Symbol('l', uid)));
-            arMultiAddOrUpdateSubmarker(map, uid, AR_MULTI_PATTERN_TYPE_MATRIX, width_, mTrans, 0);
+            arMultiAddOrUpdateSubmarker(map, uid, AR_MULTI_PATTERN_TYPE_MATRIX, width_, mTrans, 0, numCircles);
         }
     }
     

@@ -169,7 +169,7 @@ bool ARTrackableMultiSquare::updateWithDetectedMarkers(ARMarkerInfo* markerInfo,
     return (ARTrackable::update()); // Parent class will finish update.
 }
 
-bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums)
+bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, ARMarkerInfo* markerInfo, AR3DHandle* ar3DHandle, bool largeBoard, int numberOfDatums)
 {
     ARdouble* datumCoords2D;
     ARdouble* datumCoords;
@@ -211,79 +211,46 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         {
             circles.push_back(cv::Point2f(ox, oy));
             circlePoints.push_back(cv::Point3f(pt.x, pt.y, 0));
+        } else {
+            visible = false;
+            return false;
         }
     }
     
     ARLOGd("Found %i datums\n", (int)circles.size());
     
-    // Known coordinates for circle centres.
-    std::vector<cv::Point2f> cornerCentres;    // Add the corners of the marker square 1
-    
-    
-    cornerCentres.push_back(cv::Point2f(-32.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(32.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(32.5, -32.5));
-    cornerCentres.push_back(cv::Point2f(-32.5, -32.5));
-    
-    // Add the corners of the marker square 2
-    cornerCentres.push_back(cv::Point2f(-102.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(-37.5, 32.5));
-    cornerCentres.push_back(cv::Point2f(-37.5, -32.5));
-    cornerCentres.push_back(cv::Point2f(-102.5, -32.5));
-    
-    std::vector<cv::Point2f> corners;
-    std::vector<cv::Point3f> cornerPoints;
-    for (int i = 0; i < (int)cornerCentres.size(); i++)
-    {
-        cv::Point2f pt = cornerCentres.at(i);
-        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        corners.push_back(cv::Point2f(ox, oy));
-        cornerPoints.push_back(cv::Point3f(pt.x, pt.y, 0));
-    }
-
     // Populate datum coords with whatever we have in objectPoints.
-    datumCoords = new ARdouble[(circlePoints.size() + cornerPoints.size()) * 3];
-    for (int i = 0; i < (int)cornerPoints.size(); i++)
-    {
-        cv::Point3f pt = cornerPoints.at(i);
-        datumCoords[i * 3] = pt.x;
-        datumCoords[i * 3 + 1] = pt.y;
-        datumCoords[i * 3 + 2] = 0;
-    }
-
-    std::vector<cv::Point2f> cornersCopy;
-    for (int i = 0; i < corners.size(); i++)
-    {
-        cornersCopy.push_back(cv::Point2f(corners.at(i).x, corners.at(i).y));
-    }
-
-    datumCoords2D = new ARdouble[(circles.size() + corners.size()) * 2];
-
-    cv::cornerSubPix(grayImage, corners, cv::Size(5, 5), cv::Size(-1, -1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
-    for (int i = 0; i < (int)corners.size(); i++)
-    {
-        ARdouble ix, iy;
-        ARdouble ox, oy;
-        double d = sqrt((cornersCopy.at(i).x - corners.at(i).x) * (cornersCopy.at(i).x - corners.at(i).x) + (cornersCopy.at(i).y - corners.at(i).y) * (cornersCopy.at(i).y - corners.at(i).y));
-        if (d < 3.0)
-        {
-            // refined
-            ix = corners.at(i).x;
-            iy = corners.at(i).y;
-        }
-        else
-        {
-            // non-refined
-            ix = cornersCopy.at(i).x;
-            iy = cornersCopy.at(i).y;
-        }
-
-        arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
-        datumCoords2D[i * 2] = ox;
-        datumCoords2D[i * 2 + 1] = oy;
+    datumCoords2D = new ARdouble[(circles.size() + config->marker_num * 4) * 2];
+    datumCoords = new ARdouble[(circlePoints.size() + config->marker_num * 4) * 3];
+    for( int i = 0; i < config->marker_num; i++ ) {
+        int k;
+        if( (k=config->marker[i].visible) < 0 ) continue;
+        int dir = markerInfo[k].dir;
+        datumCoords2D[i*8+0] = markerInfo[k].vertex[(4-dir)%4][0];
+        datumCoords2D[i*8+1] = markerInfo[k].vertex[(4-dir)%4][1];
+        datumCoords2D[i*8+2] = markerInfo[k].vertex[(5-dir)%4][0];
+        datumCoords2D[i*8+3] = markerInfo[k].vertex[(5-dir)%4][1];
+        datumCoords2D[i*8+4] = markerInfo[k].vertex[(6-dir)%4][0];
+        datumCoords2D[i*8+5] = markerInfo[k].vertex[(6-dir)%4][1];
+        datumCoords2D[i*8+6] = markerInfo[k].vertex[(7-dir)%4][0];
+        datumCoords2D[i*8+7] = markerInfo[k].vertex[(7-dir)%4][1];
+        datumCoords[i*12+0] = config->marker[i].pos3d[0][0];
+        datumCoords[i*12+1] = config->marker[i].pos3d[0][1];
+        datumCoords[i*12+2] = config->marker[i].pos3d[0][2];
+        datumCoords[i*12+3] = config->marker[i].pos3d[1][0];
+        datumCoords[i*12+4] = config->marker[i].pos3d[1][1];
+        datumCoords[i*12+5] = config->marker[i].pos3d[1][2];
+        datumCoords[i*12+6] = config->marker[i].pos3d[2][0];
+        datumCoords[i*12+7] = config->marker[i].pos3d[2][1];
+        datumCoords[i*12+8] = config->marker[i].pos3d[2][2];
+        datumCoords[i*12+9] = config->marker[i].pos3d[3][0];
+        datumCoords[i*12+10] = config->marker[i].pos3d[3][1];
+        datumCoords[i*12+11] = config->marker[i].pos3d[3][2];
     }
     
-    int n = (int)corners.size();
+    datumCircleCentrePointsInPixels.clear();
+
+    int n = config->marker_num * 4;
     for (int i = 0; i < circlePoints.size(); i++) {
         ARdouble ix, iy;
         ARdouble ox, oy;
@@ -292,6 +259,7 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
         datumCoords2D[n * 2] = ox;
         datumCoords2D[n * 2 + 1] = oy;
+        datumCircleCentrePointsInPixels.push_back(cv::Point2f(ox, oy));
         cv::Point3f pt = circlePoints.at(i);
         datumCoords[n * 3] = pt.x;
         datumCoords[n * 3 + 1] = pt.y;
@@ -300,25 +268,8 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
     }
 
     ARdouble err;
-    err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)(circles.size() + corners.size()), trans);
+    err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, (int)(circles.size() + config->marker_num * 4), trans);
     if (err > 10.0f) visible = false;
-
-//    qrMarkerCornerPointsInPixels.clear();
-    datumCircleCentrePointsInPixels.clear();
-
-//    for (int i = 0; i < cornerCentres.size(); i++)
-//    {
-//        cv::Point2f pt = cornerCentres.at(i);
-//        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-//        qrMarkerCornerPointsInPixels.push_back(cv::Point2f(ox, oy));
-//    }
-    
-    for (int i = 0; i < circlePoints.size(); i++)
-    {
-        cv::Point3f pt = circlePoints.at(i);
-        ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        datumCircleCentrePointsInPixels.push_back(cv::Point2f(ox, oy));
-    }
 
     delete[] datumCoords2D;
     delete[] datumCoords;
