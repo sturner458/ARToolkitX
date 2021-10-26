@@ -535,7 +535,7 @@ ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int
      * @param matrix    A float array to populate with an OpenGL-compatible transformation matrix.
      * @return            true if the specified trackable is visible, false if not, or an error occurred.
      */
-    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes, double datums[12], int* numDatums, double datums2[12], int* numDatums2);
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes, double datums[12], int* numDatums);
     
     ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double *matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);

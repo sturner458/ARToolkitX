@@ -1170,7 +1170,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners, bool lowRes, double datums[12], int* numDatums, double datums2[12], int* numDatums2)
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners, bool lowRes, double datums[12], int* numDatums)
 {
     ARController *gARTK2 = NULL;
     
@@ -1195,17 +1195,12 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matri
             corners[i * 2] = trackable->qrMarkerCornerPointsInPixels.at(i).x;
             corners[i * 2 + 1] = trackable->qrMarkerCornerPointsInPixels.at(i).y;
         }
-        *numDatums = (int)trackable->datumCircleCentrePoints.size();
+        
+        *numDatums = (int)trackable->datumCircleCentrePointsInPixels.size();
         if (*numDatums > 12) *numDatums = 12;
         for (int i = 0; i < *numDatums; i++) {
-            datums[i * 2] = trackable->datumCircleCentrePoints.at(i).x;
-            datums[i * 2 + 1] = trackable->datumCircleCentrePoints.at(i).y;
-        }
-        *numDatums2 = (int)trackable->datumCircleCentrePointsInPixels.size();
-        if (*numDatums2 > 12) *numDatums2 = 12;
-        for (int i = 0; i < *numDatums2; i++) {
-            datums2[i * 2] = trackable->datumCircleCentrePointsInPixels.at(i).x;
-            datums2[i * 2 + 1] = trackable->datumCircleCentrePointsInPixels.at(i).y;
+            datums[i * 2] = trackable->datumCircleCentrePointsInPixels.at(i).x;
+            datums[i * 2 + 1] = trackable->datumCircleCentrePointsInPixels.at(i).y;
         }
     }
     return trackable->visible;
