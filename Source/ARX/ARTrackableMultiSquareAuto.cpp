@@ -432,6 +432,8 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         pos2d[n1 + 5] = markers.at(k).corners[5];
         pos2d[n1 + 6] = markers.at(k).corners[6];
         pos2d[n1 + 7] = markers.at(k).corners[7];
+        ARLOGd("{Marker Num: %d 2D Data}:\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n",
+               i, pos2d[n1 + 0], pos2d[n1 + 1], pos2d[n1 + 2], pos2d[n1 + 3], pos2d[n1 + 4], pos2d[n1 + 5], pos2d[n1 + 6], pos2d[n1 + 7]);
         n1 = n1 + 8;
         pos3d[n2 + 0] = m_MultiConfig->marker[i].pos3d[0][0];
         pos3d[n2 + 1] = m_MultiConfig->marker[i].pos3d[0][1];
@@ -448,8 +450,10 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         n2 = n2 + 12;
         
         for (int n = 0; n < markers.at(k).numCircles; n++) {
-            pos2d[n1 + 0] = markers.at(k).circles[n];
-            pos2d[n1 + 1] = markers.at(k).circles[n];
+            pos2d[n1 + 0] = markers.at(k).circles[n * 2];
+            pos2d[n1 + 1] = markers.at(k).circles[n * 2 + 1];
+            ARLOGd("{2D Data for circles}:\n[x: %f y: %f]\n",
+                   pos2d[n1 + 0], pos2d[n1 + 1]);
             n1 = n1 + 2;
             pos3d[n2 + 0] = m_MultiConfig->marker[i].circles[n][0];
             pos3d[n2 + 1] = m_MultiConfig->marker[i].circles[n][1];
@@ -457,8 +461,8 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
             n2 = n2 + 3;
         }
         
-//        ARLOGd("{Marker Num: %d 2D Data}:\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n", i, pos2d[j * 8 + 0], pos2d[j * 8 + 1], pos2d[j * 8 + 2], pos2d[j * 8 + 3], pos2d[j * 8 + 4],pos2d[j * 8 + 5], pos2d[j * 8 + 6], pos2d[j * 8 + 7]);
-//
+
+
 //
 //        ARLOGd("{Marker Num: %d}:\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n", i, pos3d[j * 12 + 0], pos3d[j * 12 + 1], pos3d[j * 12 + 2], pos3d[j * 12 + 3], pos3d[j * 12 + 4], pos3d[j * 12 + 5], pos3d[j * 12 + 6], pos3d[j * 12 + 7], pos3d[j * 12 + 8], pos3d[j * 12 + 9], pos3d[j * 12 + 10], pos3d[j * 12 + 11]);
         
