@@ -364,7 +364,7 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
     int                   vnum;
     int                   vCircles;
     int                   dir;
-    int                   i, j, k;
+    int                   i, j, k, k1;
     //char  mes[12];
     //ARLOGd("-- Pass2--\n");
     vnum = 0;
@@ -403,7 +403,7 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
             maxLength = length;
             max = i;
             for (j = 0; j < 3; j++) {
-                for (k = 0; k < 4; k++) trans1[j][k] = trans2[j][k];
+                for (k1 = 0; k1 < 4; k1++) trans1[j][k1] = trans2[j][k1];
             }
         }
         vnum++;
@@ -448,12 +448,12 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         n2 = n2 + 12;
         
         for (int n = 0; n < markers.at(k).numCircles; n++) {
-            pos2d[n1 + 0] = markers.at(k).circles[0];
-            pos2d[n1 + 1] = markers.at(k).circles[0];
+            pos2d[n1 + 0] = markers.at(k).circles[n];
+            pos2d[n1 + 1] = markers.at(k).circles[n];
             n1 = n1 + 2;
-            pos3d[n2 + 0] = m_MultiConfig->marker[i].circles[0][0];
-            pos3d[n2 + 1] = m_MultiConfig->marker[i].circles[0][1];
-            pos3d[n2 + 2] = m_MultiConfig->marker[i].circles[0][2];
+            pos3d[n2 + 0] = m_MultiConfig->marker[i].circles[n][0];
+            pos3d[n2 + 1] = m_MultiConfig->marker[i].circles[n][1];
+            pos3d[n2 + 2] = m_MultiConfig->marker[i].circles[n][2];
             n2 = n2 + 3;
         }
         

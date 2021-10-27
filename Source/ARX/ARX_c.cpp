@@ -1357,9 +1357,9 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
                 }
             }
             if (!GFMarker->visible) return;
-            ARLOGd("GFMarker visible\n");
+            //ARLOGd("GFMarker visible\n");
             t->initialiseWithMultiSquareTrackable(GFMarker);
-            ARLOGd("initialiseWithMultiSquareTrackable completed. t->visible: %d\n", t->visible);
+            //ARLOGd("initialiseWithMultiSquareTrackable completed. t->visible: %d\n", t->visible);
             //Only add markers which belong to the ground floor board
             std::vector<arx_mapper::Marker> newmarkers;
             for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
@@ -1377,10 +1377,11 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
                 markers.push_back(m);
             }
         }
-        ARLOGd("updateWithDetectedMarkers2 called. t->m_MultiConfig->prevF: %d\n", t->m_MultiConfig->prevF);
+        //ARLOGd("updateWithDetectedMarkers2 called. t->m_MultiConfig->prevF: %d\n", t->m_MultiConfig->prevF);
         t->setMapperNumCircles(numCircles);
+        //ARLOGd("t->setMapperNumCircles(numCircles); ran successfully!\n");
         bool success = t->updateWithDetectedMarkers2(markers, gARTK->getAR3DHandle());
-        ARLOGd("updateWithDetectedMarkers2 completed. success: %d, t->visible: %d, t->m_MultiConfig->prevF: %d \n", success, t->visible, t->m_MultiConfig->prevF);
+        //ARLOGd("updateWithDetectedMarkers2 completed. success: %d, t->visible: %d, t->m_MultiConfig->prevF: %d \n", success, t->visible, t->m_MultiConfig->prevF);
         if (success && t->visible) {
             success = t->updateMapperWithMarkers(markers);
         }
