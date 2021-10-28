@@ -432,8 +432,8 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         pos2d[n1 + 5] = markers.at(k).corners[5];
         pos2d[n1 + 6] = markers.at(k).corners[6];
         pos2d[n1 + 7] = markers.at(k).corners[7];
-        ARLOGd("{Marker Num: %d 2D Data}:\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n",
-               i, pos2d[n1 + 0], pos2d[n1 + 1], pos2d[n1 + 2], pos2d[n1 + 3], pos2d[n1 + 4], pos2d[n1 + 5], pos2d[n1 + 6], pos2d[n1 + 7]);
+        //ARLOGd("{Marker Num: %d 2D Data}:\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n[x: %f y: %f]\n",
+        //       i, pos2d[n1 + 0], pos2d[n1 + 1], pos2d[n1 + 2], pos2d[n1 + 3], pos2d[n1 + 4], pos2d[n1 + 5], pos2d[n1 + 6], pos2d[n1 + 7]);
         n1 = n1 + 8;
         pos3d[n2 + 0] = m_MultiConfig->marker[i].pos3d[0][0];
         pos3d[n2 + 1] = m_MultiConfig->marker[i].pos3d[0][1];
@@ -447,25 +447,24 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         pos3d[n2 + 9] = m_MultiConfig->marker[i].pos3d[3][0];
         pos3d[n2 + 10] = m_MultiConfig->marker[i].pos3d[3][1];
         pos3d[n2 + 11] = m_MultiConfig->marker[i].pos3d[3][2];
+        //ARLOGd("{Marker Num: %d 3D Data}:\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n", i, pos3d[n2 + 0], pos3d[n2 + 1], pos3d[n2 + 2], pos3d[n2 + 3], pos3d[n2 + 4], pos3d[n2 + 5], pos3d[n2 + 6], pos3d[n2 + 7], pos3d[n2 + 8], pos3d[n2 + 9], pos3d[n2 + 10], pos3d[n2 + 11]);
+        
         n2 = n2 + 12;
         
         for (int n = 0; n < markers.at(k).numCircles; n++) {
             pos2d[n1 + 0] = markers.at(k).circles[n * 2];
             pos2d[n1 + 1] = markers.at(k).circles[n * 2 + 1];
-            ARLOGd("{2D Data for circles}:\n[x: %f y: %f]\n",
-                   pos2d[n1 + 0], pos2d[n1 + 1]);
+            //ARLOGd("{2D Data for circles}:\n[x: %f y: %f]\n",
+            //       pos2d[n1 + 0], pos2d[n1 + 1]);
             n1 = n1 + 2;
             pos3d[n2 + 0] = m_MultiConfig->marker[i].circles[n][0];
             pos3d[n2 + 1] = m_MultiConfig->marker[i].circles[n][1];
             pos3d[n2 + 2] = m_MultiConfig->marker[i].circles[n][2];
+            //ARLOGd("{3D Data for circles}:\n[x: %f y: %f z: %f]\n",
+            //       pos3d[n2 + 0], pos3d[n2 + 1], pos3d[n2 + 2]);
+            
             n2 = n2 + 3;
-        }
-        
-
-
-//
-//        ARLOGd("{Marker Num: %d}:\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n[x: %f y: %f z: %f]\n", i, pos3d[j * 12 + 0], pos3d[j * 12 + 1], pos3d[j * 12 + 2], pos3d[j * 12 + 3], pos3d[j * 12 + 4], pos3d[j * 12 + 5], pos3d[j * 12 + 6], pos3d[j * 12 + 7], pos3d[j * 12 + 8], pos3d[j * 12 + 9], pos3d[j * 12 + 10], pos3d[j * 12 + 11]);
-        
+        }        
 //        ARLOGd("Marker %d trans:\n", m_MultiConfig->marker[i].patt_id);
 //        for (int z = 0; z < 3; z++) {
 //            ARLOGd("%f %f %f %f\n", m_MultiConfig->marker[i].trans[z][0], m_MultiConfig->marker[i].trans[z][1], m_MultiConfig->marker[i].trans[z][2], m_MultiConfig->marker[i].trans[z][3]);
@@ -536,7 +535,7 @@ void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableM
                 origin[j][k] = map->marker[i].trans[j][k];
             }
         }
-        ARLOGd("initialiseWithMultiSquareTrackable, m_markerWidth = %d\n", m_markerWidth);
+        ARLOGd("initialiseWithMultiSquareTrackable, m_markerWidth = %f\n", m_markerWidth);
         arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0, 0);
 
         if (map->marker[i].patt_id == m_OriginMarkerUid) {

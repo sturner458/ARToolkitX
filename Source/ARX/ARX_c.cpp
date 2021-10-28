@@ -1341,7 +1341,7 @@ void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
 
     ARTrackableMultiSquareAuto* t = reinterpret_cast<ARTrackableMultiSquareAuto*>(gARTK->findTrackable(gMapUID));
     if (t) {
-        ARLOGd("Number of markers in auto marker: %d\n", t->m_MultiConfig->marker_num);
+        //ARLOGd("Number of markers in auto marker: %d\n", t->m_MultiConfig->marker_num);
         if (t->m_MultiConfig->marker_num == 0) {
             GFMarker->visible = false;
             for (std::vector<arx_mapper::Marker>::iterator mt = markers.begin(); mt != markers.end(); ++mt) {
