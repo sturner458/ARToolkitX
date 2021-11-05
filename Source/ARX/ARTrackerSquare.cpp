@@ -473,7 +473,7 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                     if (target->visible && target->UID < 100)
                     {
                         bool largeBoard = false;
-                        success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
+                        success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, markerInfo0, m_ar3DHandle, largeBoard, numberOfDatums);
                         success &= success2;
                         if (!target->visible){
                             for (int i = 0; i < map->marker_num; i++){
