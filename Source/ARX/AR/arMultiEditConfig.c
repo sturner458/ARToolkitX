@@ -113,12 +113,12 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
             ARLOGe("arMultiAddOrUpdateSubmarker out of memory!!\n");
             return (-1);
         }
-        if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
-            emi->numCircles = 0;
-        }
-        else {
-            emi->numCircles = numCircles;
-        }
+        //if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
+        //    emi->numCircles = 0;
+        //}
+        //else {
+        //    emi->numCircles = numCircles;
+        //}
 
         marker_info->marker = emi;
         marker_info->marker_num++;
@@ -128,12 +128,20 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
         marker_info->marker[i].patt_id = patt_id;
         marker_info->marker[i].patt_type = patt_type;
         marker_info->marker[i].width = width;
+
+        if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
+            marker_info->marker[i].numCircles = 0;
+        }
+        else {
+            marker_info->marker[i].numCircles = numCircles;
+        }
+
         if (patt_type == AR_MULTI_PATTERN_TYPE_MATRIX) {
             marker_info->marker[i].globalID = globalID;
         }
 		//ARLOGe("arMultiAddOrUpdateSubmarker Added marker id %d\n", patt_id);
     }
-    
+   
     arMultiUpdateSubmarkerPose(&marker_info->marker[i], trans);
     
     if (patt_type == AR_MULTI_PATTERN_TYPE_MATRIX) {
