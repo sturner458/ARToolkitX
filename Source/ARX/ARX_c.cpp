@@ -1447,7 +1447,11 @@ bool arwGetTrackablePatternConfig(int trackableUID, int patternID, double matrix
     if (imageSizeX) *imageSizeX = p->m_imageSizeX;
     if (imageSizeY) *imageSizeY = p->m_imageSizeY;
     
-    if (trackable->type == ARTrackable::MULTI) *barcodeID = ((ARTrackableMultiSquare *)trackable)->config->marker[patternID].patt_id;
+    if (trackable->type == ARTrackable::MULTI) {
+        *barcodeID = ((ARTrackableMultiSquare *)trackable)->config->marker[patternID].patt_id;
+    } else if (trackable->type == ARTrackable::SINGLE){
+        *barcodeID = ((ARTrackableSquare *)trackable)->patt_id;
+    }
     
     return true;
 }
