@@ -897,7 +897,7 @@ void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myG
     arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
 }
 
-void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID) {
+void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarker1ID, int *myLeftBulkheadMarker2ID, int *myRightBulkheadMarker1ID, int *myRightBulkheadMarker2ID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID) {
     
     //!!!IMPORTANT NOTE:
     //In arConfig.h:
@@ -965,12 +965,21 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
     arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, false);
     arwSetTrackableOptionFloat(*myStepMarkerID, ARW_TRACKABLE_OPTION_MULTI_MIN_INLIER_PROB, 1.0f, true);
 
-    *myLeftBulkheadMarkerID = arwAddTrackable("single_barcode;249;80;", false, -1);
-    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myLeftBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
-    *myRightBulkheadMarkerID = arwAddTrackable("single_barcode;250;80;", false, -1);
-    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
-    arwSetTrackableOptionBool(*myRightBulkheadMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myLeftBulkheadMarker1ID = arwAddTrackable("single_barcode;249;80;", false, -1);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarker1ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarker1ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    
+    *myLeftBulkheadMarker2ID = arwAddTrackable("single_barcode;263;80;", false, -1);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarker2ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myLeftBulkheadMarker2ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    
+    *myRightBulkheadMarker1ID = arwAddTrackable("single_barcode;250;80;", false, -1);
+    arwSetTrackableOptionBool(*myRightBulkheadMarker1ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myRightBulkheadMarker1ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+
+    *myRightBulkheadMarker2ID = arwAddTrackable("single_barcode;264;80;", false, -1);
+    arwSetTrackableOptionBool(*myRightBulkheadMarker2ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myRightBulkheadMarker2ID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
 
     *myDoorHingeRightMarkerID = arwAddTrackable("single_barcode;251;80;", false, -1);
     arwSetTrackableOptionBool(*myDoorHingeRightMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
