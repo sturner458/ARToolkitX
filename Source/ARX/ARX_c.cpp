@@ -897,7 +897,7 @@ void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myG
     arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
 }
 
-void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarker1ID, int *myLeftBulkheadMarker2ID, int *myRightBulkheadMarker1ID, int *myRightBulkheadMarker2ID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID) {
+void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarker1ID, int *myLeftBulkheadMarker2ID, int *myRightBulkheadMarker1ID, int *myRightBulkheadMarker2ID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID, int *myRailStartMarkerID, int *myRailEndMarkerID) {
     
     //!!!IMPORTANT NOTE:
     //In arConfig.h:
@@ -1019,6 +1019,13 @@ void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMa
     *myWall4MarkerID = arwAddTrackable("single_barcode;262;80;", false, -1);
     arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
     arwSetTrackableOptionBool(*myWall4MarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    
+    *myRailStartMarkerID = arwAddTrackable("single_barcode;265;80;", false, -1);
+    arwSetTrackableOptionBool(*myRailStartMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myRailStartMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
+    *myRailEndMarkerID = arwAddTrackable("single_barcode;266;80;", false, -1);
+    arwSetTrackableOptionBool(*myRailEndMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, false);
+    arwSetTrackableOptionBool(*myRailEndMarkerID, ARW_TRACKABLE_OPTION_SQUARE_USE_CONT_POSE_ESTIMATION, false, true);
 }
 
 void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID)
