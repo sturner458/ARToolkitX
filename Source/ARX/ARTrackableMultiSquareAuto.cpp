@@ -318,10 +318,6 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers(ARMarkerInfo* markerI
 }
 
 #if HAVE_GTSAM
-void ARTrackableMultiSquareAuto::setMapperNumCircles(int numCircles) {
-    m_pm->m_mapper.numCircles = numCircles;
-}
-
 bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
 {
     visiblePrev = visible;
@@ -355,6 +351,32 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedMarkers2(std::vector<arx_mapp
     return (ARTrackable::update()); // Parent class will finish update.
 }
 
+bool ARTrackableMultiSquareAuto::isVisible(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
+{
+    bool visibleRes = false;
+
+    ARdouble err;
+    if (m_MultiConfig->marker_num < 2) {
+        m_MultiConfig->min_submarker = 1;
+    }
+    else if (m_MultiConfig->marker_num < 3) {
+        m_MultiConfig->min_submarker = 2;
+    }
+    else if (m_MultiConfig->marker_num < 4) {
+        m_MultiConfig->min_submarker = 2;
+    }
+    else {
+        m_MultiConfig->min_submarker = 2;
+    }
+    err = GetTransMatMultiSquare(markers, ar3DHandle);
+
+    if (m_MultiConfig->prevF != 0) {
+        visibleRes = true;
+    }
+
+    return visibleRes;
+}
+
 ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle)
 {
     ARdouble* pos2d, * pos3d;
@@ -362,13 +384,10 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
     ARdouble              maxLength;
     int                   max;
     int                   vnum;
-    int                   vCircles;
-    int                   dir;
     int                   i, j, k, k1;
     //char  mes[12];
     //ARLOGd("-- Pass2--\n");
     vnum = 0;
-    vCircles = 0;
     for (i = 0; i < m_MultiConfig->marker_num; i++) {
         m_MultiConfig->marker[i].visible = -1;
         k = -1;
@@ -407,7 +426,6 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
             }
         }
         vnum++;
-        vCircles = vCircles + markers.at(k).numCircles;
     }
     if (vnum == 0 || vnum < m_MultiConfig->min_submarker) {
         m_MultiConfig->prevF = 0;
@@ -415,8 +433,8 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
     }
     arUtilMatMul((const ARdouble(*)[4])trans1, (const ARdouble(*)[4])m_MultiConfig->marker[max].itrans, trans2);
 
-    arMalloc(pos2d, ARdouble, vnum * 4 * 2 + vCircles * 2);
-    arMalloc(pos3d, ARdouble, vnum * 4 * 3 + vCircles * 3);
+    arMalloc(pos2d, ARdouble, vnum * 4 * 2);
+    arMalloc(pos3d, ARdouble, vnum * 4 * 3);
 
     j = 0;
     int n1 = 0;
@@ -451,20 +469,6 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         
         n2 = n2 + 12;
         
-        for (int n = 0; n < markers.at(k).numCircles; n++) {
-            pos2d[n1 + 0] = markers.at(k).circles[n * 2];
-            pos2d[n1 + 1] = markers.at(k).circles[n * 2 + 1];
-            //ARLOGd("{2D Data for circles}:\n[x: %f y: %f]\n",
-            //       pos2d[n1 + 0], pos2d[n1 + 1]);
-            n1 = n1 + 2;
-            pos3d[n2 + 0] = m_MultiConfig->marker[i].circles[n][0];
-            pos3d[n2 + 1] = m_MultiConfig->marker[i].circles[n][1];
-            pos3d[n2 + 2] = m_MultiConfig->marker[i].circles[n][2];
-            //ARLOGd("{3D Data for circles}:\n[x: %f y: %f z: %f]\n",
-            //       pos3d[n2 + 0], pos3d[n2 + 1], pos3d[n2 + 2]);
-            
-            n2 = n2 + 3;
-        }        
 //        ARLOGd("Marker %d trans:\n", m_MultiConfig->marker[i].patt_id);
 //        for (int z = 0; z < 3; z++) {
 //            ARLOGd("%f %f %f %f\n", m_MultiConfig->marker[i].trans[z][0], m_MultiConfig->marker[i].trans[z][1], m_MultiConfig->marker[i].trans[z][2], m_MultiConfig->marker[i].trans[z][3]);
@@ -495,7 +499,7 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
 //        ARLOGd("%f %f %f %f\n", m_MultiConfig->trans[j][0], m_MultiConfig->trans[j][1], m_MultiConfig->trans[j][2], m_MultiConfig->trans[j][3]);
 //    }
     
-    ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4 + vCircles, m_MultiConfig->trans);
+    ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, m_MultiConfig->trans);
     free(pos3d);
     free(pos2d);
     ARLOGd("ARTrackableMultiSquareAuto::GetTransMatMultiSquare called: err: %f, maxDeviation: %f \n", err, maxDeviation);
@@ -757,7 +761,6 @@ bool ARTrackableMultiSquareAuto::updateWithDetectedDatums(ARParam arParams, ARUi
         else {
             maxDeviation = 120.0;
         }
-        ARdouble init[3][4];
         if (vnum == 1) { //Planar
             err = arGetTransMatDatum(ar3DHandle, datumCoords2D, datumCoords, nCorners, m_MultiConfig->trans);
         }

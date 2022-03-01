@@ -77,8 +77,6 @@ typedef struct {
     ARdouble trans[3][4];  // Pose of this marker, expressed in multimarker coordinate system.
     ARdouble itrans[3][4]; // Inverse of trans, i.e. pose of the multimarker, expressed in this marker's coordinate system.
     ARdouble pos3d[4][3];  // Position of each corner (in order: upper-left, upper-right, lower-right, lower right), expressed in multimarker coordinate system.
-    ARdouble circles[6][3];// Position of each circle centre
-    int numCircles;        // May be zero, for the secondary barcode on a multi-auto marker
     int      visible;      // Used internally in arGetTransMatMultiSquare2/arGetTransMatMultiSquareStereo2. Set to index into ARMarkerInfo array of the matched marker, or -1 if no match.
     int      visibleR;     // Used internally in arGetTransMatMultiSquareStereo2. Set to index into ARMarkerInfo array for the right camera of the matched marker, or -1 if no match.
     uint64_t globalID;     // If patt_type == AR_MULTI_PATTERN_TYPE_MATRIX, the globalID of the matrix or 0 if not a global ID.
@@ -114,7 +112,7 @@ AR_EXTERN ARMultiMarkerInfoT *arMultiCopyConfig(const ARMultiMarkerInfoT *marker
  */
 AR_EXTERN ARMultiMarkerInfoT *arMultiReadConfigFile( const char *filename, ARPattHandle *pattHandle );
     
-AR_EXTERN int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID, int numCircles);
+AR_EXTERN int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID);
     
 AR_EXTERN void arMultiUpdateSubmarkerPose(ARMultiEachMarkerInfoT *submarker, const ARdouble trans[3][4]);
     

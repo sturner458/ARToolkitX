@@ -475,13 +475,8 @@ extern "C" {
 #pragma mark  Trackable management
     // ----------------------------------------------------------------------------------------------------
 
-ARX_EXTERN void AddDatumMarkersToARToolKit_RevC1(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
+ARX_EXTERN void AddMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarker1ID, int *myLeftBulkheadMarker2ID, int *myRightBulkheadMarker1ID, int *myRightBulkheadMarker2ID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID, int *myRailStartMarkerID, int *myRailEndMarkerID);
 
-ARX_EXTERN void AddDatumMarkersToARToolKit_RevC7(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
-
-ARX_EXTERN void AddOldStyleMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarker1ID, int *myLeftBulkheadMarker2ID, int *myRightBulkheadMarker1ID, int *myRightBulkheadMarker2ID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID, int *myRailStartMarkerID, int *myRailEndMarkerID);
-
-ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int* myGFMarkerID, int *myStepMarkerID, int* myMarkerIDs, int *myLeftBulkheadMarkerID, int *myRightBulkheadMarkerID, int *myDoorHingeRightMarkerID, int *myDoorFrameRightMarkerID, int *myDoorHingeLeftMarkerID, int *myDoorFrameLeftMarkerID, int *myObstruct1MarkerID, int *myObstruct2MarkerID, int *myObstruct3MarkerID, int *myObstruct4MarkerID, int *myWall1MarkerID, int *myWall2MarkerID, int *myWall3MarkerID, int *myWall4MarkerID);
 
     /**
      * Adds a trackable as specified in the given configuration string. The format of the string can be
@@ -535,14 +530,15 @@ ARX_EXTERN void AddDatumMarkersToARToolKit(int threshold, int thresholdMode, int
      * @param matrix    A float array to populate with an OpenGL-compatible transformation matrix.
      * @return            true if the specified trackable is visible, false if not, or an error occurred.
      */
-    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes, double datums[12], int* numDatums);
+    ARX_EXTERN bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int* numCorners, bool lowRes);
     
     ARX_EXTERN bool arwQueryTrackableMapperTransformation(int gMapUID, int trackableUID, double *matrix);
     ARX_EXTERN void arwListTrackables(int gMapUID);
     ARX_EXTERN int arwResetMapperTrackable(int gMapUID, const char* cfg);
-    ARX_EXTERN void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles);
-    ARX_EXTERN bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles);
-    ARX_EXTERN int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles, bool initialiseMultiMarker);
+    ARX_EXTERN void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners);
+    ARX_EXTERN bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners);
+    ARX_EXTERN bool arwMultiMarkerVisible(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners);
+    ARX_EXTERN int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, bool initialiseMultiMarker);
     
     /**
      * Returns the visibility and stereo pose of the specified trackable.

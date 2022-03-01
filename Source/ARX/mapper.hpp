@@ -44,8 +44,6 @@ namespace arx_mapper {
         int uid;
         ARdouble trans[3][4]; // Marker pose in camera coordinates.
         ARdouble corners[8];
-        ARdouble circles[12];
-        int numCircles; // May be zero for the secondary barcode on a riser marker (or 4 or 6)
         
     };
 

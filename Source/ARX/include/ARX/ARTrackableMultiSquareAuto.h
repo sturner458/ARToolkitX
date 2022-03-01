@@ -83,6 +83,7 @@ public:
      bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle, int lowRes);
      void setMapperNumCircles(int numCircles);
      bool updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
+    bool isVisible(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle); //For when we are excluding one marker
      ARdouble GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
      bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
      void initialiseWithSquareTrackable(ARTrackableSquare* trackable);
