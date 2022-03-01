@@ -120,7 +120,7 @@ bool ARTrackableMultiSquareAuto::updateMapper(ARMarkerInfo* markerInfo, int mark
                     if (markerInfoCopy[i].idMatrix != -1 && markerInfoCopy[i].idMatrix == m_OriginMarkerUid) {
                         ARLOGi("Initing marker map with marker %d.\n", m_OriginMarkerUid);
                         ARdouble origin[3][4] = {{1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0}};
-                        arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0, 0);
+                        arMultiAddOrUpdateSubmarker(m_MultiConfig, m_OriginMarkerUid, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
                     }
                 }
             }
@@ -524,7 +524,7 @@ void ARTrackableMultiSquareAuto::initialiseWithSquareTrackable(ARTrackableSquare
     }
 
     ARdouble origin[3][4] = { {1.0, 0.0, 0.0, 0.0},  {0.0, 1.0, 0.0, 0.0},  {0.0, 0.0, 1.0, 0.0} };
-    arMultiAddOrUpdateSubmarker(m_MultiConfig, trackable->patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0, 0);
+    arMultiAddOrUpdateSubmarker(m_MultiConfig, trackable->patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
 
     visible = true;
 }
@@ -540,7 +540,7 @@ void ARTrackableMultiSquareAuto::initialiseWithMultiSquareTrackable(ARTrackableM
             }
         }
         ARLOGd("initialiseWithMultiSquareTrackable, m_markerWidth = %f\n", m_markerWidth);
-        arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0, 0);
+        arMultiAddOrUpdateSubmarker(m_MultiConfig, map->marker[i].patt_id, AR_MULTI_PATTERN_TYPE_MATRIX, m_markerWidth, origin, 0);
 
         if (map->marker[i].patt_id == m_OriginMarkerUid) {
             ARdouble trans2[3][4];
