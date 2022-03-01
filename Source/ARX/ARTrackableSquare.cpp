@@ -544,7 +544,6 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
     if (err > 10.0f) visible = false;
     
     qrMarkerCornerPointsInPixels.clear();
-    datumCircleCentrePointsInPixels.clear();
 
     for (int i = 0; i < cornerCentres.size(); i++)
     {
@@ -557,7 +556,6 @@ bool ARTrackableSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8* buf
     {
         cv::Point3f pt = circlePoints.at(i);
         ModelToImageSpace(arParams, trans, pt.x, pt.y, &ox, &oy);
-        datumCircleCentrePointsInPixels.push_back(cv::Point2f(ox, oy));
     }
 
     delete[] datumCoords2D;

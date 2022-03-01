@@ -247,8 +247,6 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         datumCoords[i*12+10] = config->marker[i].pos3d[3][1];
         datumCoords[i*12+11] = config->marker[i].pos3d[3][2];
     }
-    
-    datumCircleCentrePointsInPixels.clear();
 
     int n = config->marker_num * 4;
     for (int i = 0; i < circlePoints.size(); i++) {
@@ -259,7 +257,6 @@ bool ARTrackableMultiSquare::updateWithDetectedDatums2(ARParam arParams, ARUint8
         arParamObserv2Ideal(arParams.dist_factor, ix, iy, &ox, &oy, arParams.dist_function_version);
         datumCoords2D[n * 2] = ox;
         datumCoords2D[n * 2 + 1] = oy;
-        datumCircleCentrePointsInPixels.push_back(cv::Point2f(ox, oy));
         cv::Point3f pt = circlePoints.at(i);
         datumCoords[n * 3] = pt.x;
         datumCoords[n * 3 + 1] = pt.y;
