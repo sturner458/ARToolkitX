@@ -476,7 +476,7 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
         j++;
     }
     
-    ARLOGd("");
+    //ARLOGd("");
     
     ARdouble maxDeviation = AR_MULTI_POSE_ERROR_CUTOFF_COMBINED_DEFAULT;
 
@@ -502,7 +502,7 @@ ARdouble ARTrackableMultiSquareAuto::GetTransMatMultiSquare(std::vector<arx_mapp
     ARdouble err = arGetTransMat(ar3DHandle, trans2, (ARdouble(*)[2])pos2d, (ARdouble(*)[3])pos3d, vnum * 4, m_MultiConfig->trans);
     free(pos3d);
     free(pos2d);
-    ARLOGd("ARTrackableMultiSquareAuto::GetTransMatMultiSquare called: err: %f, maxDeviation: %f \n", err, maxDeviation);
+    //ARLOGd("ARTrackableMultiSquareAuto::GetTransMatMultiSquare called: err: %f, maxDeviation: %f \n", err, maxDeviation);
     if (err < maxDeviation) {
         m_MultiConfig->prevF = 1;
     }
