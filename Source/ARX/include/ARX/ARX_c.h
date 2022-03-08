@@ -534,7 +534,8 @@ extern "C" {
     ARX_EXTERN void arwListTrackables(int gMapUID);
     ARX_EXTERN int arwResetMapperTrackable(int gMapUID, const char* cfg);
     ARX_EXTERN void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles);
-    ARX_EXTERN void arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles);
+    ARX_EXTERN bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles);
+    ARX_EXTERN int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles, bool initialiseMultiMarker);
     
 	/**
 	 * Returns the visibility and stereo pose of the specified trackable.

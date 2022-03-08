@@ -12,7 +12,7 @@
 
 #include <ARX/AR/config.h>
 
-#if HAVE_GTSAM
+//#if HAVE_GTSAM
 #include "mapper.hpp"
 #include <gtsam/base/Vector.h>
 
@@ -143,4 +143,4 @@ namespace arx_mapper {
     
 }  // namespace arx_mapper
 
-#endif // HAVE_GTSAM
+//#endif // HAVE_GTSAM
