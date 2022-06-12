@@ -430,7 +430,7 @@ int arwFindChessboardCorners(float* vertices, int *corner_count, ARUint8 *imageB
     return cornerFoundAllFlag;
 }
 
-int arwCaptureChessboardCorners(ARUint8 *imageBytes, int n)
+int arwCaptureChessboardCorners(ARUint8 *imageBytes, float* vertices, int n)
 {
     if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
     
@@ -449,6 +449,27 @@ int arwCaptureChessboardCorners(ARUint8 *imageBytes, int n)
     } else {
         foundCorners[n] = corners;
     }
+    
+    int corner_count = (int)corners.size();
+    for (int i = 0; i < corner_count; i++) {
+        vertices[i*2    ] = corners[i].x ;
+        vertices[i*2 + 1] = corners[i].y;
+    }
+    
+    return (int)foundCorners.size();
+}
+
+int arwLoadChessboardCorners(float* vertices, int corner_count)
+{
+    if (foundCorners.size() >= maxCornersFound) return 0;
+    
+    ARLOGe("Loading %d corners\n", (int)corners.size());
+    
+    corners.clear();
+    for (int i = 0; i < corner_count; i++) {
+        corners.push_back(cv::Point2f(vertices[i * 2], vertices[i * 2 + 1]));
+    }
+    foundCorners.push_back(corners);
     
     return (int)foundCorners.size();
 }
