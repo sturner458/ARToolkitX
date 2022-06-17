@@ -435,6 +435,7 @@ int arwCaptureChessboardCorners(ARUint8 *imageBytes, float* vertices, int n)
     if (foundCorners.size() >= maxCornersFound & n == -1) return 0;
     
     ARLOGe("CornerSubPix %d corners\n", (int)corners.size());
+    ARLOGe("CornerSubPix first corner %f %f\n", corners[0].x, corners[0].y);
 
     cv::Mat calibImage = cv::Mat(videoHeight, videoWidth, CV_8UC1, imageBytes);
 
@@ -442,6 +443,7 @@ int arwCaptureChessboardCorners(ARUint8 *imageBytes, float* vertices, int n)
     cornerSubPix(calibImage, corners, cv::Size(5,5), cv::Size(-1,-1), cv::TermCriteria(cv::TermCriteria::MAX_ITER, 100, 0.1));
     
     ARLOGe("Capturing %d corners\n", (int)corners.size());
+    ARLOGe("CornerSubPix first corner %f %f\n", corners[0].x, corners[0].y);
     
     // Save the corners.
     if (n == -1 || n >= foundCorners.size()) {
@@ -463,8 +465,6 @@ int arwLoadChessboardCorners(float* vertices, int corner_count)
 {
     if (foundCorners.size() >= maxCornersFound) return 0;
     
-    ARLOGe("Loading %d corners\n", (int)corners.size());
-    
     corners.clear();
     for (int i = 0; i < corner_count; i++) {
         corners.push_back(cv::Point2f(vertices[i * 2], vertices[i * 2 + 1]));
@@ -472,6 +472,17 @@ int arwLoadChessboardCorners(float* vertices, int corner_count)
     foundCorners.push_back(corners);
     
     return (int)foundCorners.size();
+}
+
+void arwListChessboardCorners() {
+    for (int i = 0; i < foundCorners.size(); i++) {
+        ARLOGe("Corner set %d\n", i + 1);
+        std::vector<cv::Point2f> corners = foundCorners.at(i);
+        int corner_count = (int)corners.size();
+        for (int j = 0; j < corner_count; j++) {
+            ARLOGe("Corner %d %f %f\n", j + 1, corners.at(j).x, corners.at(j).y);
+        }
+    }
 }
 
 float arwCalibChessboardCorners(char *file_name, float *results)

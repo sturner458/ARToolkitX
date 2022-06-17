@@ -267,6 +267,7 @@ extern "C" {
     ARX_EXTERN int arwFindChessboardCorners(float* corners, int *corner_count, ARUint8 *imageBytes, bool lowRes);
     ARX_EXTERN int arwCaptureChessboardCorners(ARUint8 *imageBytes, float* vertices, int n = -1);
     ARX_EXTERN int arwLoadChessboardCorners(float* vertices, int corner_count);
+    ARX_EXTERN void arwListChessboardCorners();
     ARX_EXTERN float arwCalibChessboardCorners(char *file_name, float *results);
     ARX_EXTERN void arwCleanupChessboardCorners();
     
