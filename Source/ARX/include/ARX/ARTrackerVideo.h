@@ -51,8 +51,8 @@ public:
 
     virtual bool start(ARParamLT *paramLT, AR_PIXEL_FORMAT pixelFormat) = 0;
     virtual bool start(ARParamLT *paramLT0, AR_PIXEL_FORMAT pixelFormat0, ARParamLT *paramLT1, AR_PIXEL_FORMAT pixelFormat1, const ARdouble transL2R[3][4]) = 0;
-    virtual bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums = false, int markerType = -1, int numberOfDatums = 0) = 0;
-    virtual bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums = false, int markerType = -1, int numberOfDatums = 0) = 0;
+    virtual bool update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, int markerType = -1) = 0;
+    virtual bool update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, int markerType = -1) = 0;
 private:
     bool start() { return false; };
     bool update() { return false; };

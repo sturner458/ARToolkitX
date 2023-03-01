@@ -92,7 +92,7 @@ ARMultiMarkerInfoT *arMultiCopyConfig(const ARMultiMarkerInfoT *marker_info)
 }
 
 // patt_type: Either AR_MULTI_PATTERN_TYPE_TEMPLATE or AR_MULTI_PATTERN_TYPE_MATRIX.
-int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID, int numCircles)
+int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, int patt_type, ARdouble width, const ARdouble trans[3][4], uint64_t globalID)
 {
     int i;
     
@@ -128,13 +128,6 @@ int arMultiAddOrUpdateSubmarker(ARMultiMarkerInfoT *marker_info, int patt_id, in
         marker_info->marker[i].patt_id = patt_id;
         marker_info->marker[i].patt_type = patt_type;
         marker_info->marker[i].width = width;
-
-        if (patt_id % 2 == 1 || (patt_id > 100 && patt_id < 130) || patt_id > 228) {
-            marker_info->marker[i].numCircles = 0;
-        }
-        else {
-            marker_info->marker[i].numCircles = numCircles;
-        }
 
         if (patt_type == AR_MULTI_PATTERN_TYPE_MATRIX) {
             marker_info->marker[i].globalID = globalID;
@@ -192,103 +185,6 @@ void arMultiUpdateSubmarkerPose(ARMultiEachMarkerInfoT *submarker, const ARdoubl
         submarker->pos3d[j][2] = submarker->trans[2][0] * wpos3d[j][0]
                                + submarker->trans[2][1] * wpos3d[j][1]
                                + submarker->trans[2][3];
-    }
-
-    if (submarker->numCircles == 4)
-    {
-        submarker->circles[0][0] = submarker->trans[0][0] * (-115)
-                                 + submarker->trans[0][1] * 25
-                                 + submarker->trans[0][3];
-        submarker->circles[0][1] = submarker->trans[1][0] * (-115)
-                                 + submarker->trans[1][1] * 25
-                                 + submarker->trans[1][3];
-        submarker->circles[0][2] = submarker->trans[2][0] * (-115)
-                                 + submarker->trans[2][1] * 25
-                                 + submarker->trans[2][3];
-        submarker->circles[1][0] = submarker->trans[0][0] * (-115)
-                                 + submarker->trans[0][1] * (-25)
-                                 + submarker->trans[0][3];
-        submarker->circles[1][1] = submarker->trans[1][0] * (-115)
-                                 + submarker->trans[1][1] * (-25)
-                                 + submarker->trans[1][3];
-        submarker->circles[1][2] = submarker->trans[2][0] * (-115)
-                                 + submarker->trans[2][1] * (-25)
-                                 + submarker->trans[2][3];
-        submarker->circles[2][0] = submarker->trans[0][0] * 45
-                                 + submarker->trans[0][1] * 25
-                                 + submarker->trans[0][3];
-        submarker->circles[2][1] = submarker->trans[1][0] * 45
-                                 + submarker->trans[1][1] * 25
-                                 + submarker->trans[1][3];
-        submarker->circles[2][2] = submarker->trans[2][0] * 45
-                                 + submarker->trans[2][1] * 25
-                                 + submarker->trans[2][3];
-        submarker->circles[3][0] = submarker->trans[0][0] * 45
-                                 + submarker->trans[0][1] * (-25)
-                                 + submarker->trans[0][3];
-        submarker->circles[3][1] = submarker->trans[1][0] * 45
-                                 + submarker->trans[1][1] * (-25)
-                                 + submarker->trans[1][3];
-        submarker->circles[3][2] = submarker->trans[2][0] * 45
-                                 + submarker->trans[2][1] * (-25)
-                                 + submarker->trans[2][3];
-    }
-    else if (submarker->numCircles == 6)
-    {
-        submarker->circles[0][0] = submarker->trans[0][0] * (-115)
-                                 + submarker->trans[0][1] * 25
-                                 + submarker->trans[0][3];
-        submarker->circles[0][1] = submarker->trans[1][0] * (-115)
-                                 + submarker->trans[1][1] * 25
-                                 + submarker->trans[1][3];
-        submarker->circles[0][2] = submarker->trans[2][0] * (-115)
-                                 + submarker->trans[2][1] * 25
-                                 + submarker->trans[2][3];
-        submarker->circles[1][0] = submarker->trans[0][0] * (-115)
-                                 + submarker->trans[0][1] * (-25)
-                                 + submarker->trans[0][3];
-        submarker->circles[1][1] = submarker->trans[1][0] * (-115)
-                                 + submarker->trans[1][1] * (-25)
-                                 + submarker->trans[1][3];
-        submarker->circles[1][2] = submarker->trans[2][0] * (-115)
-                                 + submarker->trans[2][1] * (-25)
-                                 + submarker->trans[2][3];
-        submarker->circles[2][0] = submarker->trans[0][0] * (-115)
-                                 + submarker->trans[0][1] * 0
-                                 + submarker->trans[0][3];
-        submarker->circles[2][1] = submarker->trans[1][0] * (-115)
-                                 + submarker->trans[1][1] * 0
-                                 + submarker->trans[1][3];
-        submarker->circles[2][2] = submarker->trans[2][0] * (-115)
-                                 + submarker->trans[2][1] * 0
-                                 + submarker->trans[2][3];
-        submarker->circles[3][0] = submarker->trans[0][0] * 45
-                                 + submarker->trans[0][1] * 0
-                                 + submarker->trans[0][3];
-        submarker->circles[3][1] = submarker->trans[1][0] * 45
-                                 + submarker->trans[1][1] * 0
-                                 + submarker->trans[1][3];
-        submarker->circles[3][2] = submarker->trans[2][0] * 45
-                                 + submarker->trans[2][1] * 0
-                                 + submarker->trans[2][3];
-        submarker->circles[4][0] = submarker->trans[0][0] * 45
-                                 + submarker->trans[0][1] * 25
-                                 + submarker->trans[0][3];
-        submarker->circles[4][1] = submarker->trans[1][0] * 45
-                                 + submarker->trans[1][1] * 25
-                                 + submarker->trans[1][3];
-        submarker->circles[4][2] = submarker->trans[2][0] * 45
-                                 + submarker->trans[2][1] * 25
-                                 + submarker->trans[2][3];
-        submarker->circles[5][0] = submarker->trans[0][0] * 45
-                                 + submarker->trans[0][1] * (-25)
-                                 + submarker->trans[0][3];
-        submarker->circles[5][1] = submarker->trans[1][0] * 45
-                                 + submarker->trans[1][1] * (-25)
-                                 + submarker->trans[1][3];
-        submarker->circles[5][2] = submarker->trans[2][0] * 45
-                                 + submarker->trans[2][1] * (-25)
-                                 + submarker->trans[2][3];
     }
 
 }

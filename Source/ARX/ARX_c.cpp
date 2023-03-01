@@ -211,11 +211,11 @@ void arwInitARToolKit(const char* vconf, const char* cparaName)
 	return;
 }
 
-bool arwUpdateARToolKit(unsigned char* imageBytes, bool doDatums, int markerType, int numberOfDatums)
+bool arwUpdateARToolKit(unsigned char* imageBytes, int markerType)
 {
 	//ARLOGe("UpdateARToolKit called.\n");
 	if (!gARTK) return false;
-	return gARTK->updateWithImage(imageBytes, doDatums, markerType, numberOfDatums);
+	return gARTK->updateWithImage(imageBytes, markerType);
 }
 
 void arwCleanupARToolKit()
@@ -631,7 +631,7 @@ bool arwSave2dTrackableDatabase(const char *databaseFileName)
 }
 #endif // HAVE_2D
 
-bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners, double datums[12], int* numDatums)
+bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matrix[16], double corners[32], int *numCorners)
 {
     ARTrackable *trackable;
     
@@ -648,12 +648,6 @@ bool arwQueryTrackableVisibilityAndTransformation(int trackableUID, double matri
 			corners[i * 2] = trackable->qrMarkerCornerPointsInPixels.at(i).x;
 			corners[i * 2 + 1] = trackable->qrMarkerCornerPointsInPixels.at(i).y;
 		}
-        *numDatums = trackable->datumCircleCentrePointsInPixels.size();
-        if (*numDatums > 12) *numDatums = 12;
-        for (int i = 0; i < *numDatums; i++) {
-            datums[i * 2] = trackable->datumCircleCentrePointsInPixels.at(i).x;
-            datums[i * 2 + 1] = trackable->datumCircleCentrePointsInPixels.at(i).y;
-        }
 	}
     return trackable->visible;
 }
@@ -696,7 +690,7 @@ int arwResetMapperTrackable(int gMapUID, const char* cfg) {
 	return gARTK->addTrackable(cfg);
 }
 
-void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles) {
+void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, double* corners) {
     std::vector<arx_mapper::Marker> markers;
     for (int n = 0; n < nMarkers; n++) {
         arx_mapper::Marker marker;
@@ -708,19 +702,6 @@ void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, do
         }
         for (int i = 0; i < 8; i++) {
             marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
-        }
-        for (int i = 0; i < 12; i++)
-        {
-            marker.circles[i] = (ARdouble)(circles[n * 12 + i]);
-        }
-
-        if (marker.uid % 2 == 1 || (marker.uid > 100 && marker.uid < 130) || marker.uid > 228)
-        {
-            marker.numCircles = 0;
-        }
-        else
-        {
-            marker.numCircles = numCircles;
         }
         markers.push_back(marker);
     }
@@ -756,11 +737,6 @@ void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, do
                 for (int j = 0; j < 8; j = j + 2) {
                     it->qrMarkerCornerPointsInPixels.push_back(cv::Point2f(m.corners[j], m.corners[j + 1]));
                 }
-                it->datumCircleCentrePointsInPixels.clear();
-                for (int j = 0; j < 12; j = j + 2)
-                {
-                    it->datumCircleCentrePointsInPixels.push_back(cv::Point2f(m.circles[j], m.circles[j + 1]));
-                }
                 break;
             }
         }
@@ -768,7 +744,7 @@ void arwSetMappedMarkersVisible(int nMarkers, double* markerTrans, int* uids, do
 
 }
 
-bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles) {
+bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners) {
     std::vector<arx_mapper::Marker> markers;
     for (int n = 0; n < nMarkers; n++) {
         arx_mapper::Marker marker;
@@ -780,16 +756,6 @@ bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
         }
         for (int i = 0; i < 8; i++) {
             marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
-        }
-        for (int i = 0; i < 12; i++) {
-            marker.circles[i] = (ARdouble)(circles[n * 12 + i]);
-        }
-
-        if (marker.uid % 2 == 1 || (marker.uid > 100 && marker.uid < 130) || marker.uid > 228) {
-            marker.numCircles = 0;
-        }
-        else {
-            marker.numCircles = numCircles;
         }
         markers.push_back(marker);
     }
@@ -836,14 +802,13 @@ bool arwAddMappedMarkers(int gMapUID, int GFMarkerID, int nMarkers, double* mark
                 markers.push_back(m);
             }
         }
-        t->setMapperNumCircles(numCircles);
         bool success = t->updateWithDetectedMarkers2(markers, gARTK->getAR3DHandle());
 	}
 
     return initialiseMultiMarker;
 }
 
-int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, double* circles, int numCircles, bool initialiseMultiMarker) {
+int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* markerTrans, int* uids, double* corners, bool initialiseMultiMarker) {
     std::vector<arx_mapper::Marker> markers;
     for (int n = 0; n < nMarkers; n++) {
         arx_mapper::Marker marker;
@@ -855,16 +820,6 @@ int arwUpdateMultiMarker(int gMapUID, int GFMarkerID, int nMarkers, double* mark
         }
         for (int i = 0; i < 8; i++) {
             marker.corners[i] = (ARdouble)(corners[n * 8 + i]);
-        }
-        for (int i = 0; i < 12; i++) {
-            marker.circles[i] = (ARdouble)(circles[n * 12 + i]);
-        }
-
-        if (marker.uid % 2 == 1 || (marker.uid > 100 && marker.uid < 130) || marker.uid > 228) {
-            marker.numCircles = 0;
-        }
-        else {
-            marker.numCircles = numCircles;
         }
         markers.push_back(marker);
     }

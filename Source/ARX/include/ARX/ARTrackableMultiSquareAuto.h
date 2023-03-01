@@ -83,15 +83,12 @@ public:
      * @param ar3DHandle        AR3DHandle used to extract marker pose.
      */
     bool updateWithDetectedMarkers(ARMarkerInfo* markerInfo, int markerNum, AR3DHandle* ar3DHandle);
-    void setMapperNumCircles(int numCircles);
     bool updateWithDetectedMarkers2(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
     ARdouble GetTransMatMultiSquare(std::vector<arx_mapper::Marker> markers, AR3DHandle* ar3DHandle);
 	bool updateMapper(ARMarkerInfo* markerInfo, int markerNum, int videoWidth, int videoHeight, AR3DHandle* ar3DHandle, std::vector<ARTrackable*>& trackables);
 	void initialiseWithSquareTrackable(ARTrackableSquare* trackable);
     void initialiseWithMultiSquareTrackable(ARTrackableMultiSquare* trackable);
 	bool updateMapperWithMarkers(std::vector<arx_mapper::Marker> markers);
-
-	bool updateWithDetectedDatums(ARParam arParams, ARUint8* buffLuma, int imageWidth, int imageHeight, AR3DHandle* ar3DHandle);
 
     bool updateWithDetectedMarkersStereo(ARMarkerInfo* markerInfoL, int markerNumL, int videoWidthL, int videoHeightL, ARMarkerInfo* markerInfoR, int markerNumR, int videoWidthR, int videoHeightR, AR3DStereoHandle *handle, ARdouble transL2R[3][4]);
     

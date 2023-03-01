@@ -148,7 +148,7 @@ bool ARController::initialiseBase()
     m_nftTracker = std::shared_ptr<ARTrackerNFT>(new ARTrackerNFT);
     if (!m_nftTracker->initialize()) {
         ARLOGe("Error initialising NFT marker tracker.\n");
-         goto bail2;
+        goto bail2;
     }
 #endif
 
@@ -411,7 +411,7 @@ done:
     return ret;
 }
 
-bool ARController::updateWithImage(ARUint8* image, bool doDatums, int markerType, int numberOfDatums)
+bool ARController::updateWithImage(ARUint8* image, int markerType)
 {
 	//ARPRINT("ARX::ARController::updateWithImage() videoWidth = %d , pixelFormat = %d.\n", (int)m_videoSource0->getVideoWidth(), (int)m_videoSource0->getPixelFormat());
 
@@ -436,7 +436,7 @@ bool ARController::updateWithImage(ARUint8* image, bool doDatums, int markerType
 			else ret = m_squareTracker->start(m_videoSource0->getCameraParameters(), m_videoSource0->getPixelFormat(), m_videoSource1->getCameraParameters(), m_videoSource1->getPixelFormat(), m_transL2R);
 			if (!ret) goto done;
 		}
-		m_squareTracker->update(image0, image1, m_trackables, doDatums, markerType, numberOfDatums);
+		m_squareTracker->update(image0, image1, m_trackables, markerType);
 	}
 #if HAVE_NFT
 	if (doNFTMarkerDetection) {

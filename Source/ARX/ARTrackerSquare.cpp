@@ -383,12 +383,12 @@ bail:
     return false;
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, bool doDatums, int markerType, int numberOfDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff, std::vector<ARTrackable *>& trackables, int markerType)
 {
-    return update(buff, NULL, trackables, doDatums, markerType, numberOfDatums);
+    return update(buff, NULL, trackables, markerType);
 }
 
-bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, bool doDatums, int markerType, int numberOfDatums)
+bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std::vector<ARTrackable *>& trackables, int markerType)
 {
     ARMarkerInfo *markerInfo0 = NULL;
     ARMarkerInfo *markerInfo1 = NULL;
@@ -435,22 +435,6 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARTrackableSquare* target = ((ARTrackableSquare*)(*it));
 				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle, m_arHandle0->arParamLT->param);
                 success &= success2;
-                // Note: markerType == 1 means it's RevC7 (5x5 single square). 
-                // We do not want to compute datums for large boards.
-				if (success2 && doDatums && markerType == 1) {
-					if (target->visible && target->UID < 100) {
-						bool largeBoard = false;
-						success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle, largeBoard, numberOfDatums);
-						success &= success2;
-						if (!target->visible) {
-							for (int j = 0; j < markerNum0; j++) {
-								if (markerInfo0[j].idMatrix == target->patt_id) {
-									markerInfo0[j].idMatrix = -1;
-								}
-							}
-						}
-					}
-				}
 				if (success2 && target->visible) {
 					arx_mapper::Marker marker;
 					marker.uid = target->patt_id;
@@ -467,25 +451,6 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
 				ARMultiMarkerInfoT* map = target->config;
 				bool success2 = target->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
 				success &= success2;
-
-                if (success2 && doDatums && markerType == 0)
-                {
-                    if (target->visible && target->UID < 100)
-                    {
-                        bool largeBoard = false;
-                        success2 = target->updateWithDetectedDatums2(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, markerInfo0, m_ar3DHandle, largeBoard, numberOfDatums);
-                        success &= success2;
-                        if (!target->visible){
-                            for (int i = 0; i < map->marker_num; i++){
-                                for (int j = 0; j < markerNum0; j++){
-                                    if (markerInfo0[j].idMatrix == map->marker[i].patt_id){
-                                        markerInfo0[j].idMatrix = -1;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
 
 				if (success2 && target->visible) {
 					for (int i = 0; i < map->marker_num; i++) {
@@ -560,9 +525,6 @@ bool ARTrackerSquare::update(AR2VideoBufferT *buff0, AR2VideoBufferT *buff1, std
                     }
 				}
 				success = marker->updateWithDetectedMarkers(markerInfo0, markerNum0, m_ar3DHandle);
-				if (success && marker->visible && doDatums) {
-					success = marker->updateWithDetectedDatums(m_arHandle0->arParamLT->param, buff0->buffLuma, m_arHandle0->xsize, m_arHandle0->ysize, m_ar3DHandle);
-				}
 				if (success && marker->visible) success = marker->updateMapperWithMarkers(markers);
 			}
 		}
